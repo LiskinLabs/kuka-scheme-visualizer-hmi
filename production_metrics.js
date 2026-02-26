@@ -58,6 +58,14 @@ const HmiApp = {
         ids.forEach(id => this.dom[id] = document.getElementById(id));
         this.dom.dizilimGrid = document.querySelector('.dizilim-grid');
         this.dom.palletModeSelector = document.querySelector('.mode-selector');
+
+        // Cached Arrays
+        this.dom.dizilimButtons = [];
+        for (let i = 1; i <= 12; i++) {
+            this.dom.dizilimButtons[i] = document.getElementById('b' + i);
+        }
+        this.dom.modeButtons = [document.getElementById('m1'), document.getElementById('m2')];
+        this.dom.exportButtons = [document.getElementById('btnDomestic'), document.getElementById('btnExport')];
     },
 
     initEventListeners() {
@@ -114,15 +122,15 @@ const HmiApp = {
 
     setMode(isDual) {
         this.state.isDualPallet = !!isDual;
-        document.getElementById('m1').className = isDual ? 'mode-btn' : 'mode-btn active';
-        document.getElementById('m2').className = isDual ? 'mode-btn active' : 'mode-btn';
+        if (this.dom.modeButtons[0]) this.dom.modeButtons[0].className = isDual ? 'mode-btn' : 'mode-btn active';
+        if (this.dom.modeButtons[1]) this.dom.modeButtons[1].className = isDual ? 'mode-btn active' : 'mode-btn';
         this.render();
     },
 
     toggleExport(mode) {
         this.state.exportMode = mode;
-        document.getElementById('btnDomestic').className = mode ? 'mode-btn' : 'mode-btn active';
-        document.getElementById('btnExport').className = mode ? 'mode-btn active' : 'mode-btn';
+        if (this.dom.exportButtons[0]) this.dom.exportButtons[0].className = mode ? 'mode-btn' : 'mode-btn active';
+        if (this.dom.exportButtons[1]) this.dom.exportButtons[1].className = mode ? 'mode-btn active' : 'mode-btn';
         this.calc();
     },
 
@@ -169,7 +177,7 @@ const HmiApp = {
         const angles = [0, 0, 90, 0, 90, 90, 90, 0, 90, 0, 90, 90, 90];
 
         for (let i = 1; i <= 12; i++) {
-            const btn = document.getElementById('b' + i);
+            const btn = this.dom.dizilimButtons[i];
             if (btn) {
                 btn.className = (i === this.state.dizilimId) ? 'dizilim-btn active' : 'dizilim-btn';
                 if (this.state.currentProject !== '24050') {
@@ -179,8 +187,8 @@ const HmiApp = {
                 }
             }
         }
-        const m1 = document.getElementById('m1');
-        const m2 = document.getElementById('m2');
+        const m1 = this.dom.modeButtons[0];
+        const m2 = this.dom.modeButtons[1];
         if (m1) m1.className = this.state.isDualPallet ? 'mode-btn' : 'mode-btn active';
         if (m2) m2.className = this.state.isDualPallet ? 'mode-btn active' : 'mode-btn';
     },
@@ -324,6 +332,8 @@ const HmiApp = {
         const lengths = [];
         for (let i = 400; i <= 3000; i += 100) lengths.push(i);
 
+        const fragment = document.createDocumentFragment();
+
         widths.forEach(w => {
             lengths.forEach(l => {
                 this.state.width = w;
@@ -350,12 +360,14 @@ const HmiApp = {
 
                 card.appendChild(title);
                 card.appendChild(area);
-                grid.appendChild(card);
+                fragment.appendChild(card);
 
                 // Render loop onto this specific container using exact single visualizer logic
                 this._renderSinglePalletInside(area, true);
             });
         });
+
+        grid.appendChild(fragment);
 
         // Restore state
         this.state.dizilimId = backupD;
@@ -377,12 +389,24 @@ const HmiApp = {
         // Find or create pallet elements inside the specific area
         let pal = area.querySelector('.pallet') || area.querySelector('.pallet-wood');
         let pal2 = area.querySelector('.pallet2');
+        let radLayer = area.querySelector('.rad-layer');
+
         if (!pal) {
             pal = document.createElement('div');
             pal2 = document.createElement('div');
             pal2.className = 'pallet2';
+            radLayer = document.createElement('div');
+            radLayer.className = 'rad-layer';
+            radLayer.style.position = 'absolute';
+            radLayer.style.top = '0';
+            radLayer.style.left = '0';
+            radLayer.style.width = '100%';
+            radLayer.style.height = '100%';
+            radLayer.style.pointerEvents = 'none';
+
             area.appendChild(pal);
             area.appendChild(pal2);
+            area.appendChild(radLayer);
         }
 
         const is50 = this.state.currentProject === '24050';
@@ -437,107 +461,50 @@ const HmiApp = {
         }
 
         // Render Radiators
-        area.querySelectorAll('.rad, .rad-24050, .dim-line, .dim-label').forEach(el => el.remove());
-
+        let radiatorsHTML = '';
         let maxOv = 0;
+
+        radLayer.innerHTML = '';
+
         positions.forEach((p, i) => {
-            const rad = document.createElement('div');
             const thisAngle = isPerPieceAngle ? p.angle : angle;
             const isFlipped = is50 && thisAngle === 180;
             const isRotated = thisAngle === -90 || thisAngle === 90;
 
             const dualClass = (!is50 && this.state.isDualPallet) ? ' rad-dual' : '';
-            rad.className = is50 ? (isFlipped ? 'rad-24050 rad-24050-flipped' : 'rad-24050') : (isRotated ? 'rad rad-rotated' + dualClass : 'rad' + dualClass);
+            const className = is50 ? (isFlipped ? 'rad-24050 rad-24050-flipped' : 'rad-24050') : (isRotated ? 'rad rad-rotated' + dualClass : 'rad' + dualClass);
 
             const rw = is50 ? (this.state.length * s) : (thisAngle === 0 ? this.state.width * s : this.state.length * s);
             const rh = is50 ? (this.state.width * s) : (thisAngle === 0 ? this.state.length * s : this.state.width * s);
 
-            rad.style.width = Math.round(rw) + 'px';
-            rad.style.height = Math.round(rh) + 'px';
+            const wPx = Math.round(rw);
+            const hPx = Math.round(rh);
             const radLeft = Math.round(parseInt(pal.style.left) + (palSize.x * s / 2) + (p.x * s) - (rw / 2));
             const radTop = Math.round(parseInt(pal.style.top) + (palSize.y * s / 2) - (p.y * s) - (rh / 2));
-            rad.style.left = radLeft + 'px';
-            rad.style.top = radTop + 'px';
 
-            // Build inner HTML
             const numLabel = `${p.n}${isFlipped ? '↻' : ''}`;
-            if (is50) {
-                if (isMiniature) {
-                    // Lightweight miniature for 24050 — just body + ribs + number
-                    rad.innerHTML = `
-                      <div class="pkg-body"></div>
-                      <div class="pkg-card left"></div>
-                      <div class="pkg-card right"></div>
-                      <div class="pkg-num">${numLabel}</div>`;
-                } else {
-                    // Full packaged radiator render
-                    rad.innerHTML = `
-                      <div class="pkg-body"></div>
-                      <div class="pkg-card left"></div>
-                      <div class="pkg-card right"></div>
-                      <div class="pkg-corner tl"></div>
-                      <div class="pkg-corner bl"></div>
-                      <div class="pkg-corner tr"></div>
-                      <div class="pkg-corner br"></div>
-                      <div class="pkg-label">
-                        <div class="pkg-label-red">LIDER</div>
-                        <div class="pkg-label-white">
-                          <span>СТАЛЬНОЙ<br>РАДИАТОР</span>
-                        </div>
-                      </div>
-                      <div class="pkg-num">${numLabel}</div>`;
-                }
-            } else if (isMiniature) {
-                // Lightweight version for miniatures — just the plate + number
-                rad.innerHTML = `
-                  <div class="heat-plate" style="width:100%;height:100%;">
-                    <div class="pattern-area">
-                      <div class="rad-num" style="font-size:9px;padding:1px 3px;">${numLabel}</div>
-                    </div>
-                    <div class="long-pipe top"></div>
-                    <div class="long-pipe bottom"></div>
-                  </div>`;
-            } else {
-                rad.innerHTML = `
-                  <div class="heat-plate">
-                    <div class="pattern-area">
-                      <div class="rad-num">${numLabel}</div>
-                    </div>
-                    <div class="clip tl"></div>
-                    <div class="clip tr"></div>
-                    <div class="clip bl"></div>
-                    <div class="clip br"></div>
-                    <div class="long-pipe top"></div>
-                    <div class="long-pipe bottom"></div>
-                    <div class="port top-left"></div>
-                    <div class="port top-right"></div>
-                    <div class="port bottom-left"></div>
-                    <div class="port bottom-right"></div>
-                  </div>`;
-            }
-            rad.style.animationDelay = (i * 0.05) + 's';
+            const innerHTML = this.getRadiatorHTML(is50, isMiniature, numLabel, isFlipped);
+            const animDelay = (i * 0.05) + 's';
 
             // Overflow Check
             const ovX = Math.max(0, Math.abs(p.x) + (is50 ? this.state.length : (thisAngle === 0 ? this.state.width : this.state.length)) / 2 - palSize.x / 2);
             const ovY = Math.max(0, Math.abs(p.y) + (is50 ? this.state.width : (thisAngle === 0 ? this.state.length : this.state.width)) / 2 - palSize.y / 2);
             const ov = Math.max(ovX, ovY);
+            let extraClass = '';
             if (ov > 1) {
-                rad.classList.add('rad-overflow');
+                extraClass = ' rad-overflow';
                 maxOv = Math.max(maxOv, ov);
                 // Draw overhang dimensions only on single view
                 if (!isMiniature) {
-                    if (ovX > 0) this.drawDimLine(area, radLeft + (p.x > 0 ? rw : -20), radTop + rh / 2, 20, 0, Math.round(ovX), 'overhang');
-                    if (ovY > 0) this.drawDimLine(area, radLeft + rw / 2, radTop + (p.y > 0 ? -20 : rh), 0, 20, Math.round(ovY), 'overhang');
+                    if (ovX > 0) radiatorsHTML += this.getDimLineHTML(radLeft + (p.x > 0 ? rw : -20), radTop + rh / 2, 20, 0, Math.round(ovX), 'overhang');
+                    if (ovY > 0) radiatorsHTML += this.getDimLineHTML(radLeft + rw / 2, radTop + (p.y > 0 ? -20 : rh), 0, 20, Math.round(ovY), 'overhang');
                 }
             }
 
-            area.appendChild(rad);
+            radiatorsHTML += `<div class="${className}${extraClass}" style="width:${wPx}px; height:${hPx}px; left:${radLeft}px; top:${radTop}px; animation-delay:${animDelay}; pointer-events:auto;">${innerHTML}</div>`;
         });
 
-        // Draw some basic Gap dimensions if applicable (between first two radiators if gap > 0)
-        if (positions.length > 1 && (this.state.gapW > 0 || this.state.gapH > 0)) {
-            // We can dynamically add gap visualizations, but for simplicity, we'll update the Info panel instead to keep it clean.
-        }
+        radLayer.innerHTML = radiatorsHTML;
 
         // Info Panel - Only update if not miniature loop
         if (!isMiniature && this.dom.iW) {
@@ -561,6 +528,63 @@ const HmiApp = {
         }
     },
 
+    getRadiatorHTML(is50, isMiniature, numLabel, isFlipped) {
+        if (is50) {
+            if (isMiniature) {
+                // Lightweight miniature for 24050 — just body + ribs + number
+                return `
+                      <div class="pkg-body"></div>
+                      <div class="pkg-card left"></div>
+                      <div class="pkg-card right"></div>
+                      <div class="pkg-num">${numLabel}</div>`;
+            } else {
+                // Full packaged radiator render
+                return `
+                      <div class="pkg-body"></div>
+                      <div class="pkg-card left"></div>
+                      <div class="pkg-card right"></div>
+                      <div class="pkg-corner tl"></div>
+                      <div class="pkg-corner bl"></div>
+                      <div class="pkg-corner tr"></div>
+                      <div class="pkg-corner br"></div>
+                      <div class="pkg-label">
+                        <div class="pkg-label-red">LIDER</div>
+                        <div class="pkg-label-white">
+                          <span>СТАЛЬНОЙ<br>РАДИАТОР</span>
+                        </div>
+                      </div>
+                      <div class="pkg-num">${numLabel}</div>`;
+            }
+        } else if (isMiniature) {
+            // Lightweight version for miniatures — just the plate + number
+            return `
+                  <div class="heat-plate" style="width:100%;height:100%;">
+                    <div class="pattern-area">
+                      <div class="rad-num" style="font-size:9px;padding:1px 3px;">${numLabel}</div>
+                    </div>
+                    <div class="long-pipe top"></div>
+                    <div class="long-pipe bottom"></div>
+                  </div>`;
+        } else {
+            return `
+                  <div class="heat-plate">
+                    <div class="pattern-area">
+                      <div class="rad-num">${numLabel}</div>
+                    </div>
+                    <div class="clip tl"></div>
+                    <div class="clip tr"></div>
+                    <div class="clip bl"></div>
+                    <div class="clip br"></div>
+                    <div class="long-pipe top"></div>
+                    <div class="long-pipe bottom"></div>
+                    <div class="port top-left"></div>
+                    <div class="port top-right"></div>
+                    <div class="port bottom-left"></div>
+                    <div class="port bottom-right"></div>
+                  </div>`;
+        }
+    },
+
     updateVizHeader(count, angle, is50) {
         this.dom.vizTitle.textContent = `D${this.state.dizilimId}: ${this.state.width}x${this.state.length}mm ${is50 ? (this.state.exportMode ? '[Export]' : '[Domestic]') : ''}`;
         this.dom.statCount.textContent = count + ' ' + (this.config.translations[this.state.lang].pcs);
@@ -581,30 +605,16 @@ const HmiApp = {
         this.dom.radPositionsPanel.innerHTML = html + '</table>';
     },
 
-    drawDimLine(area, x, y, dx, dy, text, type) {
-        const line = document.createElement('div');
-        line.className = 'dim-line ' + type;
-        line.style.left = x + 'px';
-        line.style.top = y + 'px';
-
+    getDimLineHTML(x, y, dx, dy, text, type) {
+        let styleLine;
         if (dx > 0) {
-            line.style.width = dx + 'px';
-            line.style.height = '1px';
-            line.style.borderTop = '1px dashed #FF3D00';
+            styleLine = `width:${dx}px; height:1px; border-top:1px dashed #FF3D00;`;
         } else {
-            line.style.width = '1px';
-            line.style.height = dy + 'px';
-            line.style.borderLeft = '1px dashed #FF3D00';
+            styleLine = `width:1px; height:${dy}px; border-left:1px dashed #FF3D00;`;
         }
 
-        const label = document.createElement('div');
-        label.className = 'dim-label';
-        label.style.left = (x + dx / 2) + 'px';
-        label.style.top = (y + dy / 2) + 'px';
-        label.textContent = text;
-
-        area.appendChild(line);
-        area.appendChild(label);
+        return `<div class="dim-line ${type}" style="left:${x}px; top:${y}px; ${styleLine}"></div>
+                <div class="dim-label" style="left:${x + dx / 2}px; top:${y + dy / 2}px;">${text}</div>`;
     },
 
     updateRadPosition(idx, field, val) {
