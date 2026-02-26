@@ -1,0 +1,585 @@
+<!DOCTYPE HTML>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>KUKA Cell Visualizer - Pro Web</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Rajdhani:wght@500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="kuka_design_system.css">
+
+    <style>
+        .app-wrapper {
+            min-height: 100vh;
+            background: radial-gradient(circle at top right, #1A1F27 0%, #0A0E12 100%);
+            padding: 12px;
+        }
+
+        /* Print and All Layouts View */
+        .all-layouts-grid {
+            display: none;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+            padding-bottom: 20px;
+        }
+
+        .all-layouts-grid .pallet-area {
+            width: 300px;
+            height: 280px;
+            margin: 0 auto;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        .layout-card {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-md);
+            padding: 10px;
+            text-align: center;
+        }
+
+        .layout-card-title {
+            text-align: center;
+            color: var(--kuka-orange);
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        @media print {
+            body {
+                background: white !important;
+                color: black !important;
+                margin: 0;
+                padding: 0;
+            }
+
+            .app-wrapper {
+                background: none !important;
+                padding: 0 !important;
+                min-height: initial;
+            }
+
+            /* Hide UI controls */
+            .glass-panel:first-child,
+            .glass-panel:last-child {
+                display: none !important;
+            }
+
+            .main-grid {
+                display: block;
+                margin: 0;
+                padding: 0;
+            }
+
+            .center-panel {
+                border: none !important;
+                box-shadow: none !important;
+                margin: 0;
+                padding: 0;
+                background: none !important;
+            }
+
+            .center-panel .panel-body,
+            .center-panel .panel-header {
+                display: none !important;
+            }
+
+            .status-bar,
+            .footer,
+            .mode-selector,
+            .dizilim-grid,
+            .btn-primary,
+            .lang-selector,
+            #radPosResetBtn,
+            #radPositionsPanel,
+            #palletSizeControls {
+                display: none !important;
+            }
+
+            /* Black & White Technical Drawing Styles */
+            .pallet-area {
+                background: none !important;
+                border: 2px solid #000 !important;
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+                margin: 10px auto;
+                box-shadow: none !important;
+            }
+
+            .pallet,
+            .pallet2 {
+                background: #fff !important;
+                border: 2px solid #000 !important;
+                box-shadow: none !important;
+                background-image: none !important;
+            }
+
+            .rad {
+                border: 2px solid #000 !important;
+                background: #fff !important;
+                color: #000 !important;
+                text-shadow: none !important;
+                box-shadow: none !important;
+                background-image: none !important;
+            }
+
+            .rad span {
+                background: none !important;
+                color: #000 !important;
+                font-weight: bold;
+                text-shadow: none !important;
+            }
+
+            .dim-w,
+            .dim-h {
+                color: #000 !important;
+                font-weight: bold;
+                font-size: 10px !important;
+            }
+
+            .dim-line {
+                border-color: #000 !important;
+                border-style: dashed !important;
+                border-width: 1.5px !important;
+            }
+
+            .dim-label {
+                background: #fff !important;
+                color: #000 !important;
+                border: 1px solid #000 !important;
+                box-shadow: none !important;
+                font-weight: bold;
+            }
+
+            .axis-label {
+                background: #fff !important;
+                color: #000 !important;
+                border: none !important;
+                font-size: 14px !important;
+                font-weight: bold !important;
+            }
+
+            .center-mark {
+                border: 1px solid #000 !important;
+                background: none !important;
+                box-shadow: none !important;
+                animation: none !important;
+            }
+
+            .rad-overflow {
+                border-color: #000 !important;
+                box-shadow: none !important;
+                animation: none !important;
+                border-style: dashed !important;
+                background: #f9f9f9 !important;
+            }
+
+            /* Make sure 'All Layouts' Grid lays out correctly on print A4 without breaking blocks */
+            .all-layouts-grid {
+                display: block !important;
+                width: 100%;
+            }
+
+            .layout-card {
+                display: inline-block;
+                width: 48%;
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+                border: none !important;
+                background: none !important;
+                margin-bottom: 25px;
+                margin-right: 1%;
+                vertical-align: top;
+            }
+
+            .layout-card-title {
+                color: #000 !important;
+                font-size: 16px !important;
+                font-weight: bold;
+                margin-bottom: 8px;
+                text-align: left;
+                border-bottom: 2px solid #000;
+                padding-bottom: 5px;
+            }
+
+            @page {
+                margin: 1cm;
+                size: A4 landscape;
+            }
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        @media (min-width: 1200px) {
+            .main-grid {
+                grid-template-columns: 300px 1fr 320px;
+            }
+        }
+
+        @media (min-width: 768px) and (max-width: 1199px) {
+            .main-grid {
+                grid-template-columns: 300px 1fr;
+            }
+
+            .center-panel {
+                grid-column: 1 / -1;
+                order: -1;
+            }
+        }
+
+        @media (max-width: 767px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .status-bar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .dizilim-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .pallet-area {
+                height: 350px;
+            }
+        }
+
+        .rad-overflow {
+            border-color: #FF3D00 !important;
+            box-shadow: 0 0 15px rgba(255, 61, 0, 0.5) !important;
+            animation: overflowPulse 1s infinite !important;
+        }
+
+        @keyframes overflowPulse {
+            0% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.6;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+        /* Matrix Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.2s ease-out;
+        }
+
+        .modal-content {
+            background: #1A1F27;
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            max-width: 95vw;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            animation: slideUp 0.3s ease-out;
+        }
+
+        .matrix-table {
+            border-collapse: collapse;
+            width: 100%;
+            color: white;
+            font-size: 13px;
+            text-align: center;
+        }
+
+        .matrix-table th,
+        .matrix-table td {
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 8px 12px;
+        }
+
+        .matrix-table th {
+            background: #2a323d;
+            color: var(--kuka-orange);
+            position: sticky;
+            top: -20px;
+            z-index: 10;
+        }
+
+        .matrix-cell {
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 600;
+        }
+
+        .matrix-cell:hover {
+            background: var(--kuka-orange) !important;
+            color: black !important;
+            transform: scale(1.1);
+            position: relative;
+            z-index: 20;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+            border-radius: 4px;
+        }
+
+        .pal-1 {
+            background: rgba(76, 175, 80, 0.15);
+        }
+
+        .pal-2 {
+            background: rgba(3, 169, 244, 0.15);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-wrapper">
+        <!-- Top Status Bar -->
+        <div class="status-bar">
+            <div class="status-item"><i class="fas fa-robot"></i><span>KUKA KR 470 PA-2</span></div>
+            <div class="status-item"><i class="fas fa-layer-group"></i><span id="cellNumber">Cell 24049</span></div>
+            <div class="status-item"><i class="fas fa-clock"></i><span id="currentTime">--:--:--</span></div>
+            <div class="status-item" style="margin-left:auto">
+                <div class="status-dot pulse"></div><span>SYSTEM ONLINE</span>
+            </div>
+        </div>
+
+        <div class="main-grid">
+            <!-- Left Panel: Controls -->
+            <div class="glass-panel">
+                <div class="panel-header"><i class="fas fa-sliders-h"></i><span id="lblControls">Kontrol Paneli</span>
+                </div>
+                <div class="panel-body">
+                    <div class="input-group">
+                        <label id="lblProject">Proje</label>
+                        <select id="projectSelect" onchange="HmiApp.selectProject()" class="select-modern">
+                            <option value="24048" selected>24048 / 24049</option>
+                            <option value="24050">24050</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label id="lblWidth">Genişlik (mm)</label>
+                        <select id="inW" class="select-modern">
+                            <option value="200">200</option>
+                            <option value="300">300</option>
+                            <option value="400">400</option>
+                            <option value="500">500</option>
+                            <option value="600">600</option>
+                            <option value="900">900</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label id="lblLength">Uzunluk (mm)</label>
+                        <select id="inL" class="select-modern"></select>
+                    </div>
+
+                    <div class="gap-controls" style="margin-bottom: 12px;">
+                        <div class="input-group-small">
+                            <label id="lblGapW">X Boşluk</label>
+                            <input type="number" id="gapW" value="50" class="input-small">
+                        </div>
+                        <div class="input-group-small">
+                            <label id="lblGapH">Y Boşluk</label>
+                            <input type="number" id="gapH" value="14" class="input-small">
+                        </div>
+                    </div>
+
+                    <button class="btn-primary pulse-on-hover" onclick="HmiApp.calc()" id="btnCalc">
+                        <i class="fas fa-calculator"></i><span id="lblCalc">Hesapla</span>
+                    </button>
+
+                    <div class="mode-selector">
+                        <button class="mode-btn active" id="m1" onclick="HmiApp.setMode(0)"><i
+                                class="fas fa-square"></i><span id="lbl1Pal">1 Palet</span></button>
+                        <button class="mode-btn" id="m2" onclick="HmiApp.setMode(1)"><i class="fas fa-th"></i><span
+                                id="lbl2Pal">2
+                                Palet</span></button>
+                    </div>
+
+                    <div class="mode-selector" id="exportToggle" style="display:none;">
+                        <button class="mode-btn active" id="btnDomestic" onclick="HmiApp.toggleExport(0)"><i
+                                class="fas fa-home"></i><span id="lblDom">Domestic</span></button>
+                        <button class="mode-btn" id="btnExport" onclick="HmiApp.toggleExport(1)"><i
+                                class="fas fa-ship"></i><span id="lblExp">Export</span></button>
+                    </div>
+
+                    <div class="divider"></div>
+                    <label class="section-label" id="lblLayout">Dizilim Şeması</label>
+                    <div class="dizilim-grid">
+                        <!-- Buttons b1-b12 -->
+                        <button class="dizilim-btn active" id="b1" onclick="HmiApp.selD(1)">D1</button>
+                        <button class="dizilim-btn" id="b2" onclick="HmiApp.selD(2)">D2</button>
+                        <button class="dizilim-btn" id="b3" onclick="HmiApp.selD(3)">D3</button>
+                        <button class="dizilim-btn" id="b4" onclick="HmiApp.selD(4)">D4</button>
+                        <button class="dizilim-btn" id="b5" onclick="HmiApp.selD(5)">D5</button>
+                        <button class="dizilim-btn" id="b6" onclick="HmiApp.selD(6)">D6</button>
+                        <button class="dizilim-btn" id="b7" onclick="HmiApp.selD(7)">D7</button>
+                        <button class="dizilim-btn" id="b8" onclick="HmiApp.selD(8)">D8</button>
+                        <button class="dizilim-btn" id="b9" onclick="HmiApp.selD(9)">D9</button>
+                        <button class="dizilim-btn" id="b10" onclick="HmiApp.selD(10)">D10</button>
+                        <button class="dizilim-btn" id="b11" onclick="HmiApp.selD(11)">D11</button>
+                        <button class="dizilim-btn" id="b12" onclick="HmiApp.selD(12)">D12</button>
+                    </div>
+
+                    <div id="radPositionsPanel" style="display:none;"></div>
+                    <div id="radPosResetBtn" style="display:none;">
+                        <button class="mode-btn" onclick="HmiApp.calc()" style="width:100%;margin-top:4px;"><i
+                                class="fas fa-undo"></i> <span id="lblReset">Reset Positions</span></button>
+                    </div>
+
+                    <div class="gap-controls" id="palletSizeControls" style="display:none; margin-top:10px;">
+                        <div class="input-group-small"><label>Palet X</label><input type="number" id="palW50" value="0"
+                                class="input-small"></div>
+                        <div class="input-group-small"><label>Palet Y</label><input type="number" id="palH50" value="0"
+                                class="input-small"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Center Panel: Visualization -->
+            <div class="glass-panel center-panel">
+                <div class="panel-header gradient-header">
+                    <div class="viz-header-content">
+                        <div><i class="fas fa-cube"></i><span id="vizTitle">Dizilim 1...</span></div>
+                        <div class="viz-stats">
+                            <span class="stat-badge"><i class="fas fa-boxes"></i><span id="statCount">10</span></span>
+                            <span class="stat-badge"><i class="fas fa-rotate"></i><span id="statAngle">0°</span></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Display Area container acting as wrapper -->
+                <div id="singleViewArea">
+                    <div class="pallet-area" id="palletArea">
+                        <div class="pallet" id="pallet"></div>
+                        <div class="pallet2" id="pallet2" style="display:none;"></div>
+                        <div class="center-mark" id="centerMark"></div>
+                        <span class="axis-label axis-x" id="axisX">1200</span>
+                        <span class="axis-label axis-y" id="axisY">800</span>
+                    </div>
+                </div>
+
+                <!-- ALL LAYOUTS VIEW CONTAINER -->
+                <div class="all-layouts-grid" id="allLayoutsGrid"></div>
+
+            </div>
+
+            <!-- Right Panel: Info -->
+            <div class="glass-panel">
+                <div class="panel-header"><i class="fas fa-info-circle"></i><span id="lblInfo">Bilgiler</span></div>
+                <div class="panel-body">
+                    <button class="btn-primary" onclick="HmiApp.toggleAllLayouts()" id="btnToggleAll"
+                        style="background:linear-gradient(135deg, #0288D1 0%, #01579B 100%); margin-bottom: 10px;">
+                        <i class="fas fa-th-large"></i><span id="lblToggleAll">Tümünü Göster</span>
+                    </button>
+                    <button class="btn-primary" onclick="window.print()"
+                        style="background:linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%); margin-bottom: 10px;">
+                        <i class="fas fa-print"></i><span id="lblPrint">Yazdır (Print)</span>
+                    </button>
+                    <button class="btn-primary" onclick="HmiApp.openMatrixModal()" id="btnMatrix"
+                        style="background:linear-gradient(135deg, #FF9800 0%, #F57C00 100%); margin-bottom: 20px;">
+                        <i class="fas fa-table"></i><span id="lblMatrix">Dizilim Matrisi</span>
+                    </button>
+
+                    <div class="info-card">
+                        <div class="info-card-header"><i class="fas fa-box"></i><span id="lblRadiator">Radyatör</span>
+                        </div>
+                        <div class="info-row"><span id="lblW2">Genişlik:</span><span class="value-highlight"
+                                id="iW">200</span></div>
+                        <div class="info-row"><span id="lblL2">Uzunluk:</span><span class="value-highlight"
+                                id="iL">400</span></div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-card-header"><i class="fas fa-layer-group"></i><span
+                                id="lblPlacement">Yerleşim</span></div>
+                        <div class="info-row"><span id="lblAngle">Açı:</span><span id="iA">0°</span></div>
+                        <div class="info-row"><span id="lblPcs">Adet/kat:</span><span class="value-highlight"
+                                id="iC">10</span></div>
+                        <div class="info-row ext-info-row"
+                            style="margin-top: 5px; padding-top: 5px; border-top: 1px solid rgba(255,255,255,0.1);">
+                            <span id="lblLayers">Kat Sayısı:</span><span class="value-highlight" id="iLyr">10</span>
+                        </div>
+                        <div class="info-row ext-info-row"><span id="lblTotal">Toplam:</span><span
+                                class="value-highlight" id="iTot">100</span></div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-card-header"><i class="fas fa-pallet"></i><span id="lblPallet">Palet</span>
+                        </div>
+                        <div class="info-row"><span id="lblPalSize">Boyut:</span><span id="iP">1200x800</span></div>
+                    </div>
+                    <div class="lang-selector">
+                        <button class="lang-btn" id="btnRU" onclick="HmiApp.setLang('ru')">RU</button>
+                        <button class="lang-btn active" id="btnTR" onclick="HmiApp.setLang('tr')">TR</button>
+                        <button class="lang-btn" id="btnUZ" onclick="HmiApp.setLang('uz')">UZ</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <div class="footer-item"><span style="font-weight:700; color:var(--kuka-orange);">TEKNOROB</span><span>©
+                    2026</span></div>
+            <div class="footer-item"><i class="fas fa-microchip"></i><span>KSS V8.7.8 Web Pro</span></div>
+        </div>
+    </div>
+
+    </div>
+
+    <!-- External Dependencies & Logic -->
+    <script src="production_metrics.js"></script>
+</body>
+
+</html>

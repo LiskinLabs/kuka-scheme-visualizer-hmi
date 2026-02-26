@@ -1,0 +1,1690 @@
+/* ============================================
+   KUKA INDUSTRIAL DESIGN SYSTEM v3.0
+   Modern Industrial HMI Interface
+   ============================================ */
+
+:root {
+    /* KUKA Brand Colors */
+    --kuka-orange: #FF6B2C;
+    --kuka-orange-bright: #FF8A47;
+    --kuka-orange-dark: #E05520;
+
+    /* Dark Theme */
+    --bg-primary: #0A0E12;
+    --bg-secondary: #1A1F27;
+    --bg-surface: #252D38;
+    --bg-elevated: #2F3847;
+
+    /* Glass Effects */
+    --glass-bg: rgba(37, 45, 56, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    --glass-blur: 12px;
+
+    /* Status Colors */
+    --success: #00E676;
+    --warning: #FFD600;
+    --error: #FF3D00;
+    --info: #00A8E8;
+
+    /* Text Colors */
+    --text-primary: #E8EEF4;
+    --text-secondary: #A0AAB5;
+    --text-muted: #6B7580;
+
+    /* Pallet Colors */
+    --pallet-primary: #1565C0;
+    --pallet-dark: #0D47A1;
+    --pallet-light: #42A5F5;
+
+    /* Radiator Colors */
+    --radiator-primary: #607D8B;
+    --radiator-dark: #455A64;
+    --radiator-light: #78909C;
+
+    /* Typography */
+    --font-ui: 'Inter', system-ui, -apple-system, sans-serif;
+    --font-numbers: 'Rajdhani', monospace;
+
+    /* Spacing */
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 12px;
+    --space-lg: 16px;
+    --space-xl: 24px;
+
+    /* Border Radius */
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 16px;
+
+    /* Transitions */
+    --transition-fast: 0.15s ease;
+    --transition-base: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-slow: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ============================================
+   RESET & BASE
+   ============================================ */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-ui);
+    font-size: 14px;
+    color: var(--text-primary);
+    background: var(--bg-primary);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+}
+
+/* ============================================
+   GLASS PANEL
+   ============================================ */
+
+.glass-panel {
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--glass-shadow);
+    overflow: hidden;
+    transition: all var(--transition-base);
+    animation: floatPanel 6s ease-in-out infinite;
+}
+
+@keyframes floatPanel {
+
+    0%,
+    100% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-2px);
+    }
+}
+
+.glass-panel:hover {
+    border-color: rgba(255, 107, 44, 0.3);
+    box-shadow:
+        var(--glass-shadow),
+        0 0 20px rgba(255, 107, 44, 0.1);
+    animation: none;
+}
+
+.panel-header {
+    background: linear-gradient(135deg, rgba(255, 107, 44, 0.1) 0%, transparent 100%);
+    border-bottom: 1px solid var(--glass-border);
+    padding: var(--space-md) var(--space-lg);
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.panel-header i {
+    color: var(--kuka-orange);
+    font-size: 16px;
+}
+
+.gradient-header {
+    background: linear-gradient(135deg,
+            rgba(255, 107, 44, 0.15) 0%,
+            rgba(0, 168, 232, 0.1) 100%);
+}
+
+.panel-body {
+    padding: var(--space-lg);
+}
+
+/* ============================================
+   STATUS BAR
+   ============================================ */
+
+.status-bar {
+    display: flex;
+    align-items: center;
+    gap: var(--space-lg);
+    padding: var(--space-sm) var(--space-md);
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-md);
+    flex-wrap: wrap;
+}
+
+.status-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.status-item i {
+    color: var(--kuka-orange);
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--success);
+}
+
+.pulse {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+        box-shadow: 0 0 8px var(--success);
+    }
+
+    50% {
+        opacity: 0.6;
+        box-shadow: 0 0 16px var(--success);
+    }
+}
+
+/* ============================================
+   INPUTS & CONTROLS
+   ============================================ */
+
+.input-group {
+    margin-bottom: var(--space-md);
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: var(--space-xs);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.select-modern {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: var(--font-ui);
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 107, 44, 0.3);
+    border-radius: var(--radius-sm);
+    color: var(--kuka-orange);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.select-modern:hover {
+    border-color: var(--kuka-orange);
+    background: rgba(0, 0, 0, 0.4);
+}
+
+.select-modern:focus {
+    outline: none;
+    border-color: var(--kuka-orange-bright);
+    box-shadow: 0 0 0 3px rgba(255, 107, 44, 0.1);
+}
+
+.input-small {
+    width: 100%;
+    padding: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    font-family: var(--font-numbers);
+    text-align: center;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 107, 44, 0.3);
+    border-radius: var(--radius-sm);
+    color: var(--kuka-orange);
+    transition: all var(--transition-fast);
+}
+
+.input-small:focus {
+    outline: none;
+    border-color: var(--kuka-orange);
+    box-shadow: 0 0 8px rgba(255, 107, 44, 0.3);
+}
+
+/* ============================================
+   BUTTONS
+   ============================================ */
+
+.btn-primary {
+    width: 100%;
+    padding: 14px 20px;
+    font-size: 14px;
+    font-weight: 700;
+    font-family: var(--font-ui);
+    background: linear-gradient(135deg, var(--kuka-orange) 0%, var(--kuka-orange-dark) 100%);
+    border: none;
+    border-radius: var(--radius-md);
+    color: #FFFFFF;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-sm);
+    box-shadow:
+        0 4px 12px rgba(255, 107, 44, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    transition: all var(--transition-base);
+    margin-bottom: var(--space-md);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow:
+        0 6px 20px rgba(255, 107, 44, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+.pulse-on-hover:hover {
+    animation: btnPulse 0.6s ease;
+}
+
+@keyframes btnPulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.03);
+    }
+}
+
+/* ============================================
+   MODE SELECTOR
+   ============================================ */
+
+.mode-selector {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-lg);
+}
+
+.mode-btn {
+    padding: 12px;
+    font-size: 12px;
+    font-weight: 700;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-sm);
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-xs);
+    transition: all var(--transition-fast);
+}
+
+.mode-btn:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.mode-btn.active {
+    background: linear-gradient(135deg, rgba(0, 168, 232, 0.3) 0%, rgba(0, 168, 232, 0.1) 100%);
+    border-color: var(--info);
+    color: var(--info);
+    box-shadow: 0 0 12px rgba(0, 168, 232, 0.3);
+}
+
+/* ============================================
+   DIZILIM GRID
+   ============================================ */
+
+.divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent 0%, var(--glass-border) 50%, transparent 100%);
+    margin: var(--space-lg) 0;
+}
+
+.section-label {
+    display: block;
+    margin-bottom: var(--space-sm);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.dizilim-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+    margin-bottom: var(--space-md);
+}
+
+.dizilim-btn {
+    padding: 12px 8px;
+    font-size: 11px;
+    font-weight: 700;
+    font-family: var(--font-numbers);
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-sm);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    min-height: 44px;
+}
+
+.dizilim-btn:hover {
+    background: rgba(255, 255, 255, 0.05);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.dizilim-btn.active {
+    background: linear-gradient(135deg, var(--kuka-orange) 0%, var(--kuka-orange-dark) 100%);
+    border-color: var(--kuka-orange);
+    color: #FFFFFF;
+    box-shadow:
+        0 4px 12px rgba(255, 107, 44, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+/* ============================================
+   GAP CONTROLS
+   ============================================ */
+
+.gap-controls {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-sm);
+}
+
+.input-group-small label {
+    display: block;
+    margin-bottom: var(--space-xs);
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+/* ============================================
+   VISUALIZATION AREA
+   ============================================ */
+
+.viz-header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+}
+
+.viz-stats {
+    display: flex;
+    gap: var(--space-sm);
+}
+
+.stat-badge {
+    padding: 4px 10px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 107, 44, 0.3);
+    border-radius: var(--radius-sm);
+    font-size: 11px;
+    font-weight: 700;
+    font-family: var(--font-numbers);
+    color: var(--kuka-orange);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.pallet-area {
+    position: relative;
+    width: 100%;
+    height: 400px;
+    background: radial-gradient(circle at 50% 50%, rgba(26, 31, 37, 0.5) 0%, rgba(10, 14, 18, 0.8) 100%);
+    background-image:
+        linear-gradient(rgba(255, 255, 255, .05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, .05) 1px, transparent 1px);
+    background-size: 20px 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: var(--radius-sm);
+    margin-top: var(--space-md);
+    overflow: hidden;
+    border: 1px solid var(--glass-border);
+}
+
+.rad-overflow {
+    border-color: #FF3D00 !important;
+    box-shadow:
+        0 0 15px rgba(255, 61, 0, 0.6),
+        inset 0 0 10px rgba(255, 61, 0, 0.3) !important;
+    animation: overflowDanger 1s infinite alternate !important;
+}
+
+@keyframes overflowDanger {
+    from {
+        filter: brightness(1) saturate(1);
+    }
+
+    to {
+        filter: brightness(1.3) saturate(1.5);
+    }
+}
+
+.pallet {
+    position: absolute;
+    background: linear-gradient(135deg, #1E88E5 0%, #1976D2 50%, #1565C0 100%);
+    border: 5px solid #0D47A1;
+    border-radius: 4px;
+    box-shadow:
+        0 15px 45px rgba(0, 0, 0, 0.7),
+        inset 0 3px 6px rgba(255, 255, 255, 0.25),
+        inset 0 -3px 6px rgba(0, 0, 0, 0.25),
+        0 0 0 1px rgba(255, 107, 44, 0.3);
+    /* Blue plastic grid with prominent holes */
+    background-image:
+        /* Large circular holes */
+        radial-gradient(circle at 50% 50%,
+            rgba(0, 0, 0, 0.5) 0px,
+            rgba(0, 0, 0, 0.5) 3px,
+            transparent 3px,
+            transparent 100%),
+        /* Horizontal grid bars */
+        repeating-linear-gradient(0deg,
+            rgba(13, 71, 161, 0.5) 0px,
+            rgba(13, 71, 161, 0.5) 3px,
+            transparent 3px,
+            transparent 20px),
+        /* Vertical grid bars */
+        repeating-linear-gradient(90deg,
+            rgba(13, 71, 161, 0.5) 0px,
+            rgba(13, 71, 161, 0.5) 3px,
+            transparent 3px,
+            transparent 20px);
+    background-size: 20px 20px, 100% 20px, 20px 100%;
+    background-position: 10px 10px, 0 0, 0 0;
+    transition: all var(--transition-base);
+    animation: palletGlow 3s ease-in-out infinite;
+}
+
+@keyframes palletGlow {
+
+    0%,
+    100% {
+        box-shadow:
+            0 15px 45px rgba(0, 0, 0, 0.7),
+            inset 0 3px 6px rgba(255, 255, 255, 0.25),
+            inset 0 -3px 6px rgba(0, 0, 0, 0.25),
+            0 0 0 1px rgba(255, 107, 44, 0.3);
+    }
+
+    50% {
+        box-shadow:
+            0 15px 45px rgba(0, 0, 0, 0.7),
+            inset 0 3px 6px rgba(255, 255, 255, 0.25),
+            inset 0 -3px 6px rgba(0, 0, 0, 0.25),
+            0 0 0 2px rgba(255, 107, 44, 0.5);
+    }
+}
+
+.pallet2 {
+    position: absolute;
+    background-color: transparent;
+    border: 5px solid #0D47A1;
+    border-left: 5px dashed rgba(255, 255, 255, 0.5);
+    border-radius: 4px;
+    box-shadow:
+        0 15px 45px rgba(0, 0, 0, 0.7),
+        inset 0 3px 6px rgba(255, 255, 255, 0.25),
+        inset 0 -3px 6px rgba(0, 0, 0, 0.25);
+    /* Blue plastic grid with prominent holes */
+    background: linear-gradient(135deg, #1E88E5 0%, #1976D2 50%, #1565C0 100%);
+    background-image:
+        /* Large circular holes */
+        radial-gradient(circle at 50% 50%,
+            rgba(0, 0, 0, 0.5) 0px,
+            rgba(0, 0, 0, 0.5) 3px,
+            transparent 3px,
+            transparent 100%),
+        /* Horizontal grid bars */
+        repeating-linear-gradient(0deg,
+            rgba(13, 71, 161, 0.5) 0px,
+            rgba(13, 71, 161, 0.5) 3px,
+            transparent 3px,
+            transparent 20px),
+        /* Vertical grid bars */
+        repeating-linear-gradient(90deg,
+            rgba(13, 71, 161, 0.5) 0px,
+            rgba(13, 71, 161, 0.5) 3px,
+            transparent 3px,
+            transparent 20px);
+    background-size: 20px 20px, 100% 20px, 20px 100%;
+    background-position: 10px 10px, 0 0, 0 0;
+    animation: palletGlow 3s ease-in-out infinite 1.5s;
+}
+
+
+/* ============================================
+   RIGID HEAT EXCHANGER (RADIATOR) DESIGN
+   ============================================ */
+
+.rad {
+    position: absolute;
+    z-index: 10;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    animation: fadeInScale 0.3s ease backwards;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+    /* NO padding — heat-plate fills full footprint */
+    box-sizing: border-box;
+    overflow: visible;
+    /* allow pipes to protrude outside */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* --- Heat Plate (inner body) --- */
+.rad .heat-plate {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background-color: #7a7a7a;
+    border-radius: 3px;
+    box-sizing: border-box;
+    box-shadow:
+        inset 1px 1px 3px rgba(255, 255, 255, 0.3),
+        inset -2px -2px 6px rgba(0, 0, 0, 0.5),
+        3px 3px 8px rgba(0, 0, 0, 0.5);
+    border: 1px solid #555;
+    overflow: visible;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3px;
+}
+
+/* --- Ribbed Pattern Area --- */
+.rad .pattern-area {
+    width: 100%;
+    height: 100%;
+    border-radius: 3px;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.8);
+    background-color: #888;
+    background-image:
+        radial-gradient(circle at 10px 7px,
+            #222 0px,
+            #333 1.5px,
+            rgba(255, 255, 255, 0.5) 2.5px,
+            transparent 3.5px),
+        linear-gradient(to bottom,
+            #444 0px,
+            #888 1px,
+            #ccc 5px,
+            #fff 7px,
+            #ccc 9px,
+            #888 12px,
+            #444 14px);
+    background-size: 20px 14px, 100% 14px;
+    background-repeat: repeat, repeat-y;
+    overflow: visible;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* --- Number badge (inside pattern-area) --- */
+.rad .rad-num {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 13px;
+    font-weight: 900;
+    font-family: var(--font-numbers);
+    color: #fff;
+    z-index: 5;
+    background: rgba(0, 0, 0, 0.85);
+    padding: 2px 6px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    text-shadow: 0 1px 2px #000;
+    pointer-events: none;
+    white-space: nowrap;
+}
+
+/* --- Horizontal pipes (TOP / BOTTOM) --- */
+.rad .long-pipe {
+    position: absolute;
+    left: 10%;
+    right: 10%;
+    height: 6px;
+    background: linear-gradient(to bottom, #333 0%, #888 20%, #ddd 50%, #777 80%, #222 100%);
+    border: 1px solid #222;
+    border-radius: 3px;
+    z-index: 0;
+    box-shadow: 1px 2px 3px rgba(0, 0, 0, 0.5);
+    pointer-events: none;
+}
+
+.rad .long-pipe.top {
+    top: -3px;
+}
+
+.rad .long-pipe.bottom {
+    bottom: -3px;
+    transform: scaleY(-1);
+}
+
+/* --- Port connectors --- */
+.rad .port {
+    position: absolute;
+    width: 12%;
+    height: 6px;
+    min-width: 8px;
+    max-width: 20px;
+    background: linear-gradient(to right, #444, #aaa 30%, #eee 50%, #888 80%, #222);
+    border: 1px solid #333;
+    border-radius: 1px;
+    z-index: 2;
+    box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    pointer-events: none;
+}
+
+.rad .port::after {
+    content: '';
+    position: absolute;
+    left: 15%;
+    right: 15%;
+    top: 20%;
+    bottom: 20%;
+    background-color: #111;
+    border-radius: 2px;
+    box-shadow: inset 0 0 2px #000;
+}
+
+.rad .port.top-left {
+    top: -4px;
+    left: 10%;
+}
+
+.rad .port.top-right {
+    top: -4px;
+    right: 10%;
+}
+
+.rad .port.bottom-left {
+    bottom: -4px;
+    left: 10%;
+}
+
+.rad .port.bottom-right {
+    bottom: -4px;
+    right: 10%;
+}
+
+/* --- Mounting clips — 7% wide, 24% tall --- */
+.rad .clip {
+    position: absolute;
+    width: 7%;
+    height: 24%;
+    min-width: 6px;
+    max-width: 14px;
+    min-height: 14px;
+    max-height: 36px;
+    background: linear-gradient(to right, #666 0%, #ccc 20%, #ececec 50%, #ccc 80%, #666 100%);
+    border: 1px solid #444;
+    border-radius: 2px;
+    box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6), inset 0 0 1px #fff;
+    z-index: 4;
+    pointer-events: none;
+}
+
+.rad .clip.tl {
+    top: 14%;
+    left: 9%;
+}
+
+.rad .clip.tr {
+    top: 14%;
+    right: 9%;
+}
+
+.rad .clip.bl {
+    bottom: 14%;
+    left: 9%;
+}
+
+.rad .clip.br {
+    bottom: 14%;
+    right: 9%;
+}
+
+/* ==========================================
+   PROJECT 24050: PACKAGED PANEL RADIATOR
+   ========================================== */
+
+/* --- Outer container --- */
+.rad-24050 {
+    position: absolute;
+    z-index: 10;
+    cursor: pointer;
+    overflow: visible;
+    box-sizing: border-box;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    animation: fadeInScale 0.3s ease backwards;
+}
+
+/* --- Radiator body: white fins with top/bottom profiles --- */
+.rad-24050 .pkg-body {
+    position: absolute;
+    inset: 0;
+    background-color: #f0f0f0;
+    background-image:
+        /* top rail — small fixed pixel size */
+        linear-gradient(to bottom,
+            #d5d5d5 0px, #ffffff 3px, #f0f0f0 8px, #bbbbbb 12px, transparent 12px),
+        /* bottom rail — small fixed pixel size */
+        linear-gradient(to top,
+            #c8c8c8 0px, #ffffff 3px, #f0f0f0 8px, #bbbbbb 12px, transparent 12px),
+        /* vertical ribs — fixed 20px tile so they look realistic at any size */
+        repeating-linear-gradient(to right,
+            #c0c0c0 0px,
+            #e8e8e8 4px,
+            #ffffff 10px,
+            #ffffff 12px,
+            #e8e8e8 16px,
+            #c0c0c0 20px);
+    background-size: 100% 100%, 100% 100%, 20px 100%;
+    background-repeat: no-repeat, no-repeat, repeat-x;
+    border-radius: 2px;
+    box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.07), 2px 3px 10px rgba(0, 0, 0, 0.25);
+}
+
+/* Shrink-wrap gloss overlay */
+.rad-24050 .pkg-body::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+        linear-gradient(125deg, transparent 40%, rgba(255, 255, 255, 0.5) 45%,
+            rgba(255, 255, 255, 0.8) 48%, transparent 55%),
+        linear-gradient(60deg, transparent 20%, rgba(255, 255, 255, 0.2) 30%, transparent 45%);
+    pointer-events: none;
+}
+
+/* --- Cardboard packaging on left/right --- */
+.rad-24050 .pkg-card {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 12%;
+    min-width: 8px;
+    max-width: 30px;
+    background-color: #bfa588;
+    background-image: repeating-linear-gradient(to bottom,
+            transparent 0px, transparent 3px,
+            rgba(0, 0, 0, 0.06) 4px, rgba(0, 0, 0, 0.06) 5px);
+    border: 1px solid #9c8061;
+    z-index: 2;
+    box-shadow: inset -2px 0 6px rgba(0, 0, 0, 0.1);
+}
+
+.rad-24050 .pkg-card.left {
+    left: 0;
+    border-right: 2px solid #8c7051;
+}
+
+.rad-24050 .pkg-card.right {
+    right: 0;
+    border-left: 2px solid #8c7051;
+    transform: scaleX(-1);
+}
+
+/* --- Corner guards (black plastic) --- */
+.rad-24050 .pkg-corner {
+    position: absolute;
+    width: 14%;
+    min-width: 10px;
+    max-width: 28px;
+    height: 20%;
+    min-height: 14px;
+    max-height: 42px;
+    background-color: #1a1a1a;
+    z-index: 3;
+    background-image:
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.15) 0%, transparent 20%, rgba(0, 0, 0, 0.6) 100%),
+        linear-gradient(to right, rgba(255, 255, 255, 0.1) 0%, transparent 15%);
+    box-shadow: inset 1px 1px 2px rgba(255, 255, 255, 0.15), 2px 3px 6px rgba(0, 0, 0, 0.4);
+    border: 1px solid #000;
+    border-radius: 3px;
+}
+
+.rad-24050 .pkg-corner.tl {
+    top: -1px;
+    left: -1px;
+    border-radius: 5px 2px 6px 2px;
+}
+
+.rad-24050 .pkg-corner.bl {
+    bottom: -1px;
+    left: -1px;
+    border-radius: 2px 5px 2px 6px;
+}
+
+.rad-24050 .pkg-corner.tr {
+    top: -1px;
+    right: -1px;
+    border-radius: 2px 5px 2px 6px;
+}
+
+.rad-24050 .pkg-corner.br {
+    bottom: -1px;
+    right: -1px;
+    border-radius: 5px 2px 6px 2px;
+}
+
+/* --- Label sticker --- */
+.rad-24050 .pkg-label {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    /* Ensure label stays landscape and fits elegantly */
+    width: clamp(60px, 60%, 140px);
+    aspect-ratio: 2.2 / 1;
+    height: auto;
+    max-height: 80%;
+
+    /* Setup container for font scaling */
+    container-type: size;
+    container-name: label;
+
+    background: #fff;
+    box-shadow: 1px 2px 6px rgba(0, 0, 0, 0.25);
+    display: flex;
+    z-index: 4;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.rad-24050 .pkg-label-red {
+    width: 35%;
+    background-color: #b72025;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: Arial, sans-serif;
+    font-size: clamp(6px, 18cqh, 14px);
+    font-weight: bold;
+    letter-spacing: 1px;
+    padding: 2px;
+    text-align: center;
+}
+
+.rad-24050 .pkg-label-white {
+    width: 65%;
+    background: #fff;
+    padding: 2px 4px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    font-family: Arial, sans-serif;
+    color: #444;
+    font-size: clamp(5px, 12cqh, 10px);
+    overflow: hidden;
+}
+
+.rad-24050 .pkg-label-white span {
+    color: #b72025;
+    font-weight: bold;
+    font-size: clamp(5px, 14cqh, 11px);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* --- Number badge --- */
+.rad-24050 .pkg-num {
+    position: absolute;
+    bottom: 4%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.6);
+    color: #fff;
+    font-size: clamp(8px, 2.5%, 13px);
+    font-weight: 800;
+    padding: 1px 5px;
+    border-radius: 3px;
+    z-index: 5;
+    white-space: nowrap;
+    pointer-events: none;
+    font-family: var(--font-numbers);
+}
+
+/* Flipped variant (180° radiators) — mirror the label */
+.rad-24050-flipped .pkg-body {
+    transform: rotate(180deg);
+}
+
+.rad-24050-flipped .pkg-label {
+    transform: translate(-50%, -50%) rotate(180deg);
+}
+
+/* Hover glow */
+.rad-24050:hover {
+    transform: translateY(-3px) scale(1.04);
+    z-index: 100;
+    filter: brightness(1.1) contrast(1.05);
+}
+
+.rad.rad-rotated {
+    padding: 0;
+    /* no side padding — heat-plate fills full width */
+}
+
+/* Vertical pipe on LEFT/RIGHT sides */
+.rad.rad-rotated .long-pipe {
+    top: 10%;
+    bottom: 10%;
+    left: auto;
+    right: auto;
+    width: 6px;
+    height: auto;
+    background: linear-gradient(to right, #333 0%, #888 20%, #ddd 50%, #777 80%, #222 100%);
+    border: 1px solid #222;
+    border-radius: 3px;
+    box-shadow: 2px 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.rad.rad-rotated .long-pipe.top {
+    left: -3px;
+    right: auto;
+    transform: none;
+}
+
+.rad.rad-rotated .long-pipe.bottom {
+    right: -3px;
+    left: auto;
+    top: 10%;
+    bottom: 10%;
+    transform: scaleX(-1);
+}
+
+/* Ports on left/right — portrait of the normal port (rotated 90°) */
+.rad.rad-rotated .port {
+    width: 6px;
+    height: 12%;
+    min-height: 8px;
+    max-height: 20px;
+    background: linear-gradient(to bottom, #444, #aaa 30%, #eee 50%, #888 80%, #222);
+    border: 1px solid #333;
+    border-radius: 1px;
+    box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.rad.rad-rotated .port::after {
+    left: 20%;
+    right: 20%;
+    top: 15%;
+    bottom: 15%;
+    border-radius: 2px;
+}
+
+.rad.rad-rotated .port.top-left {
+    left: -4px;
+    top: 10%;
+    bottom: auto;
+}
+
+.rad.rad-rotated .port.top-right {
+    left: -4px;
+    bottom: 10%;
+    top: auto;
+}
+
+.rad.rad-rotated .port.bottom-left {
+    right: -4px;
+    top: 10%;
+    left: auto;
+    bottom: auto;
+}
+
+.rad.rad-rotated .port.bottom-right {
+    right: -4px;
+    bottom: 10%;
+    top: auto;
+    left: auto;
+}
+
+/* Clips become horizontal bars in rotated mode */
+.rad.rad-rotated .clip {
+    width: 24%;
+    height: 7%;
+    min-width: 14px;
+    max-width: 36px;
+    min-height: 6px;
+    max-height: 14px;
+    background: linear-gradient(to bottom, #666 0%, #ccc 20%, #ececec 50%, #ccc 80%, #666 100%);
+}
+
+.rad.rad-rotated .clip.tl {
+    top: 9%;
+    left: 14%;
+    bottom: auto;
+}
+
+.rad.rad-rotated .clip.tr {
+    top: 9%;
+    right: 14%;
+    left: auto;
+    bottom: auto;
+}
+
+.rad.rad-rotated .clip.bl {
+    bottom: 9%;
+    left: 14%;
+    top: auto;
+}
+
+.rad.rad-rotated .clip.br {
+    bottom: 9%;
+    right: 14%;
+    top: auto;
+    left: auto;
+}
+
+/* Rotated ribbing — vertical stripes */
+.rad.rad-rotated .pattern-area {
+    background-image:
+        radial-gradient(circle at 7px 10px,
+            #222 0px, #333 1.5px, rgba(255, 255, 255, 0.5) 2.5px, transparent 3.5px),
+        linear-gradient(to right,
+            #444 0px, #888 1px, #ccc 5px, #fff 7px, #ccc 9px, #888 12px, #444 14px);
+    background-size: 14px 20px, 14px 100%;
+    background-repeat: repeat, repeat-x;
+}
+
+/* dim labels inside rad */
+.rad .dim-w,
+.rad .dim-h {
+    display: none;
+}
+
+.rad span {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 14px;
+    z-index: 2;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.dim-w,
+.dim-h {
+    position: absolute;
+    font-size: 9px;
+    color: rgba(255, 255, 255, 0.7);
+    font-family: var(--font-ui);
+    z-index: 1;
+    pointer-events: none;
+}
+
+.dim-w {
+    bottom: 2px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.dim-h {
+    left: 2px;
+    top: 50%;
+    transform: translateY(-50%) rotate(-90deg);
+}
+
+.dim-line {
+    position: absolute;
+    z-index: 20;
+    pointer-events: none;
+}
+
+.dim-label {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    background: var(--error);
+    color: white;
+    font-size: 10px;
+    font-weight: bold;
+    padding: 2px 4px;
+    border-radius: 3px;
+    z-index: 21;
+    pointer-events: none;
+    box-shadow: 0 0 5px rgba(255, 61, 0, 0.5);
+}
+
+
+
+
+.rad:hover {
+    transform: translateY(-3px) scale(1.06);
+    box-shadow:
+        0 12px 32px rgba(255, 107, 44, 0.7),
+        0 0 20px rgba(255, 107, 44, 0.35),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    z-index: 100;
+    border-color: var(--kuka-orange);
+    filter: brightness(1.15) contrast(1.05);
+}
+
+.rad:active {
+    transform: translateY(-1px) scale(1.02);
+    filter: brightness(0.95);
+    box-shadow:
+        0 2px 6px rgba(0, 0, 0, 0.6),
+        inset 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.center-mark {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border: 2px solid var(--kuka-orange);
+    border-radius: 50%;
+    background: rgba(255, 107, 44, 0.3);
+    box-shadow: 0 0 12px rgba(255, 107, 44, 0.6);
+    z-index: 5;
+    animation: centerPulse 2s ease-in-out infinite;
+}
+
+@keyframes centerPulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 12px rgba(255, 107, 44, 0.6);
+    }
+
+    50% {
+        transform: scale(1.2);
+        box-shadow: 0 0 20px rgba(255, 107, 44, 0.9);
+    }
+}
+
+.axis-label {
+    position: absolute;
+    font-size: 13px;
+    font-weight: 800;
+    font-family: var(--font-numbers);
+    color: #fff;
+    background: var(--kuka-orange);
+    padding: 4px 10px;
+    border-radius: var(--radius-sm);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+    z-index: 200;
+}
+
+.axis-x {
+    bottom: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.axis-y {
+    left: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+/* ============================================
+   INFO CARDS
+   ============================================ */
+
+.info-card {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-sm);
+    padding: var(--space-md);
+    margin-bottom: var(--space-md);
+    transition: all var(--transition-fast);
+}
+
+.info-card:hover {
+    background: rgba(0, 0, 0, 0.3);
+    border-color: rgba(255, 107, 44, 0.3);
+}
+
+.info-card-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-sm);
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--kuka-orange);
+    padding-bottom: var(--space-sm);
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.value-highlight {
+    font-weight: 700;
+    font-family: var(--font-numbers);
+    color: var(--kuka-orange);
+    font-size: 14px;
+}
+
+/* ============================================
+   LEGEND
+   ============================================ */
+
+.legend {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-sm);
+    padding: var(--space-md);
+    margin-top: var(--space-lg);
+}
+
+.legend-title {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+    margin-bottom: var(--space-sm);
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: 4px 0;
+    font-size: 11px;
+    color: var(--text-secondary);
+}
+
+.legend-color {
+    width: 20px;
+    height: 12px;
+    border-radius: 3px;
+    border: 1px solid rgba(0, 0, 0, 0.3);
+}
+
+.radiator-color {
+    background: linear-gradient(135deg, var(--radiator-light) 0%, var(--radiator-dark) 100%);
+}
+
+.pallet-color {
+    background: linear-gradient(135deg, var(--pallet-primary) 0%, var(--pallet-dark) 100%);
+}
+
+/* ============================================
+   LANGUAGE SELECTOR
+   ============================================ */
+
+.lang-selector {
+    display: flex;
+    gap: var(--space-xs);
+    margin-top: var(--space-lg);
+}
+
+.lang-btn {
+    flex: 1;
+    padding: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-sm);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.lang-btn:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.lang-btn.active {
+    background: var(--kuka-orange);
+    border-color: var(--kuka-orange);
+    color: #FFFFFF;
+}
+
+/* ============================================
+   FOOTER
+   ============================================ */
+
+.footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-md);
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-md);
+    margin-top: var(--space-md);
+    font-size: 11px;
+    color: var(--text-muted);
+    flex-wrap: wrap;
+    gap: var(--space-md);
+}
+
+.footer-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+}
+
+.footer-item i {
+    color: var(--kuka-orange);
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+@media (max-width: 767px) {
+    .status-bar {
+        font-size: 11px;
+        gap: var(--space-sm);
+    }
+
+    .pallet-area {
+        height: 280px;
+    }
+
+    .dizilim-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 4px;
+    }
+
+    .dizilim-btn {
+        padding: 10px 6px;
+        font-size: 10px;
+        min-height: 40px;
+    }
+
+    /* Mobile-optimized radiator — smaller pattern */
+    .rad {
+        border-width: 1px;
+        font-size: 9px;
+        font-weight: 700;
+        box-shadow:
+            0 2px 6px rgba(0, 0, 0, 0.5),
+            inset 0 1px 0 rgba(255, 255, 255, 0.15);
+        background-image:
+            linear-gradient(160deg,
+                rgba(255, 255, 255, 0.1) 0%,
+                transparent 50%,
+                rgba(0, 0, 0, 0.1) 100%),
+            repeating-linear-gradient(180deg,
+                rgba(255, 255, 255, 0.12) 0px,
+                transparent 1px,
+                rgba(0, 0, 0, 0.15) 2px,
+                transparent 3px,
+                transparent 4px);
+        background-size: 100% 100%, 100% 4px;
+    }
+
+    .rad-rotated {
+        background-image:
+            linear-gradient(160deg,
+                rgba(255, 255, 255, 0.1) 0%,
+                transparent 50%,
+                rgba(0, 0, 0, 0.1) 100%),
+            repeating-linear-gradient(90deg,
+                rgba(255, 255, 255, 0.12) 0px,
+                transparent 1px,
+                rgba(0, 0, 0, 0.15) 2px,
+                transparent 3px,
+                transparent 4px);
+        background-size: 100% 100%, 4px 100%;
+    }
+
+    /* Mobile-optimized pallet — smaller grid */
+    .pallet,
+    .pallet2 {
+        border-width: 3px;
+        background-image:
+            radial-gradient(circle at 50% 50%,
+                rgba(0, 0, 0, 0.4) 0px,
+                rgba(0, 0, 0, 0.4) 2px,
+                transparent 2px,
+                transparent 100%),
+            repeating-linear-gradient(0deg,
+                rgba(13, 71, 161, 0.4) 0px,
+                rgba(13, 71, 161, 0.4) 2px,
+                transparent 2px,
+                transparent 12px),
+            repeating-linear-gradient(90deg,
+                rgba(13, 71, 161, 0.4) 0px,
+                rgba(13, 71, 161, 0.4) 2px,
+                transparent 2px,
+                transparent 12px);
+        background-size: 12px 12px, 100% 12px, 12px 100%;
+        background-position: 6px 6px, 0 0, 0 0;
+        box-shadow:
+            0 8px 24px rgba(0, 0, 0, 0.6),
+            inset 0 2px 4px rgba(255, 255, 255, 0.2);
+    }
+
+    .footer {
+        flex-direction: column;
+        gap: var(--space-sm);
+        text-align: center;
+    }
+}
+
+/* ============================================
+   SCROLLBAR
+   ============================================ */
+
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+/* Project 24050 Wooden Pallet */
+.pallet-wood {
+    position: absolute;
+    background-color: #A67B5B;
+    background-image:
+        repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.3) 0px, rgba(0, 0, 0, 0.3) 2px, transparent 2px, transparent 40px),
+        repeating-linear-gradient(0deg, transparent 0px, transparent 15px, rgba(90, 50, 20, 0.15) 16px, rgba(90, 50, 20, 0.15) 18px, transparent 19px, transparent 30px),
+        radial-gradient(ellipse at 30% 20%, rgba(90, 50, 20, 0.5) 0%, transparent 12px),
+        radial-gradient(ellipse at 70% 80%, rgba(90, 50, 20, 0.4) 0%, transparent 18px);
+    border: 4px solid #5C3A21;
+    border-radius: 2px;
+    box-shadow: 0 15px 45px rgba(0, 0, 0, 0.6), inset 0 2px 4px rgba(255, 255, 255, 0.2), inset 0 -2px 4px rgba(0, 0, 0, 0.4);
+    transition: all var(--transition-base);
+}
+
+/* Project 24050 Packaged Radiator Visual */
+.rad-24050 {
+    position: absolute;
+    /* Clean sleeker aluminum base */
+    background-color: #E2E8F0;
+    /* Subtle tight fin lines */
+    background-image:
+        /* Rim shading */
+        linear-gradient(90deg, rgba(255, 255, 255, 0.7) 0%, transparent 5%, transparent 95%, rgba(0, 0, 0, 0.15) 100%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.5) 0%, transparent 3%, transparent 97%, rgba(0, 0, 0, 0.1) 100%),
+        /* Tight horizontal fins */
+        repeating-linear-gradient(180deg,
+            transparent 0px,
+            transparent 3px,
+            rgba(0, 0, 0, 0.06) 4px,
+            rgba(255, 255, 255, 0.5) 5px);
+    border: 2px solid #94A3B8;
+    border-top: 2px solid #FFFFFF;
+    border-left: 2px solid #F1F5F9;
+    border-bottom: 2px solid #475569;
+    border-right: 2px solid #64748B;
+    border-radius: 2px;
+    text-align: center;
+    font-size: 11px;
+    font-weight: 800;
+    font-family: var(--font-numbers);
+    color: #1E293B;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.9);
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow:
+        0 4px 12px rgba(0, 0, 0, 0.5),
+        0 1px 3px rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.15);
+    animation: fadeSlideIn 0.5s ease-out forwards;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.rad-24050:hover {
+    transform: scale(1.03);
+    box-shadow:
+        0 6px 18px rgba(0, 0, 0, 0.6),
+        0 0 12px rgba(200, 200, 200, 0.6);
+}
+
+.rad-24050-flipped {
+    /* 180° rotated pieces get a slightly different tint */
+    background-color: #F5F5F5;
+    border-color: #AAAAAA;
+}
+
+/* Radiator Position Editor Table */
+.rad-pos-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11px;
+    margin-top: 6px;
+}
+
+.rad-pos-table th {
+    background: rgba(255, 107, 44, 0.2);
+    color: var(--kuka-orange);
+    padding: 4px 2px;
+    text-align: center;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid rgba(255, 107, 44, 0.3);
+}
+
+.rad-pos-table td {
+    padding: 2px 1px;
+    text-align: center;
+}
+
+.rad-pos-num {
+    color: var(--kuka-orange);
+    font-weight: 800;
+    font-family: var(--font-numbers);
+    font-size: 12px;
+    width: 20px;
+}
+
+.rad-pos-input {
+    width: 56px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    color: #fff;
+    font-family: var(--font-numbers);
+    font-size: 11px;
+    text-align: center;
+    padding: 3px 2px;
+    transition: border-color 0.2s;
+}
+
+.rad-pos-input:focus {
+    outline: none;
+    border-color: var(--kuka-orange);
+    box-shadow: 0 0 4px rgba(255, 107, 44, 0.3);
+}
+
+.rad-pos-angle {
+    color: rgba(255, 255, 255, 0.5);
+    font-family: var(--font-numbers);
+    font-size: 10px;
+    width: 30px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 107, 44, 0.3);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 107, 44, 0.5);
+}
