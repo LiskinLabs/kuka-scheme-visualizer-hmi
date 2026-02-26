@@ -393,8 +393,15 @@ const HmiApp = {
 
         if (!pal) {
             pal = document.createElement('div');
+            pal.className = 'pallet';
+            area.appendChild(pal);
+        }
+        if (!pal2) {
             pal2 = document.createElement('div');
             pal2.className = 'pallet2';
+            area.appendChild(pal2);
+        }
+        if (!radLayer) {
             radLayer = document.createElement('div');
             radLayer.className = 'rad-layer';
             radLayer.style.position = 'absolute';
@@ -403,9 +410,6 @@ const HmiApp = {
             radLayer.style.width = '100%';
             radLayer.style.height = '100%';
             radLayer.style.pointerEvents = 'none';
-
-            area.appendChild(pal);
-            area.appendChild(pal2);
             area.appendChild(radLayer);
         }
 
