@@ -30,7 +30,7 @@
     /* Text Colors */
     --text-primary: #E8EEF4;
     --text-secondary: #A0AAB5;
-    --text-muted: #6B7580;
+    --text-muted: #94A3B8;
 
     /* Pallet Colors */
     --pallet-primary: #1565C0;
@@ -281,7 +281,7 @@ body {
     background: linear-gradient(135deg, var(--kuka-orange) 0%, var(--kuka-orange-dark) 100%);
     border: none;
     border-radius: var(--radius-md);
-    color: #FFFFFF;
+    color: #0A0E12;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -292,6 +292,10 @@ body {
         inset 0 1px 0 rgba(255, 255, 255, 0.2);
     transition: all var(--transition-base);
     margin-bottom: var(--space-md);
+}
+
+#btnToggleAll {
+    color: #FFFFFF;
 }
 
 .btn-primary:hover {
@@ -410,7 +414,7 @@ body {
 .dizilim-btn.active {
     background: linear-gradient(135deg, var(--kuka-orange) 0%, var(--kuka-orange-dark) 100%);
     border-color: var(--kuka-orange);
-    color: #FFFFFF;
+    color: #0A0E12;
     box-shadow:
         0 4px 12px rgba(255, 107, 44, 0.4),
         inset 0 1px 0 rgba(255, 255, 255, 0.2);
@@ -1268,7 +1272,7 @@ body {
     font-size: 13px;
     font-weight: 800;
     font-family: var(--font-numbers);
-    color: #fff;
+    color: #0A0E12;
     background: var(--kuka-orange);
     padding: 4px 10px;
     border-radius: var(--radius-sm);
@@ -1335,49 +1339,6 @@ body {
     font-size: 14px;
 }
 
-/* ============================================
-   LEGEND
-   ============================================ */
-
-.legend {
-    background: rgba(0, 0, 0, 0.2);
-    border: 1px solid var(--glass-border);
-    border-radius: var(--radius-sm);
-    padding: var(--space-md);
-    margin-top: var(--space-lg);
-}
-
-.legend-title {
-    font-size: 10px;
-    font-weight: 700;
-    color: var(--text-muted);
-    letter-spacing: 0.5px;
-    margin-bottom: var(--space-sm);
-}
-
-.legend-item {
-    display: flex;
-    align-items: center;
-    gap: var(--space-sm);
-    padding: 4px 0;
-    font-size: 11px;
-    color: var(--text-secondary);
-}
-
-.legend-color {
-    width: 20px;
-    height: 12px;
-    border-radius: 3px;
-    border: 1px solid rgba(0, 0, 0, 0.3);
-}
-
-.radiator-color {
-    background: linear-gradient(135deg, var(--radiator-light) 0%, var(--radiator-dark) 100%);
-}
-
-.pallet-color {
-    background: linear-gradient(135deg, var(--pallet-primary) 0%, var(--pallet-dark) 100%);
-}
 
 /* ============================================
    LANGUAGE SELECTOR
@@ -1409,7 +1370,7 @@ body {
 .lang-btn.active {
     background: var(--kuka-orange);
     border-color: var(--kuka-orange);
-    color: #FFFFFF;
+    color: #0A0E12;
 }
 
 /* ============================================
