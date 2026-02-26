@@ -1,0 +1,18 @@
+{
+  "name": "kuka-scheme-visualizer",
+  "version": "1.0.0",
+  "description": "KUKA Industrial Scheme Visualizer HMI",
+  "main": "production_metrics.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo "Error: no test specified" && exit 0"
+  },
+  "keywords": [
+    "kuka",
+    "hmi",
+    "robotics",
+    "visualization"
+  ],
+  "author": "Silvestr Liskin",
+  "license": "MIT"
+}
