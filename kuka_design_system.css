@@ -978,6 +978,9 @@ body {
 .export-active .blueprint-only {
     display: block !important;
 }
+.export-active .axis-label {
+    display: none !important;
+}
 
 /* ============================================
    RESPONSIVE

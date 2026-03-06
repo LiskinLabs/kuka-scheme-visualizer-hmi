@@ -1106,8 +1106,8 @@ const HmiApp = {
                 if (rightNeighbor && minGapX >= 0 && minGapX < 2000) {
                     let b2 = rightNeighbor;
                     let midY = (Math.max(b1.bottom, b2.bottom) + Math.min(b1.top, b2.top)) / 2;
-                    let scrX = Math.round(parseInt(pal.style.left) + (palSize.x * s / 2) + b1.right * s);
-                    let scrY = Math.round(parseInt(pal.style.top) + (palSize.y * s / 2) - midY * s);
+                    let scrX = Math.round((palSize.x * s / 2) + b1.right * s);
+                    let scrY = Math.round((palSize.y * s / 2) - midY * s);
                     radiatorsHTML += this.getDimLineHTML(scrX, scrY, minGapX * s, 0, Math.round(minGapX), 'gap-dim');
                 }
                 
@@ -1131,8 +1131,8 @@ const HmiApp = {
                 if (bottomNeighbor && minGapY >= 0 && minGapY < 2000) {
                     let b2 = bottomNeighbor;
                     let midX = (Math.max(b1.left, b2.left) + Math.min(b1.right, b2.right)) / 2;
-                    let scrX = Math.round(parseInt(pal.style.left) + (palSize.x * s / 2) + midX * s);
-                    let scrY = Math.round(parseInt(pal.style.top) + (palSize.y * s / 2) - b1.bottom * s);
+                    let scrX = Math.round((palSize.x * s / 2) + midX * s);
+                    let scrY = Math.round((palSize.y * s / 2) - b1.bottom * s);
                     radiatorsHTML += this.getDimLineHTML(scrX, scrY, 0, minGapY * s, Math.round(minGapY), 'gap-dim');
                 }
             }
@@ -1197,9 +1197,9 @@ const HmiApp = {
             const palScrY = parseInt(pal.style.top);
 
             // Top width dimension
-            blueprintHTML += this.getDimLineHTML(palScrX, palScrY - 30, palW, 0, `${palSize.x} mm`, 'gap-dim');
+            blueprintHTML += this.getDimLineHTML(0, -30, palW, 0, `${palSize.x} mm`, 'gap-dim');
             // Right height dimension
-            blueprintHTML += this.getDimLineHTML(palScrX + palW + 30, palScrY, 0, palH, `${palSize.y} mm`, 'gap-dim');
+            blueprintHTML += this.getDimLineHTML(palW + 30, 0, 0, palH, `${palSize.y} mm`, 'gap-dim');
 
             // 2. Edge spaces / Overhangs
             let minX = 0, maxX = 0, minY = 0, maxY = 0;
@@ -1229,23 +1229,23 @@ const HmiApp = {
 
                 // Draw edge dimensions if space is non-zero (show negative for overhang)
                 if (Math.abs(Math.round(spaceRight)) > 0) {
-                    let scrX = Math.round(palScrX + (palSize.x * s / 2) + maxX * s);
-                    let scrY = palScrY + palH / 2;
+                    let scrX = Math.round((palSize.x * s / 2) + maxX * s);
+                    let scrY = palH / 2;
                     blueprintHTML += this.getDimLineHTML(scrX, scrY, spaceRight * s, 0, `${Math.round(spaceRight)} mm`, 'manual-dim');
                 }
                 if (Math.abs(Math.round(spaceLeft)) > 0) {
-                    let scrX = palScrX;
-                    let scrY = palScrY + palH / 2;
+                    let scrX = 0;
+                    let scrY = palH / 2;
                     blueprintHTML += this.getDimLineHTML(scrX, scrY, spaceLeft * s, 0, `${Math.round(spaceLeft)} mm`, 'manual-dim');
                 }
                 if (Math.abs(Math.round(spaceTop)) > 0) {
-                    let scrX = palScrX + palW / 2;
-                    let scrY = Math.round(palScrY + (palSize.y * s / 2) - maxY * s);
+                    let scrX = palW / 2;
+                    let scrY = Math.round((palSize.y * s / 2) - maxY * s);
                     blueprintHTML += this.getDimLineHTML(scrX, scrY - spaceTop * s, 0, spaceTop * s, `${Math.round(spaceTop)} mm`, 'manual-dim');
                 }
                 if (Math.abs(Math.round(spaceBottom)) > 0) {
-                    let scrX = palScrX + palW / 2;
-                    let scrY = palScrY + palH;
+                    let scrX = palW / 2;
+                    let scrY = palH;
                     blueprintHTML += this.getDimLineHTML(scrX, scrY - spaceBottom * s, 0, spaceBottom * s, `${Math.round(spaceBottom)} mm`, 'manual-dim');
                 }
             }
