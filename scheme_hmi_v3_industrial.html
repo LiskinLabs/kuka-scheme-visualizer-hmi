@@ -104,7 +104,6 @@
                 margin: 0 auto !important;
                 page-break-inside: avoid !important;
                 overflow: visible !important;
-                /* Dynamic transform set by JS print logic */
             }
 
             .center-panel .panel-body,
@@ -128,7 +127,7 @@
             /* Black & White Technical Drawing Styles */
             .pallet-area {
                 background: none !important;
-                border: none !important; /* we want just the layout, not the area container */
+                border: none !important;
                 page-break-inside: avoid !important;
                 break-inside: avoid !important;
                 box-shadow: none !important;
@@ -161,11 +160,6 @@
                 color: #000 !important;
                 font-weight: bold;
                 text-shadow: none !important;
-            }
-
-            /* Hide floating axis labels in print mode */
-            .axis-label {
-                display: none !important;
             }
 
             /* Remove 24050 visual details for print */
@@ -203,14 +197,6 @@
                 border: 1px solid #000 !important;
                 box-shadow: none !important;
                 font-weight: bold;
-            }
-
-            .axis-label {
-                background: #fff !important;
-                color: #000 !important;
-                border: none !important;
-                font-size: 14px !important;
-                font-weight: bold !important;
             }
 
             .center-mark {
@@ -299,7 +285,6 @@
             display: none;
             align-items: center;
             justify-content: center;
-            animation: fadeIn 0.2s ease-out;
         }
 
         .modal-content {
@@ -311,7 +296,6 @@
             max-height: 90vh;
             overflow-y: auto;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            animation: slideUp 0.3s ease-out;
         }
 
         .matrix-table {
@@ -338,14 +322,12 @@
 
         .matrix-cell {
             cursor: pointer;
-            transition: all 0.2s;
             font-weight: 600;
         }
 
         .matrix-cell:hover {
             background: var(--kuka-orange) !important;
             color: black !important;
-            transform: scale(1.1);
             position: relative;
             z-index: 20;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
@@ -358,28 +340,6 @@
 
         .pal-2 {
             background: rgba(3, 169, 244, 0.15);
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-
-            to {
-                opacity: 1;
-            }
-        }
-
-        @keyframes slideUp {
-            from {
-                transform: translateY(20px);
-                opacity: 0;
-            }
-
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
         }
         
         /* Light Theme Overrides */
@@ -478,19 +438,17 @@
                 <div class="viz-header-content flex items-center justify-between gap-6">
                     <div class="text-orange-500 font-bold text-lg flex items-center gap-2"><i class="fas fa-cube"></i><span id="vizTitle">Dizilim 1...</span></div>
                     <div class="viz-stats flex gap-3">
-                        <span class="stat-badge cursor-pointer bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded px-3 py-1 flex items-center gap-2 text-sm text-slate-300 transition-colors" onclick="HmiApp.resetView()" title="Görünümü Sıfırla (Reset View)"><i class="fas fa-crosshairs text-orange-500"></i><span>Sıfırla</span></span>
+                        <span class="stat-badge cursor-pointer bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded px-3 py-1 flex items-center gap-2 text-sm text-slate-300" onclick="HmiApp.resetView()" title="Görünümü Sıfırla (Reset View)"><i class="fas fa-crosshairs text-orange-500"></i><span>Sıfırla</span></span>
                         <span class="stat-badge bg-slate-800 border border-slate-600 rounded px-3 py-1 flex items-center gap-2 text-sm text-slate-300"><i class="fas fa-boxes text-orange-500"></i><span id="statCount">10</span></span>
                         <span class="stat-badge bg-slate-800 border border-slate-600 rounded px-3 py-1 flex items-center gap-2 text-sm text-slate-300"><i class="fas fa-rotate text-orange-500"></i><span id="statAngle">0°</span></span>
                     </div>
                 </div>
             </div>
 
-            <div class="pallet-area" id="palletArea" style="transform-origin: center center; transition: transform 0.1s ease-out;">
+            <div class="pallet-area" id="palletArea" style="transform-origin: center center;">
                 <div class="pallet" id="pallet"></div>
                 <div class="pallet2" id="pallet2" style="display:none;"></div>
                 <div class="center-mark" id="centerMark"></div>
-                <span class="axis-label axis-x" id="axisX">1200</span>
-                <span class="axis-label axis-y" id="axisY">800</span>
             </div>
 
             <!-- ALL LAYOUTS VIEW CONTAINER -->
@@ -503,8 +461,8 @@
             <div class="flex items-center gap-2 text-xs font-semibold text-slate-400"><i class="fas fa-layer-group text-orange-500"></i><span id="cellNumber">Cell 24049</span></div>
             <div class="flex items-center gap-2 text-xs font-semibold text-slate-400"><i class="fas fa-clock text-orange-500"></i><span id="currentTime" class="hidden sm:inline">--:--:--</span></div>
             <div class="flex items-center gap-2 text-xs font-semibold text-slate-400 ml-auto">
-                <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_#10b981]"></div><span class="mr-4">SYSTEM ONLINE</span>
-                <button onclick="HmiApp.toggleTheme()" class="text-slate-400 hover:text-orange-500 transition-colors" title="Toggle Light/Dark Mode">
+                <div class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]"></div><span class="mr-4">SYSTEM ONLINE</span>
+                <button onclick="HmiApp.toggleTheme()" class="text-slate-400 hover:text-orange-500" title="Toggle Light/Dark Mode">
                     <i id="themeIcon" class="fas fa-moon text-lg"></i>
                 </button>
             </div>
@@ -513,10 +471,10 @@
         <div class="pointer-events-none absolute inset-0 z-40 mt-20 p-4 flex gap-4 overflow-hidden">
             <div id="mobileBackdrop" class="fixed inset-0 bg-black/60 z-[55] hidden sm:hidden pointer-events-auto" onclick="HmiApp.closeAllPanels()"></div>
             <!-- Left Panel: Controls -->
-            <div id="leftPanel" class="pointer-events-auto w-[85vw] max-w-sm sm:w-80 h-full sm:max-h-[calc(100vh-6.5rem)] overflow-y-auto bg-slate-800/95 backdrop-blur shadow-2xl border-r sm:border border-slate-700 flex flex-col shrink-0 custom-scrollbar transition-transform duration-300 ease-in-out fixed sm:relative top-0 sm:top-auto left-0 sm:left-auto z-[60] sm:z-auto sm:rounded-2xl">
+            <div id="leftPanel" class="pointer-events-auto w-[85vw] max-w-sm sm:w-80 h-full sm:max-h-[calc(100vh-6.5rem)] overflow-y-auto bg-slate-800/95 backdrop-blur shadow-2xl border-r sm:border border-slate-700 flex flex-col shrink-0 custom-scrollbar fixed sm:relative top-0 sm:top-auto left-0 sm:left-auto z-[60] sm:z-auto sm:rounded-2xl">
                 
                 <!-- Toggle Button -->
-                <button onclick="HmiApp.toggleLeftPanel()" class="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors z-50 hidden sm:block">
+                <button onclick="HmiApp.toggleLeftPanel()" class="absolute top-4 right-4 text-slate-400 hover:text-white z-50 hidden sm:block">
                     <i id="leftPanelIcon" class="fas fa-chevron-left"></i>
                 </button>
 
@@ -526,7 +484,7 @@
                 <div class="p-4 flex flex-col gap-4">
                     <div>
                         <label id="lblProject" class="block mb-1 text-xs font-semibold text-slate-400 uppercase tracking-wide">Proje</label>
-                        <select id="projectSelect" onchange="HmiApp.selectProject()" class="w-full p-2.5 text-sm font-semibold bg-slate-900/50 border border-orange-500/30 rounded-lg text-orange-500 cursor-pointer hover:border-orange-500 hover:bg-slate-900/80 focus:outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-500/20 transition-all">
+                        <select id="projectSelect" onchange="HmiApp.selectProject()" class="w-full p-2.5 text-sm font-semibold bg-slate-900/50 border border-orange-500/30 rounded-lg text-orange-500 cursor-pointer hover:border-orange-500 hover:bg-slate-900/80 focus:outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-500/20">
                             <option value="24048" selected>24048 / 24049</option>
                             <option value="24050">24050</option>
                         </select>
@@ -534,7 +492,7 @@
 
                     <div>
                         <label id="lblWidth" class="block mb-1 text-xs font-semibold text-slate-400 uppercase tracking-wide">Genişlik (mm)</label>
-                        <select id="inW" class="w-full p-2.5 text-sm font-semibold bg-slate-900/50 border border-orange-500/30 rounded-lg text-orange-500 cursor-pointer hover:border-orange-500 hover:bg-slate-900/80 focus:outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-500/20 transition-all">
+                        <select id="inW" class="w-full p-2.5 text-sm font-semibold bg-slate-900/50 border border-orange-500/30 rounded-lg text-orange-500 cursor-pointer hover:border-orange-500 hover:bg-slate-900/80 focus:outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-500/20">
                             <option value="200">200</option>
                             <option value="300">300</option>
                             <option value="400">400</option>
@@ -546,39 +504,39 @@
 
                     <div>
                         <label id="lblLength" class="block mb-1 text-xs font-semibold text-slate-400 uppercase tracking-wide">Uzunluk (mm)</label>
-                        <select id="inL" class="w-full p-2.5 text-sm font-semibold bg-slate-900/50 border border-orange-500/30 rounded-lg text-orange-500 cursor-pointer hover:border-orange-500 hover:bg-slate-900/80 focus:outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-500/20 transition-all"></select>
+                        <select id="inL" class="w-full p-2.5 text-sm font-semibold bg-slate-900/50 border border-orange-500/30 rounded-lg text-orange-500 cursor-pointer hover:border-orange-500 hover:bg-slate-900/80 focus:outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-500/20"></select>
                     </div>
 
-                    <button id="btnCalc" onclick="HmiApp.calc()" class="w-full p-3 text-sm font-bold bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg text-slate-900 flex items-center justify-center gap-2 shadow-[0_4px_12px_rgba(249,115,22,0.3)] hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(249,115,22,0.4)] transition-all">
+                    <button id="btnCalc" onclick="HmiApp.calc()" class="w-full p-3 text-sm font-bold bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg text-slate-900 flex items-center justify-center gap-2 shadow-[0_4px_12px_rgba(249,115,22,0.3)] hover:shadow-[0_6px_20px_rgba(249,115,22,0.4)]">
                         <i class="fas fa-calculator"></i><span id="lblCalc">Hesapla</span>
                     </button>
 
                     <div id="manualModeToggle" class="grid grid-cols-2 gap-2 mt-2 mode-selector">
-                        <button id="btnAutoMode" onclick="HmiApp.toggleManualMode(false)" class="mode-btn active p-2 text-xs font-bold rounded-lg border border-slate-600 bg-slate-900/50 text-slate-400 hover:bg-slate-700 hover:text-slate-200 transition-colors flex items-center justify-center gap-2"><i class="fas fa-magic"></i> Auto</button>
-                        <button id="btnManualMode" onclick="HmiApp.toggleManualMode(true)" class="mode-btn p-2 text-xs font-bold rounded-lg border border-slate-600 bg-slate-900/50 text-slate-400 hover:bg-slate-700 hover:text-slate-200 transition-colors flex items-center justify-center gap-2"><i class="fas fa-hand-paper"></i> Manual</button>
+                        <button id="btnAutoMode" onclick="HmiApp.toggleManualMode(false)" class="mode-btn active p-2 text-xs font-bold rounded-lg border border-slate-600 bg-slate-900/50 text-slate-400 hover:bg-slate-700 hover:text-slate-200 flex items-center justify-center gap-2"><i class="fas fa-magic"></i> Auto</button>
+                        <button id="btnManualMode" onclick="HmiApp.toggleManualMode(true)" class="mode-btn p-2 text-xs font-bold rounded-lg border border-slate-600 bg-slate-900/50 text-slate-400 hover:bg-slate-700 hover:text-slate-200 flex items-center justify-center gap-2"><i class="fas fa-hand-paper"></i> Manual</button>
                     </div>
 
-                    <div id="manualControlsGroup" class="transition-opacity duration-300">
+                    <div id="manualControlsGroup">
                         <div class="grid grid-cols-2 gap-3 mt-2">
                             <div>
                                 <label id="lblGapW" class="block mb-1 text-xs font-semibold text-slate-500">X Boşluk</label>
-                                <input type="number" id="gapW" value="50" class="w-full p-2 text-sm font-bold font-mono text-center bg-slate-900/50 border border-orange-500/30 rounded-lg text-orange-500 focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/30 transition-all">
+                                <input type="number" id="gapW" value="50" class="w-full p-2 text-sm font-bold font-mono text-center bg-slate-900/50 border border-orange-500/30 rounded-lg text-orange-500 focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/30">
                             </div>
                             <div>
                                 <label id="lblGapH" class="block mb-1 text-xs font-semibold text-slate-500">Y Boşluk</label>
-                                <input type="number" id="gapH" value="200" class="w-full p-2 text-sm font-bold font-mono text-center bg-slate-900/50 border border-orange-500/30 rounded-lg text-orange-500 focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/30 transition-all">
+                                <input type="number" id="gapH" value="200" class="w-full p-2 text-sm font-bold font-mono text-center bg-slate-900/50 border border-orange-500/30 rounded-lg text-orange-500 focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/30">
                             </div>
                         </div>
 
                         <div class="grid grid-cols-2 gap-2 mt-2 mode-selector" id="palletModeSelector">
-                            <button id="m1" onclick="HmiApp.setMode(0)" class="mode-btn active p-2 text-xs font-bold rounded-lg border border-slate-600 bg-slate-900/50 text-slate-400 hover:bg-slate-700 hover:text-slate-200 transition-colors flex items-center justify-center gap-2"><i class="fas fa-square"></i><span id="lbl1Pal">1 Palet</span></button>
-                            <button id="m2" onclick="HmiApp.setMode(1)" class="mode-btn p-2 text-xs font-bold rounded-lg border border-slate-600 bg-slate-900/50 text-slate-400 hover:bg-slate-700 hover:text-slate-200 transition-colors flex items-center justify-center gap-2"><i class="fas fa-th"></i><span id="lbl2Pal">2 Palet</span></button>
+                            <button id="m1" onclick="HmiApp.setMode(0)" class="mode-btn active p-2 text-xs font-bold rounded-lg border border-slate-600 bg-slate-900/50 text-slate-400 hover:bg-slate-700 hover:text-slate-200 flex items-center justify-center gap-2"><i class="fas fa-square"></i><span id="lbl1Pal">1 Palet</span></button>
+                            <button id="m2" onclick="HmiApp.setMode(1)" class="mode-btn p-2 text-xs font-bold rounded-lg border border-slate-600 bg-slate-900/50 text-slate-400 hover:bg-slate-700 hover:text-slate-200 flex items-center justify-center gap-2"><i class="fas fa-th"></i><span id="lbl2Pal">2 Palet</span></button>
                         </div>
                     </div>
 
                     <div id="exportToggle" class="grid grid-cols-2 gap-2 mt-2 mode-selector" style="display:none;">
-                        <button id="btnDomestic" onclick="HmiApp.toggleExport(0)" class="mode-btn active p-2 text-xs font-bold rounded-lg border border-slate-600 bg-slate-900/50 text-slate-400 hover:bg-slate-700 hover:text-slate-200 transition-colors flex items-center justify-center gap-2"><i class="fas fa-home"></i><span id="lblDom">Domestic</span></button>
-                        <button id="btnExport" onclick="HmiApp.toggleExport(1)" class="mode-btn p-2 text-xs font-bold rounded-lg border border-slate-600 bg-slate-900/50 text-slate-400 hover:bg-slate-700 hover:text-slate-200 transition-colors flex items-center justify-center gap-2"><i class="fas fa-ship"></i><span id="lblExp">Export</span></button>
+                        <button id="btnDomestic" onclick="HmiApp.toggleExport(0)" class="mode-btn active p-2 text-xs font-bold rounded-lg border border-slate-600 bg-slate-900/50 text-slate-400 hover:bg-slate-700 hover:text-slate-200 flex items-center justify-center gap-2"><i class="fas fa-home"></i><span id="lblDom">Domestic</span></button>
+                        <button id="btnExport" onclick="HmiApp.toggleExport(1)" class="mode-btn p-2 text-xs font-bold rounded-lg border border-slate-600 bg-slate-900/50 text-slate-400 hover:bg-slate-700 hover:text-slate-200 flex items-center justify-center gap-2"><i class="fas fa-ship"></i><span id="lblExp">Export</span></button>
                     </div>
 
                     <hr class="border-slate-700 my-2">
@@ -597,33 +555,33 @@
                     <div id="manualAddPanel" style="display:none;" class="bg-slate-900/50 border border-orange-500/50 rounded-lg p-3 mb-2">
                         <div class="text-xs font-bold text-orange-500 mb-2">Radyatör Ekle (Manuel Mod)</div>
                         <div class="flex gap-2 mb-2">
-                            <input type="number" id="manW" placeholder="Genişlik" class="w-full p-2 text-xs font-bold font-mono text-center bg-slate-800 border border-slate-600 rounded text-orange-500 focus:outline-none focus:border-orange-500 transition-all">
-                            <input type="number" id="manL" placeholder="Uzunluk" class="w-full p-2 text-xs font-bold font-mono text-center bg-slate-800 border border-slate-600 rounded text-orange-500 focus:outline-none focus:border-orange-500 transition-all">
+                            <input type="number" id="manW" placeholder="Genişlik" class="w-full p-2 text-xs font-bold font-mono text-center bg-slate-800 border border-slate-600 rounded text-orange-500 focus:outline-none focus:border-orange-500">
+                            <input type="number" id="manL" placeholder="Uzunluk" class="w-full p-2 text-xs font-bold font-mono text-center bg-slate-800 border border-slate-600 rounded text-orange-500 focus:outline-none focus:border-orange-500">
                         </div>
-                        <button onclick="HmiApp.addManualRadiator()" class="w-full p-2 text-xs font-bold bg-orange-500/20 text-orange-500 border border-orange-500/50 rounded hover:bg-orange-500/30 transition-colors flex items-center justify-center gap-2 mb-3"><i class="fas fa-plus"></i> Ekle</button>
+                        <button onclick="HmiApp.addManualRadiator()" class="w-full p-2 text-xs font-bold bg-orange-500/20 text-orange-500 border border-orange-500/50 rounded hover:bg-orange-500/30 flex items-center justify-center gap-2 mb-3"><i class="fas fa-plus"></i> Ekle</button>
                         
                         <div class="text-xs font-bold text-orange-500 mb-2 mt-2">Araçlar</div>
-                        <button onclick="HmiApp.alignManualRadiators()" class="w-full p-2 text-xs font-bold rounded border border-slate-600 bg-slate-800 text-slate-300 hover:bg-slate-700 transition-colors flex items-center justify-center gap-2"><i class="fas fa-th-large"></i> Otomatik Hizala</button>
+                        <button onclick="HmiApp.alignManualRadiators()" class="w-full p-2 text-xs font-bold rounded border border-slate-600 bg-slate-800 text-slate-300 hover:bg-slate-700 flex items-center justify-center gap-2"><i class="fas fa-th-large"></i> Otomatik Hizala</button>
                     </div>
 
                     <div id="dizilimGridContainer" class="grid grid-cols-4 gap-1.5 dizilim-grid">
-                        <button id="b1" onclick="HmiApp.selD(1)" class="dizilim-btn active p-2 text-[10px] font-bold font-mono rounded bg-slate-900/50 border border-slate-700 text-slate-400 hover:bg-slate-700 transition-colors min-h-[44px]">D1</button>
-                        <button id="b2" onclick="HmiApp.selD(2)" class="dizilim-btn p-2 text-[10px] font-bold font-mono rounded bg-slate-900/50 border border-slate-700 text-slate-400 hover:bg-slate-700 transition-colors min-h-[44px]">D2</button>
-                        <button id="b3" onclick="HmiApp.selD(3)" class="dizilim-btn p-2 text-[10px] font-bold font-mono rounded bg-slate-900/50 border border-slate-700 text-slate-400 hover:bg-slate-700 transition-colors min-h-[44px]">D3</button>
-                        <button id="b4" onclick="HmiApp.selD(4)" class="dizilim-btn p-2 text-[10px] font-bold font-mono rounded bg-slate-900/50 border border-slate-700 text-slate-400 hover:bg-slate-700 transition-colors min-h-[44px]">D4</button>
-                        <button id="b5" onclick="HmiApp.selD(5)" class="dizilim-btn p-2 text-[10px] font-bold font-mono rounded bg-slate-900/50 border border-slate-700 text-slate-400 hover:bg-slate-700 transition-colors min-h-[44px]">D5</button>
-                        <button id="b6" onclick="HmiApp.selD(6)" class="dizilim-btn p-2 text-[10px] font-bold font-mono rounded bg-slate-900/50 border border-slate-700 text-slate-400 hover:bg-slate-700 transition-colors min-h-[44px]">D6</button>
-                        <button id="b7" onclick="HmiApp.selD(7)" class="dizilim-btn p-2 text-[10px] font-bold font-mono rounded bg-slate-900/50 border border-slate-700 text-slate-400 hover:bg-slate-700 transition-colors min-h-[44px]">D7</button>
-                        <button id="b8" onclick="HmiApp.selD(8)" class="dizilim-btn p-2 text-[10px] font-bold font-mono rounded bg-slate-900/50 border border-slate-700 text-slate-400 hover:bg-slate-700 transition-colors min-h-[44px]">D8</button>
-                        <button id="b9" onclick="HmiApp.selD(9)" class="dizilim-btn p-2 text-[10px] font-bold font-mono rounded bg-slate-900/50 border border-slate-700 text-slate-400 hover:bg-slate-700 transition-colors min-h-[44px]">D9</button>
-                        <button id="b10" onclick="HmiApp.selD(10)" class="dizilim-btn p-2 text-[10px] font-bold font-mono rounded bg-slate-900/50 border border-slate-700 text-slate-400 hover:bg-slate-700 transition-colors min-h-[44px]">D10</button>
-                        <button id="b11" onclick="HmiApp.selD(11)" class="dizilim-btn p-2 text-[10px] font-bold font-mono rounded bg-slate-900/50 border border-slate-700 text-slate-400 hover:bg-slate-700 transition-colors min-h-[44px]">D11</button>
-                        <button id="b12" onclick="HmiApp.selD(12)" class="dizilim-btn p-2 text-[10px] font-bold font-mono rounded bg-slate-900/50 border border-slate-700 text-slate-400 hover:bg-slate-700 transition-colors min-h-[44px]">D12</button>
+                        <button id="b1" onclick="HmiApp.selD(1)" class="dizilim-btn active p-2 text-[10px] font-bold font-mono rounded bg-slate-900/50 border border-slate-700 text-slate-400 hover:bg-slate-700 min-h-[44px]">D1</button>
+                        <button id="b2" onclick="HmiApp.selD(2)" class="dizilim-btn p-2 text-[10px] font-bold font-mono rounded bg-slate-900/50 border border-slate-700 text-slate-400 hover:bg-slate-700 min-h-[44px]">D2</button>
+                        <button id="b3" onclick="HmiApp.selD(3)" class="dizilim-btn p-2 text-[10px] font-bold font-mono rounded bg-slate-900/50 border border-slate-700 text-slate-400 hover:bg-slate-700 min-h-[44px]">D3</button>
+                        <button id="b4" onclick="HmiApp.selD(4)" class="dizilim-btn p-2 text-[10px] font-bold font-mono rounded bg-slate-900/50 border border-slate-700 text-slate-400 hover:bg-slate-700 min-h-[44px]">D4</button>
+                        <button id="b5" onclick="HmiApp.selD(5)" class="dizilim-btn p-2 text-[10px] font-bold font-mono rounded bg-slate-900/50 border border-slate-700 text-slate-400 hover:bg-slate-700 min-h-[44px]">D5</button>
+                        <button id="b6" onclick="HmiApp.selD(6)" class="dizilim-btn p-2 text-[10px] font-bold font-mono rounded bg-slate-900/50 border border-slate-700 text-slate-400 hover:bg-slate-700 min-h-[44px]">D6</button>
+                        <button id="b7" onclick="HmiApp.selD(7)" class="dizilim-btn p-2 text-[10px] font-bold font-mono rounded bg-slate-900/50 border border-slate-700 text-slate-400 hover:bg-slate-700 min-h-[44px]">D7</button>
+                        <button id="b8" onclick="HmiApp.selD(8)" class="dizilim-btn p-2 text-[10px] font-bold font-mono rounded bg-slate-900/50 border border-slate-700 text-slate-400 hover:bg-slate-700 min-h-[44px]">D8</button>
+                        <button id="b9" onclick="HmiApp.selD(9)" class="dizilim-btn p-2 text-[10px] font-bold font-mono rounded bg-slate-900/50 border border-slate-700 text-slate-400 hover:bg-slate-700 min-h-[44px]">D9</button>
+                        <button id="b10" onclick="HmiApp.selD(10)" class="dizilim-btn p-2 text-[10px] font-bold font-mono rounded bg-slate-900/50 border border-slate-700 text-slate-400 hover:bg-slate-700 min-h-[44px]">D10</button>
+                        <button id="b11" onclick="HmiApp.selD(11)" class="dizilim-btn p-2 text-[10px] font-bold font-mono rounded bg-slate-900/50 border border-slate-700 text-slate-400 hover:bg-slate-700 min-h-[44px]">D11</button>
+                        <button id="b12" onclick="HmiApp.selD(12)" class="dizilim-btn p-2 text-[10px] font-bold font-mono rounded bg-slate-900/50 border border-slate-700 text-slate-400 hover:bg-slate-700 min-h-[44px]">D12</button>
                     </div>
 
                     <div id="radPositionsPanel" style="display:none;" class="mt-2 text-xs"></div>
                     <div id="radPosResetBtn" style="display:none;" class="mt-2">
-                        <button onclick="HmiApp.calc()" class="w-full p-2 text-xs font-bold rounded border border-slate-600 bg-slate-800 text-slate-300 hover:bg-slate-700 transition-colors flex items-center justify-center gap-2"><i class="fas fa-undo"></i> <span id="lblReset">Reset Positions</span></button>
+                        <button onclick="HmiApp.calc()" class="w-full p-2 text-xs font-bold rounded border border-slate-600 bg-slate-800 text-slate-300 hover:bg-slate-700 flex items-center justify-center gap-2"><i class="fas fa-undo"></i> <span id="lblReset">Reset Positions</span></button>
                     </div>
 
                     <div id="palletSizeControls" style="display:none;" class="grid grid-cols-2 gap-3 mt-3">
@@ -637,10 +595,10 @@
             <div class="flex-grow"></div>
 
             <!-- Right Panel: Info -->
-            <div id="rightPanel" class="pointer-events-auto w-[85vw] max-w-sm sm:w-80 h-full sm:max-h-[calc(100vh-6.5rem)] overflow-y-auto bg-slate-800/95 backdrop-blur shadow-2xl border-l sm:border border-slate-700 flex flex-col shrink-0 custom-scrollbar transition-transform duration-300 ease-in-out fixed sm:relative top-0 sm:top-auto right-0 sm:right-auto z-[60] sm:z-auto sm:rounded-2xl">
+            <div id="rightPanel" class="pointer-events-auto w-[85vw] max-w-sm sm:w-80 h-full sm:max-h-[calc(100vh-6.5rem)] overflow-y-auto bg-slate-800/95 backdrop-blur shadow-2xl border-l sm:border border-slate-700 flex flex-col shrink-0 custom-scrollbar fixed sm:relative top-0 sm:top-auto right-0 sm:right-auto z-[60] sm:z-auto sm:rounded-2xl">
                 
                 <!-- Toggle Button -->
-                <button onclick="HmiApp.toggleRightPanel()" class="absolute top-4 left-4 text-slate-400 hover:text-white transition-colors z-50 hidden sm:block">
+                <button onclick="HmiApp.toggleRightPanel()" class="absolute top-4 left-4 text-slate-400 hover:text-white z-50 hidden sm:block">
                     <i id="rightPanelIcon" class="fas fa-chevron-right"></i>
                 </button>
 
@@ -648,30 +606,30 @@
                     <i class="fas fa-info-circle text-blue-400 text-base"></i><span id="lblInfo">Bilgiler</span>
                 </div>
                 <div class="p-4 flex flex-col gap-3">
-                    <button id="btnToggleAll" onclick="HmiApp.toggleAllLayouts()" class="group relative w-full p-2.5 text-xs font-bold bg-gradient-to-r from-blue-600 to-sky-600 rounded-lg text-white flex items-center justify-center gap-2 shadow-[0_4px_12px_rgba(2,136,209,0.3)] hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(2,136,209,0.4)] transition-all">
+                    <button id="btnToggleAll" onclick="HmiApp.toggleAllLayouts()" class="group relative w-full p-2.5 text-xs font-bold bg-gradient-to-r from-blue-600 to-sky-600 rounded-lg text-white flex items-center justify-center gap-2 shadow-[0_4px_12px_rgba(2,136,209,0.3)] hover:shadow-[0_6px_20px_rgba(2,136,209,0.4)]">
                         <i class="fas fa-th-large"></i><span id="lblToggleAll">Tümünü Göster</span>
-                        <span class="opacity-0 group-hover:opacity-100 transition-opacity bg-slate-900 text-white text-[10px] rounded px-2 py-1 absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap pointer-events-none shadow-md z-50">Tüm Dizilimleri Gör</span>
+                        <span class="opacity-0 group-hover:opacity-100 bg-slate-900 text-white text-[10px] rounded px-2 py-1 absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap pointer-events-none shadow-md z-50">Tüm Dizilimleri Gör</span>
                     </button>
-                    <button onclick="window.print()" class="group relative w-full p-2.5 text-xs font-bold bg-gradient-to-r from-emerald-600 to-green-600 rounded-lg text-white flex items-center justify-center gap-2 shadow-[0_4px_12px_rgba(16,185,129,0.3)] hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(16,185,129,0.4)] transition-all">
+                    <button onclick="window.print()" class="group relative w-full p-2.5 text-xs font-bold bg-gradient-to-r from-emerald-600 to-green-600 rounded-lg text-white flex items-center justify-center gap-2 shadow-[0_4px_12px_rgba(16,185,129,0.3)] hover:shadow-[0_6px_20px_rgba(16,185,129,0.4)]">
                         <i class="fas fa-print"></i><span id="lblPrint">Yazdır (Print)</span>
-                        <span class="opacity-0 group-hover:opacity-100 transition-opacity bg-slate-900 text-white text-[10px] rounded px-2 py-1 absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap pointer-events-none shadow-md z-50">A4 Teknik Çıktı Al</span>
+                        <span class="opacity-0 group-hover:opacity-100 bg-slate-900 text-white text-[10px] rounded px-2 py-1 absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap pointer-events-none shadow-md z-50">A4 Teknik Çıktı Al</span>
                     </button>
-                    <button id="btnExportImg" onclick="HmiApp.exportToImage()" class="group relative w-full p-2.5 text-xs font-bold bg-gradient-to-r from-fuchsia-600 to-purple-600 rounded-lg text-white flex items-center justify-center gap-2 shadow-[0_4px_12px_rgba(192,38,211,0.3)] hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(192,38,211,0.4)] transition-all">
+                    <button id="btnExportImg" onclick="HmiApp.exportToImage()" class="group relative w-full p-2.5 text-xs font-bold bg-gradient-to-r from-fuchsia-600 to-purple-600 rounded-lg text-white flex items-center justify-center gap-2 shadow-[0_4px_12px_rgba(192,38,211,0.3)] hover:shadow-[0_6px_20px_rgba(192,38,211,0.4)]">
                         <i class="fas fa-camera"></i><span id="lblExportImg">Resmi İndir</span>
-                        <span class="opacity-0 group-hover:opacity-100 transition-opacity bg-slate-900 text-white text-[10px] rounded px-2 py-1 absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap pointer-events-none shadow-md z-50">Görsel Olarak Kaydet</span>
+                        <span class="opacity-0 group-hover:opacity-100 bg-slate-900 text-white text-[10px] rounded px-2 py-1 absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap pointer-events-none shadow-md z-50">Görsel Olarak Kaydet</span>
                     </button>
-                    <button id="btnMatrix" onclick="HmiApp.openMatrixModal()" class="group relative w-full p-2.5 text-xs font-bold bg-gradient-to-r from-amber-500 to-orange-500 rounded-lg text-slate-900 flex items-center justify-center gap-2 shadow-[0_4px_12px_rgba(245,158,11,0.3)] hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(245,158,11,0.4)] transition-all mb-2">
+                    <button id="btnMatrix" onclick="HmiApp.openMatrixModal()" class="group relative w-full p-2.5 text-xs font-bold bg-gradient-to-r from-amber-500 to-orange-500 rounded-lg text-slate-900 flex items-center justify-center gap-2 shadow-[0_4px_12px_rgba(245,158,11,0.3)] hover:shadow-[0_6px_20px_rgba(245,158,11,0.4)] mb-2">
                         <i class="fas fa-table"></i><span id="lblMatrix">Dizilim Matrisi</span>
-                        <span class="opacity-0 group-hover:opacity-100 transition-opacity bg-slate-900 text-white text-[10px] rounded px-2 py-1 absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap pointer-events-none shadow-md z-50">Tüm Şemaları İncele</span>
+                        <span class="opacity-0 group-hover:opacity-100 bg-slate-900 text-white text-[10px] rounded px-2 py-1 absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap pointer-events-none shadow-md z-50">Tüm Şemaları İncele</span>
                     </button>
 
-                    <div class="info-card bg-slate-900/50 border border-slate-700 rounded-xl p-3 hover:bg-slate-900/80 hover:border-orange-500/30 transition-colors">
+                    <div class="info-card bg-slate-900/50 border border-slate-700 rounded-xl p-3 hover:bg-slate-900/80 hover:border-orange-500/30">
                         <div class="flex items-center gap-2 text-xs font-bold text-orange-500 mb-2 pb-2 border-b border-slate-700/50"><i class="fas fa-box"></i><span id="lblRadiator">Radyatör</span></div>
                         <div class="flex justify-between items-center py-1 text-xs text-slate-400"><span id="lblW2">Genişlik:</span><span id="iW" class="font-bold font-mono text-orange-500 text-sm">200</span></div>
                         <div class="flex justify-between items-center py-1 text-xs text-slate-400"><span id="lblL2">Uzunluk:</span><span id="iL" class="font-bold font-mono text-orange-500 text-sm">400</span></div>
                     </div>
 
-                    <div class="info-card bg-slate-900/50 border border-slate-700 rounded-xl p-3 hover:bg-slate-900/80 hover:border-orange-500/30 transition-colors">
+                    <div class="info-card bg-slate-900/50 border border-slate-700 rounded-xl p-3 hover:bg-slate-900/80 hover:border-orange-500/30">
                         <div class="flex items-center gap-2 text-xs font-bold text-orange-500 mb-2 pb-2 border-b border-slate-700/50"><i class="fas fa-layer-group"></i><span id="lblPlacement">Yerleşim</span></div>
                         <div class="flex justify-between items-center py-1 text-xs text-slate-400"><span id="lblAngle">Açı:</span><span id="iA" class="font-bold font-mono text-slate-300">0°</span></div>
                         <div class="flex justify-between items-center py-1 text-xs text-slate-400"><span id="lblPcs">Adet/kat:</span><span id="iC" class="font-bold font-mono text-orange-500 text-sm">10</span></div>
@@ -679,15 +637,15 @@
                         <div class="ext-info-row flex justify-between items-center py-1 text-xs text-slate-400"><span id="lblTotal">Toplam:</span><span id="iTot" class="font-bold font-mono text-orange-500 text-sm">100</span></div>
                     </div>
 
-                    <div class="info-card bg-slate-900/50 border border-slate-700 rounded-xl p-3 hover:bg-slate-900/80 hover:border-orange-500/30 transition-colors">
+                    <div class="info-card bg-slate-900/50 border border-slate-700 rounded-xl p-3 hover:bg-slate-900/80 hover:border-orange-500/30">
                         <div class="flex items-center gap-2 text-xs font-bold text-orange-500 mb-2 pb-2 border-b border-slate-700/50"><i class="fas fa-pallet"></i><span id="lblPallet">Palet</span></div>
                         <div class="flex justify-between items-center py-1 text-xs text-slate-400"><span id="lblPalSize">Boyut:</span><span id="iP" class="font-bold font-mono text-slate-300">1200x800</span></div>
                     </div>
 
                     <div class="flex gap-1 mt-2">
-                        <button id="btnRU" onclick="HmiApp.setLang('ru')" class="lang-btn flex-1 p-2 text-xs font-bold bg-slate-900/50 border border-slate-700 rounded-lg text-slate-400 hover:bg-slate-700 transition-colors">RU</button>
-                        <button id="btnTR" onclick="HmiApp.setLang('tr')" class="lang-btn active flex-1 p-2 text-xs font-bold bg-orange-500 border border-orange-500 rounded-lg text-slate-900 hover:bg-orange-600 transition-colors">TR</button>
-                        <button id="btnUZ" onclick="HmiApp.setLang('uz')" class="lang-btn flex-1 p-2 text-xs font-bold bg-slate-900/50 border border-slate-700 rounded-lg text-slate-400 hover:bg-slate-700 transition-colors">UZ</button>
+                        <button id="btnRU" onclick="HmiApp.setLang('ru')" class="lang-btn flex-1 p-2 text-xs font-bold bg-slate-900/50 border border-slate-700 rounded-lg text-slate-400 hover:bg-slate-700">RU</button>
+                        <button id="btnTR" onclick="HmiApp.setLang('tr')" class="lang-btn active flex-1 p-2 text-xs font-bold bg-orange-500 border border-orange-500 rounded-lg text-slate-900 hover:bg-orange-600">TR</button>
+                        <button id="btnUZ" onclick="HmiApp.setLang('uz')" class="lang-btn flex-1 p-2 text-xs font-bold bg-slate-900/50 border border-slate-700 rounded-lg text-slate-400 hover:bg-slate-700">UZ</button>
                     </div>
                 </div>
             </div>
@@ -701,8 +659,8 @@
     </div>
 
     <!-- Sticky Edge Panel Expand Buttons -->
-    <button id="btnOpenLeft" onclick="HmiApp.toggleLeftPanel()" class="fixed top-1/2 left-0 -translate-y-1/2 z-[50] bg-slate-800 border border-slate-600 rounded-r p-3 sm:p-2 text-slate-400 hover:text-white hidden transition-colors shadow-lg"><i class="fas fa-chevron-right"></i></button>
-    <button id="btnOpenRight" onclick="HmiApp.toggleRightPanel()" class="fixed top-1/2 right-0 -translate-y-1/2 z-[50] bg-slate-800 border border-slate-600 rounded-l p-3 sm:p-2 text-slate-400 hover:text-white hidden transition-colors shadow-lg"><i class="fas fa-chevron-left"></i></button>
+    <button id="btnOpenLeft" onclick="HmiApp.toggleLeftPanel()" class="fixed top-1/2 left-0 -translate-y-1/2 z-[50] bg-slate-800 border border-slate-600 rounded-r p-3 sm:p-2 text-slate-400 hover:text-white hidden shadow-lg"><i class="fas fa-chevron-right"></i></button>
+    <button id="btnOpenRight" onclick="HmiApp.toggleRightPanel()" class="fixed top-1/2 right-0 -translate-y-1/2 z-[50] bg-slate-800 border border-slate-600 rounded-l p-3 sm:p-2 text-slate-400 hover:text-white hidden shadow-lg"><i class="fas fa-chevron-left"></i></button>
 
     <!-- External Dependencies & Logic -->
     <!-- Minimap -->
@@ -712,8 +670,8 @@
 
     <!-- Context Menu -->
     <div id="contextMenu" class="hidden absolute z-50 bg-slate-800 border border-slate-600 rounded shadow-lg p-1 text-xs" style="min-width: 120px;">
-        <button id="ctxRotate" onclick="HmiApp.contextRotate()" class="w-full text-left px-3 py-2 hover:bg-slate-700 text-slate-200 rounded transition-colors"><i class="fas fa-sync-alt mr-2"></i>Rotate 90°</button>
-        <button id="ctxDelete" onclick="HmiApp.contextDelete()" class="w-full text-left px-3 py-2 hover:bg-slate-700 text-red-400 rounded transition-colors mt-1"><i class="fas fa-trash mr-2"></i>Delete</button>
+        <button id="ctxRotate" onclick="HmiApp.contextRotate()" class="w-full text-left px-3 py-2 hover:bg-slate-700 text-slate-200 rounded"><i class="fas fa-sync-alt mr-2"></i>Rotate 90°</button>
+        <button id="ctxDelete" onclick="HmiApp.contextDelete()" class="w-full text-left px-3 py-2 hover:bg-slate-700 text-red-400 rounded mt-1"><i class="fas fa-trash mr-2"></i>Delete</button>
     </div>
 
     <!-- External Dependencies & Logic -->
