@@ -98,8 +98,10 @@ const HmiApp = {
                 const p = JSON.parse(saved);
                 if (p.width) this.state.width = p.width;
                 if (p.length) this.state.length = p.length;
-                if (p.gapW !== undefined) this.state.gapW = p.gapW;
                 if (p.gapH !== undefined) this.state.gapH = p.gapH;
+                if (this.state.gapH < 50) this.state.gapH = 200; // Force reset old residue values like 14
+
+                if (p.gapW !== undefined) this.state.gapW = p.gapW;
                 if (p.dizilimId) this.state.dizilimId = p.dizilimId;
                 if (p.currentProject) this.state.currentProject = p.currentProject;
                 if (p.isDualPallet !== undefined) this.state.isDualPallet = p.isDualPallet;
