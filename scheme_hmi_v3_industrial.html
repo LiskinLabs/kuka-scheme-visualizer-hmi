@@ -16,19 +16,20 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
+    <!-- HTML2Canvas -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Custom CSS (Only canvas components/variables left here) -->
     <link rel="stylesheet" href="kuka_design_system.css">
 
     <style>
-        .app-wrapper {
-            min-height: 100vh;
-            background: radial-gradient(circle at top right, #1A1F27 0%, #0A0E12 100%);
-            padding: 12px;
-        }
-
-        /* Print and All Layouts View */
         .all-layouts-grid {
             display: none;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            justify-content: center;
             gap: 15px;
             margin-top: 15px;
             padding-bottom: 20px;
@@ -47,6 +48,12 @@
             border-radius: var(--radius-md);
             padding: 10px;
             text-align: center;
+            content-visibility: auto;
+            contain-intrinsic-size: 280px 320px;
+        }
+
+        @media (max-width: 640px) {
+            #minimapContainer { display: none !important; }
         }
 
         .layout-card-title {
@@ -65,34 +72,44 @@
                 padding: 0;
             }
 
-            .app-wrapper {
-                background: none !important;
-                padding: 0 !important;
-                min-height: initial;
-            }
-
-            /* Hide UI controls */
-            .glass-panel:first-child,
-            .glass-panel:last-child {
+            .no-print {
                 display: none !important;
             }
 
-            .main-grid {
-                display: block;
-                margin: 0;
-                padding: 0;
+            /* Hide UI controls */
+            .side-panel,
+            #leftPanel,
+            #rightPanel,
+            #minimapContainer,
+            #contextMenu,
+            .fixed.top-4,
+            .fixed.bottom-4,
+            #btnOpenLeft,
+            #btnOpenRight {
+                display: none !important;
             }
 
-            .center-panel {
-                border: none !important;
-                box-shadow: none !important;
-                margin: 0;
-                padding: 0;
-                background: none !important;
+            #singleViewArea {
+                width: 100% !important;
+                height: 100% !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                page-break-inside: avoid !important;
+                overflow: visible !important;
+                background: white !important;
+            }
+
+            #palletArea {
+                margin: 0 auto !important;
+                page-break-inside: avoid !important;
+                overflow: visible !important;
+                /* Dynamic transform set by JS print logic */
             }
 
             .center-panel .panel-body,
-            .center-panel .panel-header {
+            .center-panel .panel-header,
+            .panel-header {
                 display: none !important;
             }
 
@@ -111,22 +128,24 @@
             /* Black & White Technical Drawing Styles */
             .pallet-area {
                 background: none !important;
-                border: 2px solid #000 !important;
+                border: none !important; /* we want just the layout, not the area container */
                 page-break-inside: avoid !important;
                 break-inside: avoid !important;
-                margin: 10px auto;
                 box-shadow: none !important;
             }
 
             .pallet,
-            .pallet2 {
+            .pallet2,
+            .pallet-wood {
                 background: #fff !important;
                 border: 2px solid #000 !important;
                 box-shadow: none !important;
                 background-image: none !important;
             }
 
-            .rad {
+            .rad,
+            .rad-24050,
+            .rad-24050-flipped {
                 border: 2px solid #000 !important;
                 background: #fff !important;
                 color: #000 !important;
@@ -135,11 +154,30 @@
                 background-image: none !important;
             }
 
-            .rad span {
+            .rad span,
+            .rad-24050 .pkg-num,
+            .rad-24050-flipped .pkg-num {
                 background: none !important;
                 color: #000 !important;
                 font-weight: bold;
                 text-shadow: none !important;
+            }
+
+            /* Hide floating axis labels in print mode */
+            .axis-label {
+                display: none !important;
+            }
+
+            /* Remove 24050 visual details for print */
+            .pkg-body, .pkg-card, .pkg-corner, .pkg-label {
+                display: none !important;
+            }
+
+            /* Remove inner pattern for regular radiators */
+            .heat-plate, .pattern-area, .long-pipe, .port, .clip {
+                background: none !important;
+                box-shadow: none !important;
+                border: none !important;
             }
 
             .dim-w,
@@ -147,6 +185,10 @@
                 color: #000 !important;
                 font-weight: bold;
                 font-size: 10px !important;
+            }
+
+            .blueprint-only {
+                display: block !important;
             }
 
             .dim-line {
@@ -220,68 +262,29 @@
             }
         }
 
-        .main-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 12px;
-            max-width: 1600px;
-            margin: 0 auto;
-        }
-
-        @media (min-width: 1200px) {
+        @media (max-width: 1100px) {
             .main-grid {
-                grid-template-columns: 300px 1fr 320px;
-            }
-        }
-
-        @media (min-width: 768px) and (max-width: 1199px) {
-            .main-grid {
-                grid-template-columns: 300px 1fr;
-            }
-
-            .center-panel {
-                grid-column: 1 / -1;
-                order: -1;
-            }
-        }
-
-        @media (max-width: 767px) {
-            .main-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .status-bar {
                 flex-direction: column;
-                align-items: flex-start;
+                height: auto;
+                overflow-y: auto;
             }
-
-            .dizilim-grid {
-                grid-template-columns: repeat(3, 1fr);
+            .side-panel {
+                width: 100%;
+                min-width: 100%;
+                height: auto;
+                overflow: visible;
+                border: none;
+                border-bottom: 1px solid var(--glass-border);
             }
-
-            .pallet-area {
-                height: 350px;
+            .center-panel {
+                height: 500px;
+                min-height: 500px;
             }
         }
 
         .rad-overflow {
             border-color: #FF3D00 !important;
             box-shadow: 0 0 15px rgba(255, 61, 0, 0.5) !important;
-            animation: overflowPulse 1s infinite !important;
-        }
-
-        @keyframes overflowPulse {
-            0% {
-                opacity: 1;
-            }
-
-            50% {
-                opacity: 0.6;
-            }
-
-            100% {
-                opacity: 1;
-            }
         }
 
         /* Matrix Modal Styles */
@@ -292,8 +295,6 @@
             right: 0;
             bottom: 0;
             background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(5px);
-            -webkit-backdrop-filter: blur(5px);
             z-index: 1000;
             display: none;
             align-items: center;
@@ -380,38 +381,160 @@
                 opacity: 1;
             }
         }
+        
+        /* Light Theme Overrides */
+        body.light-theme {
+            background-image: radial-gradient(circle at 50% 50%, #f1f5f9 0%, #e2e8f0 100%) !important;
+            color: #1e293b !important;
+        }
+        
+        body.light-theme .bg-slate-800\/90,
+        body.light-theme .bg-slate-800 {
+            background-color: rgba(255, 255, 255, 0.95) !important;
+            border-color: #cbd5e1 !important;
+        }
+
+        body.light-theme .bg-slate-900\/50,
+        body.light-theme .bg-slate-900 {
+            background-color: #f8fafc !important;
+            border-color: #cbd5e1 !important;
+        }
+
+        body.light-theme .text-slate-200,
+        body.light-theme .text-slate-300,
+        body.light-theme .text-white {
+            color: #0f172a !important;
+        }
+
+        body.light-theme .text-slate-400 {
+            color: #475569 !important;
+        }
+
+        body.light-theme .text-slate-500 {
+            color: #64748b !important;
+        }
+
+        body.light-theme .border-slate-700,
+        body.light-theme .border-slate-600 {
+            border-color: #e2e8f0 !important;
+        }
+
+        body.light-theme .hover\:bg-slate-700:hover {
+            background-color: #e2e8f0 !important;
+        }
+        
+        body.light-theme .hover\:bg-slate-900\/80:hover {
+            background-color: #f1f5f9 !important;
+        }
+        
+        body.light-theme input,
+        body.light-theme select {
+            color: #0f172a !important;
+        }
+        
+        body.light-theme .dizilim-btn.active,
+        body.light-theme .mode-btn.active,
+        body.light-theme .lang-btn.active {
+            background-color: var(--kuka-orange) !important;
+            color: white !important;
+            border-color: var(--kuka-orange) !important;
+        }
+
+        body.light-theme .dizilim-btn,
+        body.light-theme .mode-btn,
+        body.light-theme .lang-btn {
+            background-color: #ffffff !important;
+            color: #475569 !important;
+            border-color: #cbd5e1 !important;
+        }
+        
+        body.light-theme .viz-header-content .text-orange-500 {
+            color: #ea580c !important;
+        }
+
+        body.light-theme .panel-header {
+            background: rgba(255, 255, 255, 0.9) !important;
+            border: 1px solid rgba(0,0,0,0.1) !important;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1) !important;
+        }
+        
+        body.light-theme .stat-badge {
+            background-color: #f1f5f9 !important;
+            border-color: #cbd5e1 !important;
+            color: #0f172a !important;
+        }
     </style>
 </head>
 
 <body>
-    <div class="app-wrapper">
+    <div class="w-screen h-screen bg-slate-900 overflow-hidden relative font-sans text-slate-200" style="background-image: radial-gradient(circle at 50% 50%, #1e293b 0%, #0f172a 100%);">
+        
+        <!-- Center Panel: Visualization (Moved to background) -->
+        <div id="singleViewArea" class="absolute inset-0 z-0 flex flex-col items-center justify-center cursor-move overflow-hidden" onmousedown="HmiApp.startPan(event)" ontouchstart="HmiApp.startPan(event)" onwheel="HmiApp.handleZoom(event)" ontouchmove="HmiApp.handleZoomTouch(event)">
+            <!-- Background Grid Pattern -->
+            <div class="absolute inset-0 pointer-events-none" style="background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px); background-size: 40px 40px;"></div>
+            
+            <div class="panel-header gradient-header" style="position:absolute; top:20px; left:50%; transform:translateX(-50%); z-index:50; border-radius:12px; border: 1px solid rgba(255,255,255,0.1); background:rgba(15,23,42,0.8); backdrop-filter:blur(10px); padding: 10px 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+                <div class="viz-header-content flex items-center justify-between gap-6">
+                    <div class="text-orange-500 font-bold text-lg flex items-center gap-2"><i class="fas fa-cube"></i><span id="vizTitle">Dizilim 1...</span></div>
+                    <div class="viz-stats flex gap-3">
+                        <span class="stat-badge cursor-pointer bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded px-3 py-1 flex items-center gap-2 text-sm text-slate-300 transition-colors" onclick="HmiApp.resetView()" title="Görünümü Sıfırla (Reset View)"><i class="fas fa-crosshairs text-orange-500"></i><span>Sıfırla</span></span>
+                        <span class="stat-badge bg-slate-800 border border-slate-600 rounded px-3 py-1 flex items-center gap-2 text-sm text-slate-300"><i class="fas fa-boxes text-orange-500"></i><span id="statCount">10</span></span>
+                        <span class="stat-badge bg-slate-800 border border-slate-600 rounded px-3 py-1 flex items-center gap-2 text-sm text-slate-300"><i class="fas fa-rotate text-orange-500"></i><span id="statAngle">0°</span></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pallet-area" id="palletArea" style="transform-origin: center center; transition: transform 0.1s ease-out;">
+                <div class="pallet" id="pallet"></div>
+                <div class="pallet2" id="pallet2" style="display:none;"></div>
+                <div class="center-mark" id="centerMark"></div>
+                <span class="axis-label axis-x" id="axisX">1200</span>
+                <span class="axis-label axis-y" id="axisY">800</span>
+            </div>
+
+            <!-- ALL LAYOUTS VIEW CONTAINER -->
+            <div class="all-layouts-grid" id="allLayoutsGrid"></div>
+        </div>
+
         <!-- Top Status Bar -->
-        <div class="status-bar">
-            <div class="status-item"><i class="fas fa-robot"></i><span>KUKA KR 470 PA-2</span></div>
-            <div class="status-item"><i class="fas fa-layer-group"></i><span id="cellNumber">Cell 24049</span></div>
-            <div class="status-item"><i class="fas fa-clock"></i><span id="currentTime">--:--:--</span></div>
-            <div class="status-item" style="margin-left:auto">
-                <div class="status-dot pulse"></div><span>SYSTEM ONLINE</span>
+        <div class="fixed top-2 sm:top-4 left-2 sm:left-4 right-2 sm:right-4 z-50 bg-slate-800/90 backdrop-blur border border-slate-700 rounded-xl shadow-lg flex flex-wrap items-center gap-2 sm:gap-6 px-3 py-2 sm:px-6 sm:py-3">
+            <div class="flex items-center gap-2 text-xs font-semibold text-slate-400"><i class="fas fa-robot text-orange-500"></i><span class="hidden sm:inline">KUKA KR 470 PA-2</span></div>
+            <div class="flex items-center gap-2 text-xs font-semibold text-slate-400"><i class="fas fa-layer-group text-orange-500"></i><span id="cellNumber">Cell 24049</span></div>
+            <div class="flex items-center gap-2 text-xs font-semibold text-slate-400"><i class="fas fa-clock text-orange-500"></i><span id="currentTime" class="hidden sm:inline">--:--:--</span></div>
+            <div class="flex items-center gap-2 text-xs font-semibold text-slate-400 ml-auto">
+                <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_#10b981]"></div><span class="mr-4">SYSTEM ONLINE</span>
+                <button onclick="HmiApp.toggleTheme()" class="text-slate-400 hover:text-orange-500 transition-colors" title="Toggle Light/Dark Mode">
+                    <i id="themeIcon" class="fas fa-moon text-lg"></i>
+                </button>
             </div>
         </div>
 
-        <div class="main-grid">
+        <div class="pointer-events-none absolute inset-0 z-40 mt-20 p-4 flex gap-4 overflow-hidden">
+            <div id="mobileBackdrop" class="fixed inset-0 bg-black/60 z-[55] hidden sm:hidden pointer-events-auto" onclick="HmiApp.closeAllPanels()"></div>
             <!-- Left Panel: Controls -->
-            <div class="glass-panel">
-                <div class="panel-header"><i class="fas fa-sliders-h"></i><span id="lblControls">Kontrol Paneli</span>
+            <div id="leftPanel" class="pointer-events-auto w-[85vw] max-w-sm sm:w-80 h-full sm:max-h-[calc(100vh-6.5rem)] overflow-y-auto bg-slate-800/95 backdrop-blur shadow-2xl border-r sm:border border-slate-700 flex flex-col shrink-0 custom-scrollbar transition-transform duration-300 ease-in-out fixed sm:relative top-0 sm:top-auto left-0 sm:left-auto z-[60] sm:z-auto sm:rounded-2xl">
+                
+                <!-- Toggle Button -->
+                <button onclick="HmiApp.toggleLeftPanel()" class="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors z-50 hidden sm:block">
+                    <i id="leftPanelIcon" class="fas fa-chevron-left"></i>
+                </button>
+
+                <div class="bg-gradient-to-br from-orange-500/10 to-transparent border-b border-slate-700 p-4 pr-10 flex items-center gap-2 font-bold text-sm uppercase tracking-wider text-slate-200">
+                    <i class="fas fa-sliders-h text-orange-500 text-base"></i><span id="lblControls">Kontrol Paneli</span>
                 </div>
-                <div class="panel-body">
-                    <div class="input-group">
-                        <label id="lblProject">Proje</label>
-                        <select id="projectSelect" onchange="HmiApp.selectProject()" class="select-modern">
+                <div class="p-4 flex flex-col gap-4">
+                    <div>
+                        <label id="lblProject" class="block mb-1 text-xs font-semibold text-slate-400 uppercase tracking-wide">Proje</label>
+                        <select id="projectSelect" onchange="HmiApp.selectProject()" class="w-full p-2.5 text-sm font-semibold bg-slate-900/50 border border-orange-500/30 rounded-lg text-orange-500 cursor-pointer hover:border-orange-500 hover:bg-slate-900/80 focus:outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-500/20 transition-all">
                             <option value="24048" selected>24048 / 24049</option>
                             <option value="24050">24050</option>
                         </select>
                     </div>
 
-                    <div class="input-group">
-                        <label id="lblWidth">Genişlik (mm)</label>
-                        <select id="inW" class="select-modern">
+                    <div>
+                        <label id="lblWidth" class="block mb-1 text-xs font-semibold text-slate-400 uppercase tracking-wide">Genişlik (mm)</label>
+                        <select id="inW" class="w-full p-2.5 text-sm font-semibold bg-slate-900/50 border border-orange-500/30 rounded-lg text-orange-500 cursor-pointer hover:border-orange-500 hover:bg-slate-900/80 focus:outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-500/20 transition-all">
                             <option value="200">200</option>
                             <option value="300">300</option>
                             <option value="400">400</option>
@@ -421,159 +544,176 @@
                         </select>
                     </div>
 
-                    <div class="input-group">
-                        <label id="lblLength">Uzunluk (mm)</label>
-                        <select id="inL" class="select-modern"></select>
+                    <div>
+                        <label id="lblLength" class="block mb-1 text-xs font-semibold text-slate-400 uppercase tracking-wide">Uzunluk (mm)</label>
+                        <select id="inL" class="w-full p-2.5 text-sm font-semibold bg-slate-900/50 border border-orange-500/30 rounded-lg text-orange-500 cursor-pointer hover:border-orange-500 hover:bg-slate-900/80 focus:outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-500/20 transition-all"></select>
                     </div>
 
-                    <div class="gap-controls" style="margin-bottom: 12px;">
-                        <div class="input-group-small">
-                            <label id="lblGapW">X Boşluk</label>
-                            <input type="number" id="gapW" value="50" class="input-small">
-                        </div>
-                        <div class="input-group-small">
-                            <label id="lblGapH">Y Boşluk</label>
-                            <input type="number" id="gapH" value="14" class="input-small">
-                        </div>
-                    </div>
-
-                    <button class="btn-primary pulse-on-hover" onclick="HmiApp.calc()" id="btnCalc">
+                    <button id="btnCalc" onclick="HmiApp.calc()" class="w-full p-3 text-sm font-bold bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg text-slate-900 flex items-center justify-center gap-2 shadow-[0_4px_12px_rgba(249,115,22,0.3)] hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(249,115,22,0.4)] transition-all">
                         <i class="fas fa-calculator"></i><span id="lblCalc">Hesapla</span>
                     </button>
 
-                    <div class="mode-selector">
-                        <button class="mode-btn active" id="m1" onclick="HmiApp.setMode(0)"><i
-                                class="fas fa-square"></i><span id="lbl1Pal">1 Palet</span></button>
-                        <button class="mode-btn" id="m2" onclick="HmiApp.setMode(1)"><i class="fas fa-th"></i><span
-                                id="lbl2Pal">2
-                                Palet</span></button>
+                    <div id="manualModeToggle" class="grid grid-cols-2 gap-2 mt-2 mode-selector">
+                        <button id="btnAutoMode" onclick="HmiApp.toggleManualMode(false)" class="mode-btn active p-2 text-xs font-bold rounded-lg border border-slate-600 bg-slate-900/50 text-slate-400 hover:bg-slate-700 hover:text-slate-200 transition-colors flex items-center justify-center gap-2"><i class="fas fa-magic"></i> Auto</button>
+                        <button id="btnManualMode" onclick="HmiApp.toggleManualMode(true)" class="mode-btn p-2 text-xs font-bold rounded-lg border border-slate-600 bg-slate-900/50 text-slate-400 hover:bg-slate-700 hover:text-slate-200 transition-colors flex items-center justify-center gap-2"><i class="fas fa-hand-paper"></i> Manual</button>
                     </div>
 
-                    <div class="mode-selector" id="exportToggle" style="display:none;">
-                        <button class="mode-btn active" id="btnDomestic" onclick="HmiApp.toggleExport(0)"><i
-                                class="fas fa-home"></i><span id="lblDom">Domestic</span></button>
-                        <button class="mode-btn" id="btnExport" onclick="HmiApp.toggleExport(1)"><i
-                                class="fas fa-ship"></i><span id="lblExp">Export</span></button>
-                    </div>
+                    <div id="manualControlsGroup" class="transition-opacity duration-300">
+                        <div class="grid grid-cols-2 gap-3 mt-2">
+                            <div>
+                                <label id="lblGapW" class="block mb-1 text-xs font-semibold text-slate-500">X Boşluk</label>
+                                <input type="number" id="gapW" value="50" class="w-full p-2 text-sm font-bold font-mono text-center bg-slate-900/50 border border-orange-500/30 rounded-lg text-orange-500 focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/30 transition-all">
+                            </div>
+                            <div>
+                                <label id="lblGapH" class="block mb-1 text-xs font-semibold text-slate-500">Y Boşluk</label>
+                                <input type="number" id="gapH" value="14" class="w-full p-2 text-sm font-bold font-mono text-center bg-slate-900/50 border border-orange-500/30 rounded-lg text-orange-500 focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/30 transition-all">
+                            </div>
+                        </div>
 
-                    <div class="divider"></div>
-                    <label class="section-label" id="lblLayout">Dizilim Şeması</label>
-                    <div class="dizilim-grid">
-                        <!-- Buttons b1-b12 -->
-                        <button class="dizilim-btn active" id="b1" onclick="HmiApp.selD(1)">D1</button>
-                        <button class="dizilim-btn" id="b2" onclick="HmiApp.selD(2)">D2</button>
-                        <button class="dizilim-btn" id="b3" onclick="HmiApp.selD(3)">D3</button>
-                        <button class="dizilim-btn" id="b4" onclick="HmiApp.selD(4)">D4</button>
-                        <button class="dizilim-btn" id="b5" onclick="HmiApp.selD(5)">D5</button>
-                        <button class="dizilim-btn" id="b6" onclick="HmiApp.selD(6)">D6</button>
-                        <button class="dizilim-btn" id="b7" onclick="HmiApp.selD(7)">D7</button>
-                        <button class="dizilim-btn" id="b8" onclick="HmiApp.selD(8)">D8</button>
-                        <button class="dizilim-btn" id="b9" onclick="HmiApp.selD(9)">D9</button>
-                        <button class="dizilim-btn" id="b10" onclick="HmiApp.selD(10)">D10</button>
-                        <button class="dizilim-btn" id="b11" onclick="HmiApp.selD(11)">D11</button>
-                        <button class="dizilim-btn" id="b12" onclick="HmiApp.selD(12)">D12</button>
-                    </div>
-
-                    <div id="radPositionsPanel" style="display:none;"></div>
-                    <div id="radPosResetBtn" style="display:none;">
-                        <button class="mode-btn" onclick="HmiApp.calc()" style="width:100%;margin-top:4px;"><i
-                                class="fas fa-undo"></i> <span id="lblReset">Reset Positions</span></button>
-                    </div>
-
-                    <div class="gap-controls" id="palletSizeControls" style="display:none; margin-top:10px;">
-                        <div class="input-group-small"><label>Palet X</label><input type="number" id="palW50" value="0"
-                                class="input-small"></div>
-                        <div class="input-group-small"><label>Palet Y</label><input type="number" id="palH50" value="0"
-                                class="input-small"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Center Panel: Visualization -->
-            <div class="glass-panel center-panel">
-                <div class="panel-header gradient-header">
-                    <div class="viz-header-content">
-                        <div><i class="fas fa-cube"></i><span id="vizTitle">Dizilim 1...</span></div>
-                        <div class="viz-stats">
-                            <span class="stat-badge"><i class="fas fa-boxes"></i><span id="statCount">10</span></span>
-                            <span class="stat-badge"><i class="fas fa-rotate"></i><span id="statAngle">0°</span></span>
+                        <div class="grid grid-cols-2 gap-2 mt-2 mode-selector" id="palletModeSelector">
+                            <button id="m1" onclick="HmiApp.setMode(0)" class="mode-btn active p-2 text-xs font-bold rounded-lg border border-slate-600 bg-slate-900/50 text-slate-400 hover:bg-slate-700 hover:text-slate-200 transition-colors flex items-center justify-center gap-2"><i class="fas fa-square"></i><span id="lbl1Pal">1 Palet</span></button>
+                            <button id="m2" onclick="HmiApp.setMode(1)" class="mode-btn p-2 text-xs font-bold rounded-lg border border-slate-600 bg-slate-900/50 text-slate-400 hover:bg-slate-700 hover:text-slate-200 transition-colors flex items-center justify-center gap-2"><i class="fas fa-th"></i><span id="lbl2Pal">2 Palet</span></button>
                         </div>
                     </div>
-                </div>
 
-                <!-- Display Area container acting as wrapper -->
-                <div id="singleViewArea">
-                    <div class="pallet-area" id="palletArea">
-                        <div class="pallet" id="pallet"></div>
-                        <div class="pallet2" id="pallet2" style="display:none;"></div>
-                        <div class="center-mark" id="centerMark"></div>
-                        <span class="axis-label axis-x" id="axisX">1200</span>
-                        <span class="axis-label axis-y" id="axisY">800</span>
+                    <div id="exportToggle" class="grid grid-cols-2 gap-2 mt-2 mode-selector" style="display:none;">
+                        <button id="btnDomestic" onclick="HmiApp.toggleExport(0)" class="mode-btn active p-2 text-xs font-bold rounded-lg border border-slate-600 bg-slate-900/50 text-slate-400 hover:bg-slate-700 hover:text-slate-200 transition-colors flex items-center justify-center gap-2"><i class="fas fa-home"></i><span id="lblDom">Domestic</span></button>
+                        <button id="btnExport" onclick="HmiApp.toggleExport(1)" class="mode-btn p-2 text-xs font-bold rounded-lg border border-slate-600 bg-slate-900/50 text-slate-400 hover:bg-slate-700 hover:text-slate-200 transition-colors flex items-center justify-center gap-2"><i class="fas fa-ship"></i><span id="lblExp">Export</span></button>
+                    </div>
+
+                    <hr class="border-slate-700 my-2">
+                    
+                    <div class="bg-slate-900/50 border border-slate-700 rounded-lg p-3">
+                        <div class="text-xs font-bold text-orange-500 mb-2">Ölçü Görünürlüğü</div>
+                        <div class="flex flex-col gap-2 text-xs text-slate-300">
+                            <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" id="chkDimCenter" onchange="HmiApp.toggleDim('center', this.checked)" class="accent-orange-500"> Merkez Uzaklıkları</label>
+                            <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" id="chkDimGap" onchange="HmiApp.toggleDim('gap', this.checked)" checked class="accent-orange-500"> Radyatörler Arası (Boşluk)</label>
+                            <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" id="chkDimEdges" onchange="HmiApp.toggleDim('edges', this.checked)" class="accent-orange-500"> Palet & Kenar Ölçüleri</label>
+                        </div>
+                    </div>
+
+                    <label id="lblLayout" class="block mt-2 mb-1 text-xs font-semibold text-slate-400 uppercase tracking-wide">Dizilim Şeması</label>
+
+                    <div id="manualAddPanel" style="display:none;" class="bg-slate-900/50 border border-orange-500/50 rounded-lg p-3 mb-2">
+                        <div class="text-xs font-bold text-orange-500 mb-2">Radyatör Ekle (Manuel Mod)</div>
+                        <div class="flex gap-2 mb-2">
+                            <input type="number" id="manW" placeholder="Genişlik" class="w-full p-2 text-xs font-bold font-mono text-center bg-slate-800 border border-slate-600 rounded text-orange-500 focus:outline-none focus:border-orange-500 transition-all">
+                            <input type="number" id="manL" placeholder="Uzunluk" class="w-full p-2 text-xs font-bold font-mono text-center bg-slate-800 border border-slate-600 rounded text-orange-500 focus:outline-none focus:border-orange-500 transition-all">
+                        </div>
+                        <button onclick="HmiApp.addManualRadiator()" class="w-full p-2 text-xs font-bold bg-orange-500/20 text-orange-500 border border-orange-500/50 rounded hover:bg-orange-500/30 transition-colors flex items-center justify-center gap-2 mb-3"><i class="fas fa-plus"></i> Ekle</button>
+                        
+                        <div class="text-xs font-bold text-orange-500 mb-2 mt-2">Araçlar</div>
+                        <button onclick="HmiApp.alignManualRadiators()" class="w-full p-2 text-xs font-bold rounded border border-slate-600 bg-slate-800 text-slate-300 hover:bg-slate-700 transition-colors flex items-center justify-center gap-2"><i class="fas fa-th-large"></i> Otomatik Hizala</button>
+                    </div>
+
+                    <div id="dizilimGridContainer" class="grid grid-cols-4 gap-1.5 dizilim-grid">
+                        <button id="b1" onclick="HmiApp.selD(1)" class="dizilim-btn active p-2 text-[10px] font-bold font-mono rounded bg-slate-900/50 border border-slate-700 text-slate-400 hover:bg-slate-700 transition-colors min-h-[44px]">D1</button>
+                        <button id="b2" onclick="HmiApp.selD(2)" class="dizilim-btn p-2 text-[10px] font-bold font-mono rounded bg-slate-900/50 border border-slate-700 text-slate-400 hover:bg-slate-700 transition-colors min-h-[44px]">D2</button>
+                        <button id="b3" onclick="HmiApp.selD(3)" class="dizilim-btn p-2 text-[10px] font-bold font-mono rounded bg-slate-900/50 border border-slate-700 text-slate-400 hover:bg-slate-700 transition-colors min-h-[44px]">D3</button>
+                        <button id="b4" onclick="HmiApp.selD(4)" class="dizilim-btn p-2 text-[10px] font-bold font-mono rounded bg-slate-900/50 border border-slate-700 text-slate-400 hover:bg-slate-700 transition-colors min-h-[44px]">D4</button>
+                        <button id="b5" onclick="HmiApp.selD(5)" class="dizilim-btn p-2 text-[10px] font-bold font-mono rounded bg-slate-900/50 border border-slate-700 text-slate-400 hover:bg-slate-700 transition-colors min-h-[44px]">D5</button>
+                        <button id="b6" onclick="HmiApp.selD(6)" class="dizilim-btn p-2 text-[10px] font-bold font-mono rounded bg-slate-900/50 border border-slate-700 text-slate-400 hover:bg-slate-700 transition-colors min-h-[44px]">D6</button>
+                        <button id="b7" onclick="HmiApp.selD(7)" class="dizilim-btn p-2 text-[10px] font-bold font-mono rounded bg-slate-900/50 border border-slate-700 text-slate-400 hover:bg-slate-700 transition-colors min-h-[44px]">D7</button>
+                        <button id="b8" onclick="HmiApp.selD(8)" class="dizilim-btn p-2 text-[10px] font-bold font-mono rounded bg-slate-900/50 border border-slate-700 text-slate-400 hover:bg-slate-700 transition-colors min-h-[44px]">D8</button>
+                        <button id="b9" onclick="HmiApp.selD(9)" class="dizilim-btn p-2 text-[10px] font-bold font-mono rounded bg-slate-900/50 border border-slate-700 text-slate-400 hover:bg-slate-700 transition-colors min-h-[44px]">D9</button>
+                        <button id="b10" onclick="HmiApp.selD(10)" class="dizilim-btn p-2 text-[10px] font-bold font-mono rounded bg-slate-900/50 border border-slate-700 text-slate-400 hover:bg-slate-700 transition-colors min-h-[44px]">D10</button>
+                        <button id="b11" onclick="HmiApp.selD(11)" class="dizilim-btn p-2 text-[10px] font-bold font-mono rounded bg-slate-900/50 border border-slate-700 text-slate-400 hover:bg-slate-700 transition-colors min-h-[44px]">D11</button>
+                        <button id="b12" onclick="HmiApp.selD(12)" class="dizilim-btn p-2 text-[10px] font-bold font-mono rounded bg-slate-900/50 border border-slate-700 text-slate-400 hover:bg-slate-700 transition-colors min-h-[44px]">D12</button>
+                    </div>
+
+                    <div id="radPositionsPanel" style="display:none;" class="mt-2 text-xs"></div>
+                    <div id="radPosResetBtn" style="display:none;" class="mt-2">
+                        <button onclick="HmiApp.calc()" class="w-full p-2 text-xs font-bold rounded border border-slate-600 bg-slate-800 text-slate-300 hover:bg-slate-700 transition-colors flex items-center justify-center gap-2"><i class="fas fa-undo"></i> <span id="lblReset">Reset Positions</span></button>
+                    </div>
+
+                    <div id="palletSizeControls" style="display:none;" class="grid grid-cols-2 gap-3 mt-3">
+                        <div><label class="block mb-1 text-[10px] font-semibold text-slate-500">Palet X</label><input type="number" id="palW50" value="0" class="w-full p-2 text-sm font-bold font-mono text-center bg-slate-900/50 border border-slate-600 rounded text-slate-300 focus:outline-none focus:border-orange-500"></div>
+                        <div><label class="block mb-1 text-[10px] font-semibold text-slate-500">Palet Y</label><input type="number" id="palH50" value="0" class="w-full p-2 text-sm font-bold font-mono text-center bg-slate-900/50 border border-slate-600 rounded text-slate-300 focus:outline-none focus:border-orange-500"></div>
                     </div>
                 </div>
-
-                <!-- ALL LAYOUTS VIEW CONTAINER -->
-                <div class="all-layouts-grid" id="allLayoutsGrid"></div>
-
             </div>
+
+
+            <div class="flex-grow"></div>
 
             <!-- Right Panel: Info -->
-            <div class="glass-panel">
-                <div class="panel-header"><i class="fas fa-info-circle"></i><span id="lblInfo">Bilgiler</span></div>
-                <div class="panel-body">
-                    <button class="btn-primary" onclick="HmiApp.toggleAllLayouts()" id="btnToggleAll"
-                        style="background:linear-gradient(135deg, #0288D1 0%, #01579B 100%); margin-bottom: 10px;">
+            <div id="rightPanel" class="pointer-events-auto w-[85vw] max-w-sm sm:w-80 h-full sm:max-h-[calc(100vh-6.5rem)] overflow-y-auto bg-slate-800/95 backdrop-blur shadow-2xl border-l sm:border border-slate-700 flex flex-col shrink-0 custom-scrollbar transition-transform duration-300 ease-in-out fixed sm:relative top-0 sm:top-auto right-0 sm:right-auto z-[60] sm:z-auto sm:rounded-2xl">
+                
+                <!-- Toggle Button -->
+                <button onclick="HmiApp.toggleRightPanel()" class="absolute top-4 left-4 text-slate-400 hover:text-white transition-colors z-50 hidden sm:block">
+                    <i id="rightPanelIcon" class="fas fa-chevron-right"></i>
+                </button>
+
+                <div class="bg-gradient-to-br from-blue-500/10 to-transparent border-b border-slate-700 p-4 pl-10 flex items-center gap-2 font-bold text-sm uppercase tracking-wider text-slate-200">
+                    <i class="fas fa-info-circle text-blue-400 text-base"></i><span id="lblInfo">Bilgiler</span>
+                </div>
+                <div class="p-4 flex flex-col gap-3">
+                    <button id="btnToggleAll" onclick="HmiApp.toggleAllLayouts()" class="group relative w-full p-2.5 text-xs font-bold bg-gradient-to-r from-blue-600 to-sky-600 rounded-lg text-white flex items-center justify-center gap-2 shadow-[0_4px_12px_rgba(2,136,209,0.3)] hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(2,136,209,0.4)] transition-all">
                         <i class="fas fa-th-large"></i><span id="lblToggleAll">Tümünü Göster</span>
+                        <span class="opacity-0 group-hover:opacity-100 transition-opacity bg-slate-900 text-white text-[10px] rounded px-2 py-1 absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap pointer-events-none shadow-md z-50">Tüm Dizilimleri Gör</span>
                     </button>
-                    <button class="btn-primary" onclick="window.print()"
-                        style="background:linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%); margin-bottom: 10px;">
+                    <button onclick="window.print()" class="group relative w-full p-2.5 text-xs font-bold bg-gradient-to-r from-emerald-600 to-green-600 rounded-lg text-white flex items-center justify-center gap-2 shadow-[0_4px_12px_rgba(16,185,129,0.3)] hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(16,185,129,0.4)] transition-all">
                         <i class="fas fa-print"></i><span id="lblPrint">Yazdır (Print)</span>
+                        <span class="opacity-0 group-hover:opacity-100 transition-opacity bg-slate-900 text-white text-[10px] rounded px-2 py-1 absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap pointer-events-none shadow-md z-50">A4 Teknik Çıktı Al</span>
                     </button>
-                    <button class="btn-primary" onclick="HmiApp.openMatrixModal()" id="btnMatrix"
-                        style="background:linear-gradient(135deg, #FF9800 0%, #F57C00 100%); margin-bottom: 20px;">
+                    <button id="btnExportImg" onclick="HmiApp.exportToImage()" class="group relative w-full p-2.5 text-xs font-bold bg-gradient-to-r from-fuchsia-600 to-purple-600 rounded-lg text-white flex items-center justify-center gap-2 shadow-[0_4px_12px_rgba(192,38,211,0.3)] hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(192,38,211,0.4)] transition-all">
+                        <i class="fas fa-camera"></i><span id="lblExportImg">Resmi İndir</span>
+                        <span class="opacity-0 group-hover:opacity-100 transition-opacity bg-slate-900 text-white text-[10px] rounded px-2 py-1 absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap pointer-events-none shadow-md z-50">Görsel Olarak Kaydet</span>
+                    </button>
+                    <button id="btnMatrix" onclick="HmiApp.openMatrixModal()" class="group relative w-full p-2.5 text-xs font-bold bg-gradient-to-r from-amber-500 to-orange-500 rounded-lg text-slate-900 flex items-center justify-center gap-2 shadow-[0_4px_12px_rgba(245,158,11,0.3)] hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(245,158,11,0.4)] transition-all mb-2">
                         <i class="fas fa-table"></i><span id="lblMatrix">Dizilim Matrisi</span>
+                        <span class="opacity-0 group-hover:opacity-100 transition-opacity bg-slate-900 text-white text-[10px] rounded px-2 py-1 absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap pointer-events-none shadow-md z-50">Tüm Şemaları İncele</span>
                     </button>
 
-                    <div class="info-card">
-                        <div class="info-card-header"><i class="fas fa-box"></i><span id="lblRadiator">Radyatör</span>
-                        </div>
-                        <div class="info-row"><span id="lblW2">Genişlik:</span><span class="value-highlight"
-                                id="iW">200</span></div>
-                        <div class="info-row"><span id="lblL2">Uzunluk:</span><span class="value-highlight"
-                                id="iL">400</span></div>
+                    <div class="info-card bg-slate-900/50 border border-slate-700 rounded-xl p-3 hover:bg-slate-900/80 hover:border-orange-500/30 transition-colors">
+                        <div class="flex items-center gap-2 text-xs font-bold text-orange-500 mb-2 pb-2 border-b border-slate-700/50"><i class="fas fa-box"></i><span id="lblRadiator">Radyatör</span></div>
+                        <div class="flex justify-between items-center py-1 text-xs text-slate-400"><span id="lblW2">Genişlik:</span><span id="iW" class="font-bold font-mono text-orange-500 text-sm">200</span></div>
+                        <div class="flex justify-between items-center py-1 text-xs text-slate-400"><span id="lblL2">Uzunluk:</span><span id="iL" class="font-bold font-mono text-orange-500 text-sm">400</span></div>
                     </div>
-                    <div class="info-card">
-                        <div class="info-card-header"><i class="fas fa-layer-group"></i><span
-                                id="lblPlacement">Yerleşim</span></div>
-                        <div class="info-row"><span id="lblAngle">Açı:</span><span id="iA">0°</span></div>
-                        <div class="info-row"><span id="lblPcs">Adet/kat:</span><span class="value-highlight"
-                                id="iC">10</span></div>
-                        <div class="info-row ext-info-row"
-                            style="margin-top: 5px; padding-top: 5px; border-top: 1px solid rgba(255,255,255,0.1);">
-                            <span id="lblLayers">Kat Sayısı:</span><span class="value-highlight" id="iLyr">10</span>
-                        </div>
-                        <div class="info-row ext-info-row"><span id="lblTotal">Toplam:</span><span
-                                class="value-highlight" id="iTot">100</span></div>
+
+                    <div class="info-card bg-slate-900/50 border border-slate-700 rounded-xl p-3 hover:bg-slate-900/80 hover:border-orange-500/30 transition-colors">
+                        <div class="flex items-center gap-2 text-xs font-bold text-orange-500 mb-2 pb-2 border-b border-slate-700/50"><i class="fas fa-layer-group"></i><span id="lblPlacement">Yerleşim</span></div>
+                        <div class="flex justify-between items-center py-1 text-xs text-slate-400"><span id="lblAngle">Açı:</span><span id="iA" class="font-bold font-mono text-slate-300">0°</span></div>
+                        <div class="flex justify-between items-center py-1 text-xs text-slate-400"><span id="lblPcs">Adet/kat:</span><span id="iC" class="font-bold font-mono text-orange-500 text-sm">10</span></div>
+                        <div class="ext-info-row flex justify-between items-center py-1 text-xs text-slate-400 mt-1 pt-1 border-t border-slate-700/50"><span id="lblLayers">Kat Sayısı:</span><span id="iLyr" class="font-bold font-mono text-orange-500 text-sm">10</span></div>
+                        <div class="ext-info-row flex justify-between items-center py-1 text-xs text-slate-400"><span id="lblTotal">Toplam:</span><span id="iTot" class="font-bold font-mono text-orange-500 text-sm">100</span></div>
                     </div>
-                    <div class="info-card">
-                        <div class="info-card-header"><i class="fas fa-pallet"></i><span id="lblPallet">Palet</span>
-                        </div>
-                        <div class="info-row"><span id="lblPalSize">Boyut:</span><span id="iP">1200x800</span></div>
+
+                    <div class="info-card bg-slate-900/50 border border-slate-700 rounded-xl p-3 hover:bg-slate-900/80 hover:border-orange-500/30 transition-colors">
+                        <div class="flex items-center gap-2 text-xs font-bold text-orange-500 mb-2 pb-2 border-b border-slate-700/50"><i class="fas fa-pallet"></i><span id="lblPallet">Palet</span></div>
+                        <div class="flex justify-between items-center py-1 text-xs text-slate-400"><span id="lblPalSize">Boyut:</span><span id="iP" class="font-bold font-mono text-slate-300">1200x800</span></div>
                     </div>
-                    <div class="lang-selector">
-                        <button class="lang-btn" id="btnRU" onclick="HmiApp.setLang('ru')">RU</button>
-                        <button class="lang-btn active" id="btnTR" onclick="HmiApp.setLang('tr')">TR</button>
-                        <button class="lang-btn" id="btnUZ" onclick="HmiApp.setLang('uz')">UZ</button>
+
+                    <div class="flex gap-1 mt-2">
+                        <button id="btnRU" onclick="HmiApp.setLang('ru')" class="lang-btn flex-1 p-2 text-xs font-bold bg-slate-900/50 border border-slate-700 rounded-lg text-slate-400 hover:bg-slate-700 transition-colors">RU</button>
+                        <button id="btnTR" onclick="HmiApp.setLang('tr')" class="lang-btn active flex-1 p-2 text-xs font-bold bg-orange-500 border border-orange-500 rounded-lg text-slate-900 hover:bg-orange-600 transition-colors">TR</button>
+                        <button id="btnUZ" onclick="HmiApp.setLang('uz')" class="lang-btn flex-1 p-2 text-xs font-bold bg-slate-900/50 border border-slate-700 rounded-lg text-slate-400 hover:bg-slate-700 transition-colors">UZ</button>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="footer">
-            <div class="footer-item"><span style="font-weight:700; color:var(--kuka-orange);">TEKNOROB</span><span>©
-                    2026</span></div>
-            <div class="footer-item"><i class="fas fa-microchip"></i><span>KSS V8.7.8 Web Pro</span></div>
+        <!-- Footer -->
+        <div class="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 flex items-center justify-center gap-6 px-6 py-2 bg-slate-800/80 backdrop-blur border border-slate-700 rounded-full shadow-lg text-[10px] font-semibold text-slate-400 uppercase tracking-widest">
+            <div class="flex items-center gap-2"><span class="text-orange-500 font-bold">TEKNOROB</span><span>© 2026</span></div>
+            <div class="flex items-center gap-2"><i class="fas fa-microchip text-orange-500"></i><span>KSS V8.7.8 Web Pro</span></div>
         </div>
+    </div>
+
+    <!-- Sticky Edge Panel Expand Buttons -->
+    <button id="btnOpenLeft" onclick="HmiApp.toggleLeftPanel()" class="fixed top-1/2 left-0 -translate-y-1/2 z-[50] bg-slate-800 border border-slate-600 rounded-r p-3 sm:p-2 text-slate-400 hover:text-white hidden transition-colors shadow-lg"><i class="fas fa-chevron-right"></i></button>
+    <button id="btnOpenRight" onclick="HmiApp.toggleRightPanel()" class="fixed top-1/2 right-0 -translate-y-1/2 z-[50] bg-slate-800 border border-slate-600 rounded-l p-3 sm:p-2 text-slate-400 hover:text-white hidden transition-colors shadow-lg"><i class="fas fa-chevron-left"></i></button>
+
+    <!-- External Dependencies & Logic -->
+    <!-- Minimap -->
+    <div id="minimapContainer" class="hidden fixed bottom-20 right-6 z-40 w-48 h-32 bg-slate-900/90 border border-slate-600 rounded-lg shadow-2xl pointer-events-none overflow-hidden backdrop-blur">
+        <div id="minimapView" class="absolute border-2 border-orange-500 bg-orange-500/20 shadow-[0_0_10px_rgba(249,115,22,0.5)]"></div>
+    </div>
+
+    <!-- Context Menu -->
+    <div id="contextMenu" class="hidden absolute z-50 bg-slate-800 border border-slate-600 rounded shadow-lg p-1 text-xs" style="min-width: 120px;">
+        <button id="ctxRotate" onclick="HmiApp.contextRotate()" class="w-full text-left px-3 py-2 hover:bg-slate-700 text-slate-200 rounded transition-colors"><i class="fas fa-sync-alt mr-2"></i>Rotate 90°</button>
+        <button id="ctxDelete" onclick="HmiApp.contextDelete()" class="w-full text-left px-3 py-2 hover:bg-slate-700 text-red-400 rounded transition-colors mt-1"><i class="fas fa-trash mr-2"></i>Delete</button>
     </div>
 
     <!-- External Dependencies & Logic -->
