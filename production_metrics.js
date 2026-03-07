@@ -32,6 +32,7 @@ const HmiApp = {
         isLeftPanelOpen: true,
         isRightPanelOpen: true,
         isLightTheme: false,
+        lastZoomDist: null,
         contextRadIdx: null
     },
 
@@ -189,6 +190,14 @@ const HmiApp = {
             this.syncPanelsUI();
             this.render();
         });
+
+        if (this.dom.singleViewArea) {
+            this.dom.singleViewArea.addEventListener('wheel', (e) => this.handleZoom(e), { passive: false });
+            this.dom.singleViewArea.addEventListener('mousedown', (e) => this.startPan(e));
+            this.dom.singleViewArea.addEventListener('touchstart', (e) => this.startPan(e), { passive: false });
+            this.dom.singleViewArea.addEventListener('touchmove', (e) => this.handleZoomTouch(e), { passive: false });
+        }
+
         if (this.dom.inW) this.dom.inW.onchange = () => this.calc();
         if (this.dom.inL) this.dom.inL.onchange = () => this.calc();
         if (this.dom.gapW) this.dom.gapW.onchange = () => this.calc();
@@ -878,16 +887,44 @@ const HmiApp = {
 
     handleZoom(e) {
         if (!this.state.showAll) return; e.preventDefault();
-        const zoomStep = 0.1; let newZoom = this.state.zoom;
-        if (e.deltaY < 0) { newZoom = Math.min(this.state.zoom + zoomStep, 3); } else { newZoom = Math.max(this.state.zoom - zoomStep, 0.2); }
+        const zoomStep = 0.15;
+        let newZoom = (e.deltaY < 0) ? Math.min(this.state.zoom + zoomStep, 4) : Math.max(this.state.zoom - zoomStep, 0.15);
+        
         if (newZoom !== this.state.zoom) {
             const rect = this.dom.singleViewArea.getBoundingClientRect();
-            const relX = e.clientX - rect.left, relY = e.clientY - rect.top;
-            const scaleChange = newZoom - this.state.zoom;
-            this.state.panX -= (relX - this.state.panX) * (scaleChange / this.state.zoom);
-            this.state.panY -= (relY - this.state.panY) * (scaleChange / this.state.zoom);
-            this.state.zoom = newZoom; this.applyTransform();
+            const relX = e.clientX - rect.left;
+            const relY = e.clientY - rect.top;
+            
+            this.state.panX = relX - (relX - this.state.panX) * (newZoom / this.state.zoom);
+            this.state.panY = relY - (relY - this.state.panY) * (newZoom / this.state.zoom);
+            this.state.zoom = newZoom;
+            this.applyTransform();
         }
+    },
+
+    handleZoomTouch(e) {
+        if (!this.state.showAll || e.touches.length !== 2) return;
+        e.preventDefault();
+        
+        const t1 = e.touches[0], t2 = e.touches[1];
+        const dist = Math.hypot(t1.clientX - t2.clientX, t1.clientY - t2.clientY);
+        
+        if (this.state.lastZoomDist) {
+            const ratio = dist / this.state.lastZoomDist;
+            let newZoom = Math.max(0.15, Math.min(this.state.zoom * ratio, 4));
+            
+            if (newZoom !== this.state.zoom) {
+                const rect = this.dom.singleViewArea.getBoundingClientRect();
+                const centerX = (t1.clientX + t2.clientX) / 2 - rect.left;
+                const centerY = (t1.clientY + t2.clientY) / 2 - rect.top;
+                
+                this.state.panX = centerX - (centerX - this.state.panX) * (newZoom / this.state.zoom);
+                this.state.panY = centerY - (centerY - this.state.panY) * (newZoom / this.state.zoom);
+                this.state.zoom = newZoom;
+                this.applyTransform();
+            }
+        }
+        this.state.lastZoomDist = dist;
     },
 
     resetView() { this.state.zoom = 1; this.state.panX = 0; this.state.panY = 0; this.applyTransform(); },
@@ -895,29 +932,51 @@ const HmiApp = {
     startPan(e) {
         if (!this.state.showAll) return;
         const isTouch = e.type === 'touchstart';
-        if (isTouch && e.touches.length > 1) return;
+        if (isTouch && e.touches.length > 1) return; // Ignore if more than 1 touch (pinch-zoom handles that)
         if (!isTouch && e.button !== 1 && e.button !== 0) return;
         if (e.target.closest('.rad') || e.target.closest('.rad-24050')) return;
         if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'SELECT' && e.target.tagName !== 'BUTTON') e.preventDefault();
-        let startX = isTouch ? e.touches[0].clientX : e.clientX, startY = isTouch ? e.touches[0].clientY : e.clientY;
+        
+        let startX = isTouch ? e.touches[0].clientX : e.clientX;
+        let startY = isTouch ? e.touches[0].clientY : e.clientY;
         let startPanX = this.state.panX, startPanY = this.state.panY;
-        const onMouseMove = (ev) => {
-            let cx = isTouch ? ev.touches[0].clientX : ev.clientX, cy = isTouch ? ev.touches[0].clientY : ev.clientY;
-            this.state.panX = startPanX + (cx - startX); this.state.panY = startPanY + (cy - startY); this.applyTransform();
+
+        const onMove = (ev) => {
+            let cx = isTouch ? ev.touches[0].clientX : ev.clientX;
+            let cy = isTouch ? ev.touches[0].clientY : ev.clientY;
+            this.state.panX = startPanX + (cx - startX);
+            this.state.panY = startPanY + (cy - startY);
+            this.applyTransform();
         };
-        const onMouseUp = () => {
+
+        const onUp = () => {
             if (isTouch) {
                 this.state.lastZoomDist = null;
-                document.removeEventListener('touchmove', onMouseMove); document.removeEventListener('touchend', onMouseUp); document.removeEventListener('touchcancel', onMouseUp);
-            } else { document.removeEventListener('mousemove', onMouseMove); document.removeEventListener('mouseup', onMouseUp); }
+                document.removeEventListener('touchmove', onMove);
+                document.removeEventListener('touchend', onUp);
+            } else {
+                document.removeEventListener('mousemove', onMove);
+                document.removeEventListener('mouseup', onUp);
+            }
         };
-        if (isTouch) { document.addEventListener('touchmove', onMouseMove, { passive: false }); document.addEventListener('touchend', onMouseUp); document.addEventListener('touchcancel', onMouseUp); }
-        else { document.addEventListener('mousemove', onMouseMove); document.addEventListener('mouseup', onMouseUp); }
+
+        if (isTouch) {
+            document.addEventListener('touchmove', onMove, { passive: false });
+            document.addEventListener('touchend', onUp);
+        } else {
+            document.addEventListener('mousemove', onMove);
+            document.addEventListener('mouseup', onUp);
+        }
     },
 
     applyTransform() {
-        if (this.state.showAll && this.dom.allLayoutsGrid) { this.dom.allLayoutsGrid.style.transform = `translate(${this.state.panX}px, ${this.state.panY}px) scale(${this.state.zoom})`; this.updateMinimap(); }
-        else if (this.dom.palletArea) { this.dom.palletArea.style.transform = `translate(${this.state.panX}px, ${this.state.panY}px) scale(${this.state.zoom})`; }
+        const transform = `translate(${this.state.panX}px, ${this.state.panY}px) scale(${this.state.zoom})`;
+        if (this.state.showAll && this.dom.allLayoutsGrid) {
+            this.dom.allLayoutsGrid.style.transform = transform;
+            this.updateMinimap();
+        } else if (this.dom.palletArea) {
+            this.dom.palletArea.style.transform = transform;
+        }
     },
 
     updateMinimap() {
