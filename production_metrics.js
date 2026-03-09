@@ -1056,7 +1056,7 @@ const HmiApp = {
             if (type === 'manual-dim') extraTransform = 'translateX(-15px)'; // Shift manual label left
         }
         return `<div class="dim-line ${type}" style="left:${finalX}px; top:${finalY}px; ${styleLine}"></div><div class="dim-label" style="left:${finalX + absDx / 2}px; top:${finalY + absDy / 2}px; transform: translate(-50%, -50%) ${extraTransform}; background:#111; color:${color}; border:1px solid ${color}; border-radius:2px; z-index: 50; padding: 2px 4px; font-size: 10px;">${text}</div>`;
-    },,,
+    },
 
     updateRadPosition(idx, field, val) {
         if (this.state.isManualMode) { this.state.manualPositions[idx][field] = parseInt(val) || 0; }
