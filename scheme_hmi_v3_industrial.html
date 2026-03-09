@@ -379,7 +379,7 @@
             <div class="tool-separator"></div>
 
             <!-- Grid/Layout tools -->
-            <button id="btnToggleAll" onclick="HmiApp.toggleAllLayouts()" class="tool-btn" title="Show All Layouts Grid"><i class="fas fa-th-large text-xs"></i><span id="lblToggleAll" class="hidden"></span></button>
+            <button id="btnToggleAll" onclick="HmiApp.toggleAllLayouts()" class="tool-btn" title="Show All Layouts Grid"><i class="fas fa-th-large text-xs"></i><span id="lblToggleAll" class="ml-2 text-xs">Show All</span></button>
             <button id="btnMatrix" onclick="HmiApp.openMatrixModal()" class="tool-btn" title="Layout Matrix"><i class="fas fa-table text-xs"></i><span id="lblMatrix" class="hidden"></span></button>
 
             <div class="flex-grow"></div>
@@ -699,45 +699,11 @@
                     const originalApplyTransform = HmiApp.applyTransform;
                     HmiApp.applyTransform = function() {
                         if (this.state.showAll && this.dom.allLayoutsGrid) {
-
-                            // Get the actual rendered size of the grid container (approximate based on contents)
-                            const gridW = this.dom.allLayoutsGrid.scrollWidth || 3000;
-                            const gridH = this.dom.allLayoutsGrid.scrollHeight || 3000;
-
-                            const viewW = this.dom.singleViewArea.clientWidth;
-                            const viewH = this.dom.singleViewArea.clientHeight;
-
-                            const scaledW = gridW * this.state.zoom;
-                            const scaledH = gridH * this.state.zoom;
-
-                            // Calculate bounds. We allow panning so the grid edges reach the view edges,
-                            // plus a padding margin.
-                            const padding = 50;
-
-                            // If scaled grid is smaller than view, center it.
-                            if (scaledW < viewW) {
-                                // this.state.panX = (viewW - scaledW) / 2;
-                            } else {
-                                const minX = viewW - scaledW - padding;
-                                const maxX = padding;
-                                if (this.state.panX < minX) this.state.panX = minX;
-                                if (this.state.panX > maxX) this.state.panX = maxX;
-                            }
-
-                            if (scaledH < viewH) {
-                                // this.state.panY = (viewH - scaledH) / 2;
-                            } else {
-                                const minY = viewH - scaledH - padding;
-                                const maxY = padding;
-                                if (this.state.panY < minY) this.state.panY = minY;
-                                if (this.state.panY > maxY) this.state.panY = maxY;
-                            }
-
-
+                            // Infinite pan for Show All
                             this.dom.allLayoutsGrid.style.transform = `translate(${this.state.panX}px, ${this.state.panY}px) scale(${this.state.zoom})`;
-                            this.updateMinimap();
-                        } else if (this.dom.palletArea) {
-                            this.dom.palletArea.style.transform = `translate(${this.state.panX}px, ${this.state.panY}px) scale(${this.state.zoom})`;
+                            this.dom.allLayoutsGrid.style.transformOrigin = '0 0';
+                        } else {
+                            originalApplyTransform.call(this);
                         }
                     };
 

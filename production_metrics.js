@@ -616,7 +616,7 @@ const HmiApp = {
         this.applyTransform();
         if (this.state.showAll) {
             const txt = this.config.translations[this.state.lang].toggleAllHide;
-            this.dom.btnToggleAll.innerHTML = `<i class="fas fa-eye-slash"></i><span id="lblToggleAll"></span>`;
+            this.dom.btnToggleAll.innerHTML = `<i class="fas fa-eye-slash text-xs"></i><span id="lblToggleAll" class="ml-2 text-xs"></span>`;
             this.dom.btnToggleAll.querySelector("#lblToggleAll").textContent = txt;
             this.dom.btnToggleAll.classList.add('active');
             if (this.dom.palletArea) this.dom.palletArea.style.display = 'none';
@@ -631,7 +631,7 @@ const HmiApp = {
             this.renderAllLayouts();
         } else {
             const txt = this.config.translations[this.state.lang].toggleAllShow;
-            this.dom.btnToggleAll.innerHTML = `<i class="fas fa-th-large"></i><span id="lblToggleAll"></span>`;
+            this.dom.btnToggleAll.innerHTML = `<i class="fas fa-th-large text-xs"></i><span id="lblToggleAll" class="ml-2 text-xs"></span>`;
             this.dom.btnToggleAll.querySelector("#lblToggleAll").textContent = txt;
             this.dom.btnToggleAll.classList.remove('active');
             if (this.dom.palletArea) this.dom.palletArea.style.display = 'flex';
@@ -1018,10 +1018,10 @@ const HmiApp = {
         const area = document.getElementById('singleViewArea'); if (!area) return;
         const oldPanX = this.state.panX, oldPanY = this.state.panY, oldZoom = this.state.zoom, oldOverflow = area.style.overflow, oldBg = area.style.backgroundColor;
         this.state.panX = 0; this.state.panY = 0; this.state.zoom = 1; this.applyTransform();
-        area.style.overflow = 'visible'; area.style.backgroundColor = this.state.isLightTheme ? '#f8fafc' : '#0f172a';
+        area.style.overflow = 'visible'; area.style.backgroundColor = '#16161a';
         area.classList.add('export-active'); this.render();
         setTimeout(() => {
-            html2canvas(area, { backgroundColor: this.state.isLightTheme ? '#f8fafc' : '#0f172a', scale: 2, useCORS: true, scrollX: 0, scrollY: 0 }).then(canvas => {
+            html2canvas(area, { backgroundColor: '#16161a', scale: 2, useCORS: true, scrollX: 0, scrollY: 0 }).then(canvas => {
                 const link = document.createElement('a'); link.download = `KUKA_Scheme_${this.state.currentProject}_D${this.state.dizilimId}_${this.state.width}x${this.state.length}.png`; link.href = canvas.toDataURL('image/png'); link.click();
                 this.state.panX = oldPanX; this.state.panY = oldPanY; this.state.zoom = oldZoom; this.applyTransform();
                 area.style.overflow = oldOverflow; area.style.backgroundColor = oldBg; area.classList.remove('export-active');
@@ -1042,10 +1042,21 @@ const HmiApp = {
     getDimLineHTML(x, y, dx, dy, text, type) {
         let styleLine, finalX = x, finalY = y, absDx = Math.abs(dx), absDy = Math.abs(dy);
         let color = type === 'gap-dim' ? '#4CAF50' : (type === 'manual-dim' ? '#03A9F4' : '#FF3D00');
-        if (dx !== 0) { if (dx < 0) finalX = x + dx; styleLine = `width:${absDx}px; height:1px; border-top:1px dashed ${color};`; }
-        else { if (dy < 0) finalY = y + dy; styleLine = `width:1px; height:${absDy}px; border-left:1px dashed ${color};`; }
-        return `<div class="dim-line ${type}" style="left:${finalX}px; top:${finalY}px; ${styleLine}"></div><div class="dim-label" style="left:${finalX + absDx / 2}px; top:${finalY + absDy / 2}px; transform: translate(-50%, -50%); background:${color}; border-color:${color};">${text}</div>`;
-    },
+        let extraTransform = '';
+        if (dx !== 0) {
+            if (dx < 0) finalX = x + dx;
+            styleLine = `width:${absDx}px; height:1px; border-top:1px dashed ${color};`;
+            if (type === 'gap-dim') extraTransform = 'translateY(15px)'; // Shift gap label down
+            if (type === 'manual-dim') extraTransform = 'translateY(-15px)'; // Shift manual label up
+        }
+        else {
+            if (dy < 0) finalY = y + dy;
+            styleLine = `width:1px; height:${absDy}px; border-left:1px dashed ${color};`;
+            if (type === 'gap-dim') extraTransform = 'translateX(15px)'; // Shift gap label right
+            if (type === 'manual-dim') extraTransform = 'translateX(-15px)'; // Shift manual label left
+        }
+        return `<div class="dim-line ${type}" style="left:${finalX}px; top:${finalY}px; ${styleLine}"></div><div class="dim-label" style="left:${finalX + absDx / 2}px; top:${finalY + absDy / 2}px; transform: translate(-50%, -50%) ${extraTransform}; background:#111; color:${color}; border:1px solid ${color}; border-radius:2px; z-index: 50; padding: 2px 4px; font-size: 10px;">${text}</div>`;
+    },,,
 
     updateRadPosition(idx, field, val) {
         if (this.state.isManualMode) { this.state.manualPositions[idx][field] = parseInt(val) || 0; }
