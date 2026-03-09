@@ -1,56 +1,49 @@
 /* ============================================
-   KUKA INDUSTRIAL DESIGN SYSTEM v4.0 - DARK CAD EDITION
-   Modern 2D Drafting / Engineering CAD Interface
+   KUKA INDUSTRIAL DESIGN SYSTEM v3.0
+   Modern Industrial HMI Interface - PERFORMANCE OPTIMIZED (No Animations)
    ============================================ */
 
 :root {
-    /* Brand & Highlight Colors - CAD Style */
-    --kuka-orange: #d15000;
-    --cad-blue: #569cd6;
-    --cad-blue-light: #9cdcfe;
-    --cad-green: #4EC9B0;
-    --cad-yellow: #dcdcaa;
+    /* KUKA Brand Colors */
+    --kuka-orange: #569cd6; /* Blue for CAD active state */
+    --kuka-orange-bright: #FF8A47;
+    --kuka-orange-dark: #E05520;
 
-    /* Dark CAD Backgrounds */
-    --bg-primary: #1e1e1e; /* Deep dark gray */
-    --bg-secondary: #252526; /* Slightly lighter */
-    --bg-surface: #2d2d30; /* Toolbars */
-    --bg-elevated: #333333;
+    /* Dark Theme */
+    --bg-primary: #1e1e1e;
+    --bg-secondary: #252526;
+    --bg-surface: #2d2d30;
+    --bg-elevated: #2F3847;
 
-    /* Grid & Lines */
-    --grid-major: rgba(255, 255, 255, 0.1);
-    --grid-minor: rgba(255, 255, 255, 0.03);
-    --line-default: #d4d4d4;
-    --line-dim: #808080;
-    --line-active: #569cd6;
-
-    /* Borders */
-    --border-subtle: #3e3e42;
-    --border-strong: #5a5a5a;
+    /* Glass Effects */
+    --glass-bg: #252D38;
+    --glass-border: #3e3e42;
+    --glass-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
 
     /* Status Colors */
-    --success: #89d185;
-    --warning: #cca700;
-    --error: #f48771;
-    --info: #3794ff;
+    --success: #00E676;
+    --warning: #FFD600;
+    --error: #FF3D00;
+    --info: #00A8E8;
 
     /* Text Colors */
     --text-primary: #cccccc;
-    --text-secondary: #858585;
-    --text-muted: #6b6b6b;
+    --text-secondary: #A0AAB5;
+    --text-muted: #94A3B8;
 
-    /* Pallet Colors - Blueprint/CAD representation */
-    --pallet-line: #569cd6;
-    --pallet-bg: transparent;
+    /* Pallet Colors */
+    --pallet-primary: #1565C0;
+    --pallet-dark: #0D47A1;
+    --pallet-light: #42A5F5;
 
-    /* Radiator Colors - Hatching representation */
-    --radiator-line: #d4d4d4;
-    --radiator-bg: #1e1e1e;
-    --radiator-hatch: rgba(212, 212, 212, 0.2);
+    /* Radiator Colors */
+    --radiator-primary: #607D8B;
+    --radiator-dark: #455A64;
+    --radiator-light: #78909C;
 
     /* Typography */
-    --font-ui: 'Roboto', system-ui, -apple-system, sans-serif;
-    --font-numbers: 'Roboto Mono', monospace;
+    --font-ui: 'Inter', system-ui, -apple-system, sans-serif;
+    --font-numbers: 'Rajdhani', monospace;
 
     /* Spacing */
     --space-xs: 4px;
@@ -59,13 +52,13 @@
     --space-lg: 16px;
     --space-xl: 24px;
 
-    /* Border Radius - STRICTLY SQUARE FOR CAD */
+    /* Border Radius */
     --radius-sm: 0px;
     --radius-md: 0px;
     --radius-lg: 0px;
     --radius-xl: 0px;
 
-    /* Transitions */
+    /* Transitions - DISABLED for performance */
     --transition-fast: 0s;
     --transition-base: 0s;
     --transition-slow: 0s;
@@ -74,415 +67,745 @@
 /* ============================================
    RESET & BASE
    ============================================ */
+
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    border-radius: 0 !important; /* Force square corners everywhere */
 }
 
 body {
     font-family: var(--font-ui);
-    font-size: 13px;
+    font-size: 14px;
     color: var(--text-primary);
     background: var(--bg-primary);
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    overflow: hidden; /* Prevent full body scroll, app controls it */
+    overflow-x: hidden;
 }
-
-/* Scrollbar CAD Style */
-::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
-}
-::-webkit-scrollbar-track {
-    background: var(--bg-primary);
-    border-left: 1px solid var(--border-subtle);
-}
-::-webkit-scrollbar-thumb {
-    background: var(--border-strong);
-}
-::-webkit-scrollbar-thumb:hover {
-    background: var(--text-secondary);
-}
-
-.custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
-.custom-scrollbar::-webkit-scrollbar-track { background: var(--bg-secondary); border: none; }
-.custom-scrollbar::-webkit-scrollbar-thumb { background: var(--border-strong); }
-.custom-scrollbar::-webkit-scrollbar-thumb:hover { background: var(--cad-blue); }
 
 /* ============================================
-   VISUALIZATION AREA & GRID
+   CUSTOM SCROLLBAR
    ============================================ */
-#singleViewArea {
-    background-color: var(--bg-primary);
-    /* Strict CAD Grid */
-    background-image:
-        linear-gradient(var(--grid-major) 1px, transparent 1px),
-        linear-gradient(90deg, var(--grid-major) 1px, transparent 1px),
-        linear-gradient(var(--grid-minor) 1px, transparent 1px),
-        linear-gradient(90deg, var(--grid-minor) 1px, transparent 1px);
-    background-size: 100px 100px, 100px 100px, 20px 20px, 20px 20px;
-    background-position: center center;
+
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
 }
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: rgba(15, 23, 42, 0.3);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(249, 115, 22, 0.3);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(249, 115, 22, 0.5);
+}
+
+/* ============================================
+   VISUALIZATION AREA
+   ============================================ */
+
+.viz-header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+}
+
+.viz-stats {
+    display: flex;
+    gap: var(--space-sm);
+}
+
+.stat-badge {
+    padding: 4px 10px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 107, 44, 0.3);
+    border-radius: var(--radius-sm);
+    font-size: 11px;
+    font-weight: 700;
+    font-family: var(--font-numbers);
+    color: var(--kuka-orange);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
 
 .pallet-area {
     position: relative;
     width: 100%;
-    height: 100%; /* Take full size for unlimited zoom/pan */
+    height: 100%;
+    min-height: 400px;
+    background: var(--bg-primary);
+    background-image:
+        linear-gradient(rgba(255, 255, 255, .1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, .1) 1px, transparent 1px),
+        linear-gradient(rgba(255, 255, 255, .03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, .03) 1px, transparent 1px);
+    background-size: 100px 100px, 100px 100px, 20px 20px, 20px 20px;
+    background-position: center center;
     display: flex;
     justify-content: center;
     align-items: center;
+    border-radius: 0;
+    margin-top: 0;
+    overflow: hidden;
     border: none;
-    background: transparent;
 }
 
-/* ============================================
-   PALLETS - 2D DRAFTING STYLE
-   ============================================ */
-.pallet, .pallet2, .pallet-wood {
+
+.rad-overflow {
+    border-color: #FF3D00 !important;
+    box-shadow:
+        0 0 15px rgba(255, 61, 0, 0.6),
+        inset 0 0 10px rgba(255, 61, 0, 0.3) !important;
+}
+
+
+.pallet {
     position: absolute;
-    background: transparent !important;
-    border: 1px dashed var(--pallet-line) !important;
-    box-shadow: none !important;
-    background-image: none !important;
+    background: #2a2a2a;
+    border: 2px solid #569cd6;
+    border-radius: 0;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.8), 0 5px 15px rgba(0,0,0,0.5);
+    background-image:
+        repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(86,156,214,0.05) 10px, rgba(86,156,214,0.05) 20px);
 }
-
-.pallet::after, .pallet2::after, .pallet-wood::after {
-    content: "PALLET BOUNDARY";
-    position: absolute;
-    bottom: -15px;
-    left: 5px;
-    color: var(--pallet-line);
-    font-family: var(--font-ui);
-    font-size: 8px;
-    letter-spacing: 1px;
-    opacity: 0.7;
-}
-
 .pallet2 {
-    border-left: 1px solid var(--pallet-line) !important;
+    position: absolute;
+    background: transparent;
+    border: 2px solid #569cd6;
+    border-left: 2px dashed rgba(86,156,214,0.5);
+    border-radius: 0;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.8), 0 5px 15px rgba(0,0,0,0.5);
+    background-image:
+        repeating-linear-gradient(-45deg, transparent, transparent 10px, rgba(86,156,214,0.05) 10px, rgba(86,156,214,0.05) 20px);
 }
+
+
 
 /* ==========================================
-   RADIATORS - TECHNICAL HATCHING STYLE
+   RIGID HEAT EXCHANGER (RADIATOR) DESIGN
    ============================================ */
+
 .rad {
     position: absolute;
     z-index: 10;
-    cursor: crosshair; /* CAD cursor */
-    background: var(--radiator-bg) !important;
-    border: 1px solid var(--radiator-line) !important;
-    box-shadow: none !important;
+    cursor: pointer;
+    background: transparent;
+    border: none;
+    box-shadow: none;
     padding: 0;
     box-sizing: border-box;
+    overflow: visible;
     display: flex;
     align-items: center;
     justify-content: center;
-    /* Diagonal hatching for technical drawing */
-    background-image: repeating-linear-gradient(
-        45deg,
-        transparent,
-        transparent 5px,
-        var(--radiator-hatch) 5px,
-        var(--radiator-hatch) 6px
-    ) !important;
 }
 
-.rad:hover, .rad.selected {
-    border-color: var(--line-active) !important;
-    background-image: repeating-linear-gradient(
-        45deg,
-        transparent,
-        transparent 5px,
-        rgba(86, 156, 214, 0.3) 5px, /* Blue hatch on hover/select */
-        rgba(86, 156, 214, 0.3) 6px
-    ) !important;
-    box-shadow: 0 0 0 1px var(--line-active) inset !important;
-    z-index: 100;
+/* --- Heat Plate (inner body) --- */
+.rad .heat-plate { position: relative; width: 100%; height: 100%; background-color: #3e3e42; border: 1px solid #5a5a5a; border-radius: 0; box-sizing: border-box; display: flex; align-items: center; justify-content: center; padding: 2px; }
+
+/* --- Ribbed Pattern Area --- */
+.rad .pattern-area { width: 100%; height: 100%; border-radius: 0; background-color: #454545; background-image: repeating-linear-gradient(to right, #333 0%, #333 1px, transparent 1px, transparent 33.3px); background-size: calc(33.3px * var(--rad-scale, 1)) 100%; position: relative; display: flex; align-items: center; justify-content: center; }
+
+/* --- Number badge (inside pattern-area) --- */
+.rad .rad-num { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 11px; font-weight: 500; font-family: var(--font-numbers); color: #ccc; background: #1e1e1e; padding: 2px 4px; border: 1px solid #3e3e42; z-index: 5; white-space: nowrap; pointer-events: none; }
+
+/* --- Horizontal pipes (TOP / BOTTOM) --- */
+.rad .long-pipe {
+    position: absolute;
+    left: 10%;
+    right: 10%;
+    height: 6px;
+    background: #5a5a5a;
+    border: 1px solid #222;
+    border-radius: 3px;
+    z-index: 0;
+    box-shadow: 1px 2px 3px rgba(0, 0, 0, 0.5);
+    pointer-events: none;
 }
 
-/* Hide all the 3D details */
-.rad .heat-plate,
-.rad .pattern-area,
-.rad .long-pipe,
-.rad .port,
-.rad .clip,
-.rad-24050 .pkg-body,
-.rad-24050 .pkg-card,
-.rad-24050 .pkg-corner,
-.rad-24050 .pkg-label,
-.rad-24050-flipped .pkg-body {
-    display: none !important;
+.rad .long-pipe.top {
+    top: -3px;
 }
 
-/* 24050 specific CAD style */
-.rad-24050, .rad-24050-flipped {
-    background: var(--radiator-bg) !important;
-    border: 1px solid var(--cad-yellow) !important;
-    box-shadow: none !important;
-    background-image: repeating-linear-gradient(
-        -45deg,
-        transparent,
-        transparent 8px,
-        rgba(220, 220, 170, 0.15) 8px,
-        rgba(220, 220, 170, 0.15) 9px
-    ) !important;
-    color: var(--cad-yellow) !important;
+.rad .long-pipe.bottom {
+    bottom: -3px;
+    transform: scaleY(-1);
 }
 
-.rad-24050:hover, .rad-24050-flipped:hover {
-    border-color: var(--line-active) !important;
-    color: var(--line-active) !important;
+/* --- Port connectors --- */
+.rad .port {
+    position: absolute;
+    width: 12%;
+    height: 6px;
+    min-width: 8px;
+    max-width: 20px;
+    background: #6a6a6a;
+    border: 1px solid #333;
+    border-radius: 1px;
+    z-index: 2;
+    box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    pointer-events: none;
 }
 
-/* Numbers inside rads - CAD Style */
-.rad span, .rad-24050 .pkg-num, .rad-24050-flipped .pkg-num {
+.rad .port::after {
+    content: '';
+    position: absolute;
+    left: 15%;
+    right: 15%;
+    top: 20%;
+    bottom: 20%;
+    background-color: #111;
+    border-radius: 2px;
+    box-shadow: inset 0 0 2px #000;
+}
+
+.rad .port.top-left {
+    top: -4px;
+    left: 10%;
+}
+
+.rad .port.top-right {
+    top: -4px;
+    right: 10%;
+}
+
+.rad .port.bottom-left {
+    bottom: -4px;
+    left: 10%;
+}
+
+.rad .port.bottom-right {
+    bottom: -4px;
+    right: 10%;
+}
+
+/* --- Mounting clips — 7% wide, 24% tall --- */
+.rad .clip {
+    position: absolute;
+    width: 7%;
+    height: 24%;
+    min-width: 6px;
+    max-width: 14px;
+    min-height: 14px;
+    max-height: 36px;
+    background: #7a7a7a;
+    border: 1px solid #444;
+    border-radius: 2px;
+    box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6), inset 0 0 1px #fff;
+    z-index: 4;
+    pointer-events: none;
+}
+
+.rad .clip.tl {
+    top: 14%;
+    left: 9%;
+}
+
+.rad .clip.tr {
+    top: 14%;
+    right: 9%;
+}
+
+.rad .clip.bl {
+    bottom: 14%;
+    left: 9%;
+}
+
+.rad .clip.br {
+    bottom: 14%;
+    right: 9%;
+}
+
+/* ==========================================
+   PROJECT 24050: PACKAGED PANEL RADIATOR
+   ========================================== */
+
+/* --- Outer container --- */
+
+
+/* --- Radiator body: white fins with top/bottom profiles --- */
+
+
+.rad-24050 .pkg-body::after { display: none; } /* Remove gloss */
+.rad-24050 .pkg-card { position: absolute; top: 0; bottom: 0; width: 12%; background-color: #8c7051; border: 1px solid #5c4a3d; z-index: 2; }
+
+.rad-24050 .pkg-card.left {
+    left: 0;
+    border-right: 2px solid #8c7051;
+}
+
+.rad-24050 .pkg-card.right {
+    right: 0;
+    border-left: 2px solid #8c7051;
+    transform: scaleX(-1);
+}
+
+/* --- Corner guards (black plastic) --- */
+.rad-24050 .pkg-corner { position: absolute; width: 14%; height: 20%; background-color: #2d2d30; border: 1px solid #1e1e1e; z-index: 3; }
+
+.rad-24050 .pkg-corner.tl {
+    top: -1px;
+    left: -1px;
+}
+
+.rad-24050 .pkg-corner.bl {
+    bottom: -1px;
+    left: -1px;
+}
+
+.rad-24050 .pkg-corner.tr {
+    top: -1px;
+    right: -1px;
+}
+
+.rad-24050 .pkg-corner.br {
+    bottom: -1px;
+    right: -1px;
+}
+
+/* --- Label sticker --- */
+.rad-24050 .pkg-label {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    font-size: 10px;
-    font-weight: 500;
-    font-family: var(--font-numbers);
-    color: var(--text-primary) !important;
-    background: var(--bg-primary) !important;
-    padding: 1px 4px !important;
-    border: 1px solid var(--border-subtle) !important;
+    width: clamp(60px, 60%, 140px);
+    aspect-ratio: 2.2 / 1;
+    height: auto;
+    max-height: 80%;
+    container-type: size;
+    container-name: label;
+    background: #fff;
+    box-shadow: 1px 2px 6px rgba(0, 0, 0, 0.25);
+    display: flex;
+    z-index: 4;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.rad-24050 .pkg-label-red {
+    width: 35%;
+    background-color: #b72025;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: Arial, sans-serif;
+    font-size: clamp(6px, 18cqh, 14px);
+    font-weight: bold;
+    letter-spacing: 1px;
+    padding: 2px;
+    text-align: center;
+}
+
+.rad-24050 .pkg-label-white {
+    width: 65%;
+    background: #fff;
+    padding: 2px 4px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    font-family: Arial, sans-serif;
+    color: #444;
+    font-size: clamp(5px, 12cqh, 10px);
+    overflow: hidden;
+}
+
+.rad-24050 .pkg-label-white span {
+    color: #b72025;
+    font-weight: bold;
+    font-size: clamp(5px, 14cqh, 11px);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* --- Number badge --- */
+.rad-24050 .pkg-num {
+    position: absolute;
+    bottom: 4%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.6);
+    color: #fff;
+    font-size: clamp(8px, 2.5%, 13px);
+    font-weight: 800;
+    padding: 1px 5px;
+    border-radius: 3px;
     z-index: 5;
     white-space: nowrap;
-    text-shadow: none !important;
-    border-radius: 0 !important;
-}
-
-/* Error state - CAD */
-.rad-overflow {
-    border-color: var(--error) !important;
-    background-color: rgba(244, 135, 113, 0.1) !important;
-    background-image: repeating-linear-gradient(
-        45deg,
-        transparent,
-        transparent 5px,
-        rgba(244, 135, 113, 0.3) 5px,
-        rgba(244, 135, 113, 0.3) 6px
-    ) !important;
-    box-shadow: none !important;
-}
-
-/* ============================================
-   DIMENSIONS & TECHNICAL CALLOUTS
-   ============================================ */
-.dim-w, .dim-h {
-    position: absolute;
-    font-size: 9px;
-    color: var(--line-dim) !important;
+    pointer-events: none;
     font-family: var(--font-numbers);
-    z-index: 1;
-    pointer-events: none;
-    background: var(--bg-primary);
-    padding: 0 2px;
-}
-.dim-w { bottom: -12px; left: 50%; transform: translateX(-50%); }
-.dim-h { left: -14px; top: 50%; transform: translateY(-50%) rotate(-90deg); }
-
-.rad:hover .dim-w, .rad:hover .dim-h {
-    color: var(--line-active) !important;
 }
 
-.dim-line {
-    position: absolute;
-    z-index: 20;
-    pointer-events: none;
-    border-color: var(--line-dim) !important;
-    border-style: solid !important; /* solid for CAD dimension lines */
-    border-width: 1px !important;
+/* Flipped variant (180° radiators) — mirror the label */
+.rad-24050-flipped .pkg-body {
+    transform: rotate(180deg);
 }
-.dim-line::before, .dim-line::after {
-    /* Arrowheads or ticks for CAD */
-    content: "";
-    position: absolute;
-    background: var(--line-dim);
-}
-/* Basic tick implementation for horizontal lines */
-.dim-line[style*="border-top"]::before { top: -4px; left: 0; width: 1px; height: 9px; }
-.dim-line[style*="border-top"]::after { top: -4px; right: 0; width: 1px; height: 9px; }
-/* Basic tick implementation for vertical lines */
-.dim-line[style*="border-left"]::before { left: -4px; top: 0; width: 9px; height: 1px; }
-.dim-line[style*="border-left"]::after { left: -4px; bottom: 0; width: 9px; height: 1px; }
 
-.dim-label {
-    position: absolute;
-    transform: translate(-50%, -50%);
-    background: var(--bg-primary) !important;
-    color: var(--text-primary) !important;
-    border: 1px solid var(--border-subtle) !important;
-    font-size: 9px;
-    font-family: var(--font-numbers);
-    padding: 1px 3px;
-    z-index: 21;
-    pointer-events: none;
-    border-radius: 0 !important;
+.rad-24050-flipped .pkg-label {
+    transform: translate(-50%, -50%) rotate(180deg);
+}
+
+/* Hover glow - SIMPLIFIED */
+.rad-24050:hover { box-shadow: 0 0 0 2px var(--line-active); }
+
+.rad.rad-rotated {
+    padding: 0;
+}
+
+/* Vertical pipe on LEFT/RIGHT sides */
+.rad.rad-rotated .long-pipe {
+    top: 10%;
+    bottom: 10%;
+    left: auto;
+    right: auto;
+    width: 6px;
+    height: auto;
+    background: #5a5a5a;
+    border: 1px solid #222;
+    border-radius: 3px;
+    box-shadow: 2px 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.rad.rad-rotated .long-pipe.top {
+    left: -3px;
+    right: auto;
+}
+
+.rad.rad-rotated .long-pipe.bottom {
+    right: -3px;
+    left: auto;
+    top: 10%;
+    bottom: 10%;
+}
+
+/* Ports on left/right — portrait of the normal port (rotated 90°) */
+.rad.rad-rotated .port {
+    width: 6px;
+    height: 12%;
+    min-height: 8px;
+    max-height: 20px;
+    background: #6a6a6a;
+    border: 1px solid #333;
+    border-radius: 1px;
+    box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.rad.rad-rotated .port::after {
+    left: 20%;
+    right: 20%;
+    top: 15%;
+    bottom: 15%;
+}
+
+.rad.rad-rotated .port.top-left {
+    left: -4px;
+    top: 10%;
+    bottom: auto;
+}
+
+.rad.rad-rotated .port.top-right {
+    left: -4px;
+    bottom: 10%;
+    top: auto;
+}
+
+.rad.rad-rotated .port.bottom-left {
+    right: -4px;
+    top: 10%;
+    left: auto;
+    bottom: auto;
+}
+
+.rad.rad-rotated .port.bottom-right {
+    right: -4px;
+    bottom: 10%;
+    top: auto;
+    left: auto;
+}
+
+/* Clips become horizontal bars in rotated mode */
+.rad.rad-rotated .clip {
+    width: 24%;
+    height: 7%;
+    min-width: 14px;
+    max-width: 36px;
+    min-height: 6px;
+    max-height: 14px;
+    background: #7a7a7a;
+}
+
+.rad.rad-rotated .clip.tl {
+    top: 9%;
+    left: 14%;
+    bottom: auto;
+}
+
+.rad.rad-rotated .clip.tr {
+    top: 9%;
+    right: 14%;
+    left: auto;
+    bottom: auto;
+}
+
+.rad.rad-rotated .clip.bl {
+    bottom: 9%;
+    left: 14%;
+    top: auto;
+}
+
+.rad.rad-rotated .clip.br {
+    bottom: 9%;
+    right: 14%;
+    top: auto;
+    left: auto;
+}
+
+/* Rotated ribbing — vertical stripes */
+.rad.rad-rotated .pattern-area { background-image: repeating-linear-gradient(to bottom, #333 0%, #333 1px, transparent 1px, transparent 33.3px); background-size: 100% calc(33.3px * var(--rad-scale, 1)); }
+
+/* dim labels inside rad */
+.rad .dim-w,
+.rad .dim-h {
+    display: none;
+}
+
+.rad span { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 11px; font-family: var(--font-numbers); z-index: 2; background: #1e1e1e; color: #ccc; border: 1px solid #3e3e42; padding: 1px 4px; border-radius: 0; }
+
+.dim-w, .dim-h { position: absolute; font-size: 10px; color: #d4d4d4; font-family: var(--font-numbers); z-index: 1; pointer-events: none; background: #1e1e1e; padding: 0 2px; border: 1px solid #3e3e42;}
+
+.dim-w {
+    bottom: 2px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.dim-h {
+    left: 2px;
+    top: 50%;
+    transform: translateY(-50%) rotate(-90deg);
+}
+
+.dim-line { position: absolute; z-index: 20; pointer-events: none; border-color: #808080 !important; border-style: solid !important; border-width: 1px !important; }
+
+.dim-label { position: absolute; transform: translate(-50%, -50%); background: #1e1e1e !important; color: #d4d4d4 !important; border: 1px solid #3e3e42 !important; font-size: 10px; font-family: var(--font-numbers); padding: 1px 3px; z-index: 21; border-radius: 0; }
+
+.rad:hover { z-index: 100; box-shadow: 0 0 0 1px var(--line-active); }
+
+.rad:active {
+    filter: brightness(0.95);
 }
 
 .center-mark {
     position: absolute;
-    width: 20px;
-    height: 20px;
-    border: none !important;
-    background: transparent !important;
-    box-shadow: none !important;
+    width: 10px;
+    height: 10px;
+    border: 2px solid var(--kuka-orange);
+    border-radius: 50%;
+    background: rgba(255, 107, 44, 0.3);
+    box-shadow: 0 0 12px rgba(255, 107, 44, 0.6);
     z-index: 5;
-    /* CAD Center Mark (cross) */
-}
-.center-mark::before {
-    content: '';
-    position: absolute;
-    top: 50%; left: 0; right: 0; height: 1px;
-    background: var(--cad-blue);
-    transform: translateY(-50%);
-}
-.center-mark::after {
-    content: '';
-    position: absolute;
-    left: 50%; top: 0; bottom: 0; width: 1px;
-    background: var(--cad-blue);
-    transform: translateX(-50%);
 }
 
 /* ============================================
-   UI OVERRIDES (Tailwind handles mostly, these are specifics)
+   EXPORT / PRINT MODE
    ============================================ */
-input[type="number"], select, button {
-    border-radius: 0 !important;
-    font-family: var(--font-ui);
-}
-input[type="number"] {
-    font-family: var(--font-numbers);
+
+.export-active *,
+.export-active *::before,
+.export-active *::after {
+    animation: none !important;
+    transition: none !important;
 }
 
-.mode-btn.active, .dizilim-btn.active, .lang-btn.active {
-    background-color: var(--cad-blue) !important;
-    color: #fff !important;
-    border-color: var(--cad-blue) !important;
-}
-
-.panel-header {
-    border-radius: 0 !important;
-    border: 1px solid var(--border-subtle) !important;
-    background: var(--bg-surface) !important;
-    backdrop-filter: none !important;
-    box-shadow: none !important;
-}
-
-.stat-badge {
-    border-radius: 0 !important;
-    background: var(--bg-primary) !important;
-    border-color: var(--border-subtle) !important;
-    color: var(--text-primary) !important;
-}
-
-/* Matrix Modal Styles */
-.modal-overlay {
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0, 0, 0, 0.8);
-    z-index: 1000;
+.blueprint-only {
     display: none;
-    align-items: center;
-    justify-content: center;
 }
-.modal-content {
-    background: var(--bg-secondary);
-    border: 1px solid var(--border-strong);
-    border-radius: 0;
-    padding: 20px;
-    max-width: 95vw;
-    max-height: 90vh;
-    overflow-y: auto;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+.export-active .blueprint-only {
+    display: block !important;
 }
-.matrix-table {
-    border-collapse: collapse;
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+@media (max-width: 767px) {
+
+.pallet-area {
+    position: relative;
     width: 100%;
-    color: var(--text-primary);
-    font-size: 12px;
-    text-align: center;
-}
-.matrix-table th, .matrix-table td {
-    border: 1px solid var(--border-subtle);
-    padding: 6px 10px;
-}
-.matrix-table th {
-    background: var(--bg-surface);
-    color: var(--cad-blue-light);
-    position: sticky;
-    top: -20px;
-    z-index: 10;
-    font-weight: 500;
-}
-.matrix-cell {
-    cursor: pointer;
-    font-family: var(--font-numbers);
-}
-.matrix-cell:hover {
-    background: var(--cad-blue) !important;
-    color: white !important;
-    border-color: var(--cad-blue);
-}
-.pal-1 { background: rgba(86, 156, 214, 0.1); } /* Light blue */
-.pal-2 { background: rgba(78, 201, 176, 0.1); } /* Light green */
-
-/* All Layouts Grid - CAD Style */
-.all-layouts-grid {
-    display: none;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    justify-content: center;
-    gap: 15px;
-    margin-top: 15px;
-    padding-bottom: 20px;
-}
-.all-layouts-grid .pallet-area {
-    width: 300px;
-    height: 280px;
-    margin: 0 auto;
-    box-shadow: none;
-    border: 1px solid var(--border-subtle);
+    height: 100%;
+    min-height: 400px;
     background: var(--bg-primary);
-}
-.layout-card {
-    background: var(--bg-secondary);
-    border: 1px solid var(--border-strong);
+    background-image:
+        linear-gradient(rgba(255, 255, 255, .1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, .1) 1px, transparent 1px),
+        linear-gradient(rgba(255, 255, 255, .03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, .03) 1px, transparent 1px);
+    background-size: 100px 100px, 100px 100px, 20px 20px, 20px 20px;
+    background-position: center center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     border-radius: 0;
-    padding: 10px;
+    margin-top: 0;
+    overflow: hidden;
+    border: none;
+}
+
+
+    /* Mobile-optimized radiator — smaller pattern */
+    .rad {
+        border-width: 1px;
+        font-size: 9px;
+        font-weight: 700;
+        box-shadow:
+            0 2px 6px rgba(0, 0, 0, 0.5),
+            inset 0 1px 0 rgba(255, 255, 255, 0.15);
+        background-image:
+            linear-gradient(160deg,
+                rgba(255, 255, 255, 0.1) 0%,
+                transparent 50%,
+                rgba(0, 0, 0, 0.1) 100%),
+            repeating-linear-gradient(180deg,
+                rgba(255, 255, 255, 0.12) 0px,
+                transparent 1px,
+                rgba(0, 0, 0, 0.15) 2px,
+                transparent 3px,
+                transparent 4px);
+        background-size: 100% 100%, 100% 4px;
+    }
+
+    .rad-rotated {
+        background-image:
+            linear-gradient(160deg,
+                rgba(255, 255, 255, 0.1) 0%,
+                transparent 50%,
+                rgba(0, 0, 0, 0.1) 100%),
+            repeating-linear-gradient(90deg,
+                rgba(255, 255, 255, 0.12) 0px,
+                transparent 1px,
+                rgba(0, 0, 0, 0.15) 2px,
+                transparent 3px,
+                transparent 4px);
+        background-size: 100% 100%, 4px 100%;
+    }
+
+    /* Mobile-optimized pallet — smaller grid */
+    .pallet,
+
+}
+
+/* ============================================
+   SCROLLBAR
+   ============================================ */
+
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+/* Project 24050 Wooden Pallet */
+
+.pallet-wood {
+    position: absolute;
+    background-color: #3b3127; /* Darker, desaturated wood */
+    border: 2px solid #5c4a3d;
+    border-radius: 0;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+    background-image:
+        repeating-linear-gradient(90deg, rgba(0,0,0,0.2) 0px, rgba(0,0,0,0.2) 2px, transparent 2px, transparent 40px);
+}
+
+
+/* Project 24050 Packaged Radiator Visual */
+.rad-24050 { position: absolute; background-color: transparent; border: none; box-shadow: none; z-index: 10; display: flex; align-items: center; justify-content: center; cursor: crosshair; }
+
+.rad-24050:hover { box-shadow: 0 0 0 2px var(--line-active); }
+
+.rad-24050-flipped {
+    /* 180° rotated pieces get a slightly different tint */
+    background-color: #F5F5F5;
+    border-color: #AAAAAA;
+}
+
+/* Radiator Position Editor Table */
+.rad-pos-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11px;
+    margin-top: 6px;
+}
+
+.rad-pos-table th {
+    background: rgba(255, 107, 44, 0.2);
+    color: var(--kuka-orange);
+    padding: 4px 2px;
+    text-align: center;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid rgba(255, 107, 44, 0.3);
+}
+
+.rad-pos-table td {
+    padding: 2px 1px;
     text-align: center;
 }
-.layout-card-title {
-    color: var(--text-primary);
+
+.rad-pos-num {
+    color: var(--kuka-orange);
+    font-weight: 800;
     font-family: var(--font-numbers);
-    font-weight: normal;
     font-size: 12px;
-    border-bottom: 1px solid var(--border-subtle);
-    padding-bottom: 4px;
-    margin-bottom: 8px;
+    width: 20px;
 }
 
-/* Print / Export overrides for CAD */
-@media print {
-    body { background: white !important; color: black !important; }
-    #singleViewArea { background: white !important; }
-    .pallet, .pallet2 { border-color: black !important; }
-    .pallet::after { color: black !important; }
-    .rad {
-        background: white !important;
-        border-color: black !important;
-        background-image: repeating-linear-gradient(45deg, transparent, transparent 5px, rgba(0,0,0,0.2) 5px, rgba(0,0,0,0.2) 6px) !important;
-    }
-    .rad span { background: white !important; color: black !important; border-color: black !important; }
-    .dim-w, .dim-h, .dim-line::before, .dim-line::after { color: black !important; background: black !important; }
-    .dim-line { border-color: black !important; }
-    .dim-label { background: white !important; color: black !important; border-color: black !important; }
-    .center-mark::before, .center-mark::after { background: black !important; }
+.rad-pos-input {
+    width: 56px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    color: #fff;
+    font-family: var(--font-numbers);
+    font-size: 11px;
+    text-align: center;
+    padding: 3px 2px;
 }
 
+.rad-pos-input:focus {
+    outline: none;
+    border-color: var(--kuka-orange);
+}
+
+.rad-pos-angle {
+    color: rgba(255, 255, 255, 0.5);
+    font-family: var(--font-numbers);
+    font-size: 10px;
+    width: 30px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 107, 44, 0.3);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 107, 44, 0.5);
+}
