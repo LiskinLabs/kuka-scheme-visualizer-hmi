@@ -830,10 +830,10 @@ const HmiApp = {
         }
         if (!isMiniature) {
             let blueprintHTML = `<div class="${this.state.showDimEdges ? '' : 'blueprint-only'}" style="position: absolute; inset: 0; pointer-events: none;">`;
-            const isDoubleLyt = [2, 4, 7, 10, 11, 13].includes(this.state.dizilimId) && !this.state.is50Group;
-            const totalWidthPx = isDoubleLyt ? (1200 * s) + palW : palW;
-            blueprintHTML += this.getDimLineHTML(palLeft, palTop - 30, totalWidthPx, 0, `${isDoubleLyt ? 1200 + palSize.x : palSize.x} mm`, 'gap-dim');
-            blueprintHTML += this.getDimLineHTML(palLeft + totalWidthPx + 30, palTop, 0, palH, `${palSize.y} mm`, 'gap-dim');
+            const isDoubleL = [2, 4, 7, 10, 11, 13].includes(this.state.dizilimId) && !this.state.is50Group;
+            const tPalW = isDoubleL ? (1200 * s) + palW : palW;
+            blueprintHTML += this.getDimLineHTML(palLeft, palTop - 30, tPalW, 0, `${isDoubleL ? 1200 + palSize.x : palSize.x} mm`, 'gap-dim');
+            blueprintHTML += this.getDimLineHTML(palLeft + tPalW + 30, palTop, 0, palH, `${palSize.y} mm`, 'gap-dim');
             let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
             if (positions.length > 0) {
                 positions.forEach(p => {
@@ -843,10 +843,9 @@ const HmiApp = {
                     let realH = is50 ? currentW : (pAngle % 180 === 0 ? currentL : currentW);
                     minX = Math.min(minX, p.x - realW / 2); maxX = Math.max(maxX, p.x + realW / 2); minY = Math.min(minY, p.y - realH / 2); maxY = Math.max(maxY, p.y + realH / 2);
                 });
-                const isDoubleLayout = [2, 4, 7, 10, 11, 13].includes(this.state.dizilimId) && !this.state.is50Group;
-                const rightBoundary = isDoubleLayout ? (1200 + palSize.x / 2) : (palSize.x / 2);
-                const leftBoundary = -palSize.x / 2;
-                let spaceRight = rightBoundary - maxX, spaceLeft = minX - leftBoundary, spaceTop = (palSize.y / 2) - maxY, spaceBottom = minY - (-palSize.y / 2);
+                const isDoubleL = [2, 4, 7, 10, 11, 13].includes(this.state.dizilimId) && !this.state.is50Group;
+                const rBound = isDoubleL ? (1200 + palSize.x / 2) : (palSize.x / 2);
+                let spaceRight = rBound - maxX, spaceLeft = minX - (-palSize.x / 2), spaceTop = (palSize.y / 2) - maxY, spaceBottom = minY - (-palSize.y / 2);
                 if (Math.abs(Math.round(spaceRight)) > 0) blueprintHTML += this.getDimLineHTML(Math.round(palLeft + (palSize.x * s / 2) + maxX * s), palTop + palH / 2, spaceRight * s, 0, `${Math.round(spaceRight)} mm`, 'manual-dim');
                 if (Math.abs(Math.round(spaceLeft)) > 0) blueprintHTML += this.getDimLineHTML(palLeft, palTop + palH / 2, spaceLeft * s, 0, `${Math.round(spaceLeft)} mm`, 'manual-dim');
                 if (Math.abs(Math.round(spaceTop)) > 0) blueprintHTML += this.getDimLineHTML(palLeft + palW / 2, Math.round(palTop + (palSize.y * s / 2) - maxY * s) - spaceTop * s, 0, spaceTop * s, `${Math.round(spaceTop)} mm`, 'manual-dim');
@@ -1064,6 +1063,95 @@ const HmiApp = {
         }
     },
 
+    printLayout() {
+        if (!this.state.showAll) {
+            window.print();
+        } else {
+            // Re-render all layouts with FULL dimensions (not miniatures)
+            this.dom.allLayoutsGrid.innerHTML = '';
+            const allD = [1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13];
+            let html = '';
+            const originalDizilim = this.state.dizilimId;
+            const is50 = this.state.is50Group;
+            const w = this.state.width;
+            const l = this.state.length;
+
+            allD.forEach(id => {
+                if (id > 4 && id !== 6 && !is50) return;
+
+                // Get the data for this layout
+                const positions = this.logic.getPositions(this.state.currentProject, is50 ? 50 : w, is50 ? 50 : l, id);
+                if (positions.length > 0) {
+                    this.state.dizilimId = id; // Temporarily trick state to generate correct blueprint title
+                    // Render without miniature flag
+                    this.renderPalletArea('temp-pallet', positions);
+
+                    const pContainer = document.getElementById('temp-pallet');
+                    const innerHTML = pContainer ? pContainer.innerHTML : '';
+
+                    html += `<div class="dizilim-wrapper" style="position: relative; width: 100vw; height: 100vh;">
+                                <div class="pallet-area absolute border-none !bg-transparent !shadow-none !mt-0" style="transform-origin: center top;">
+                                    ${innerHTML}
+                                </div>
+                             </div>`;
+                }
+            });
+
+            this.state.dizilimId = originalDizilim; // Restore state
+            this.dom.allLayoutsGrid.innerHTML = html;
+
+            setTimeout(() => {
+                window.print();
+                // Restore the grid view afterwards
+                this.renderAllLayouts();
+            }, 1000);
+        }
+    },
+
+    printLayout() {
+        if (!this.state.showAll) {
+            window.print();
+        } else {
+            // Re-render all layouts with FULL dimensions (not miniatures)
+            this.dom.allLayoutsGrid.innerHTML = '';
+            const allD = [1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13];
+            let html = '';
+            const originalDizilim = this.state.dizilimId;
+            const is50 = this.state.is50Group;
+            const w = this.state.width;
+            const l = this.state.length;
+
+            allD.forEach(id => {
+                if (id > 4 && id !== 6 && !is50) return;
+
+                // Get the data for this layout
+                const positions = this.logic.getPositions(this.state.currentProject, is50 ? 50 : w, is50 ? 50 : l, id);
+                if (positions.length > 0) {
+                    this.state.dizilimId = id; // Temporarily trick state to generate correct blueprint title
+                    // Render without miniature flag
+                    this.renderPalletArea('temp-pallet', positions);
+
+                    const pContainer = document.getElementById('temp-pallet');
+                    const innerHTML = pContainer ? pContainer.innerHTML : '';
+
+                    html += `<div class="dizilim-wrapper" style="position: relative; width: 100vw; height: 100vh;">
+                                <div class="pallet-area absolute border-none !bg-transparent !shadow-none !mt-0" style="transform-origin: center top;">
+                                    ${innerHTML}
+                                </div>
+                             </div>`;
+                }
+            });
+
+            this.state.dizilimId = originalDizilim; // Restore state
+            this.dom.allLayoutsGrid.innerHTML = html;
+
+            setTimeout(() => {
+                window.print();
+                // Restore the grid view afterwards
+                this.renderAllLayouts();
+            }, 1000);
+        }
+    },
     exportToImage() {
         const area = this.state.showAll ? document.getElementById('allLayoutsGrid') : document.getElementById('singleViewArea');
         if (!area) return;
