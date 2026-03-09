@@ -809,8 +809,8 @@
 
 .dim-line {
     position: absolute;
-    border-style: solid;
-    border-color: #FF6B2C;
+
+
     z-index: 20;
     pointer-events: none;
 }

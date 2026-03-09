@@ -830,8 +830,10 @@ const HmiApp = {
         }
         if (!isMiniature) {
             let blueprintHTML = `<div class="${this.state.showDimEdges ? '' : 'blueprint-only'}" style="position: absolute; inset: 0; pointer-events: none;">`;
-            blueprintHTML += this.getDimLineHTML(palLeft, palTop - 30, palW, 0, `${palSize.x} mm`, 'gap-dim');
-            blueprintHTML += this.getDimLineHTML(palLeft + palW + 30, palTop, 0, palH, `${palSize.y} mm`, 'gap-dim');
+            const isDoubleLyt = [2, 4, 7, 10, 11, 13].includes(this.state.dizilimId) && !this.state.is50Group;
+            const totalWidthPx = isDoubleLyt ? (1200 * s) + palW : palW;
+            blueprintHTML += this.getDimLineHTML(palLeft, palTop - 30, totalWidthPx, 0, `${isDoubleLyt ? 1200 + palSize.x : palSize.x} mm`, 'gap-dim');
+            blueprintHTML += this.getDimLineHTML(palLeft + totalWidthPx + 30, palTop, 0, palH, `${palSize.y} mm`, 'gap-dim');
             let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
             if (positions.length > 0) {
                 positions.forEach(p => {
@@ -841,7 +843,10 @@ const HmiApp = {
                     let realH = is50 ? currentW : (pAngle % 180 === 0 ? currentL : currentW);
                     minX = Math.min(minX, p.x - realW / 2); maxX = Math.max(maxX, p.x + realW / 2); minY = Math.min(minY, p.y - realH / 2); maxY = Math.max(maxY, p.y + realH / 2);
                 });
-                let spaceRight = (palSize.x / 2) - maxX, spaceLeft = minX - (-palSize.x / 2), spaceTop = (palSize.y / 2) - maxY, spaceBottom = minY - (-palSize.y / 2);
+                const isDoubleLayout = [2, 4, 7, 10, 11, 13].includes(this.state.dizilimId) && !this.state.is50Group;
+                const rightBoundary = isDoubleLayout ? (1200 + palSize.x / 2) : (palSize.x / 2);
+                const leftBoundary = -palSize.x / 2;
+                let spaceRight = rightBoundary - maxX, spaceLeft = minX - leftBoundary, spaceTop = (palSize.y / 2) - maxY, spaceBottom = minY - (-palSize.y / 2);
                 if (Math.abs(Math.round(spaceRight)) > 0) blueprintHTML += this.getDimLineHTML(Math.round(palLeft + (palSize.x * s / 2) + maxX * s), palTop + palH / 2, spaceRight * s, 0, `${Math.round(spaceRight)} mm`, 'manual-dim');
                 if (Math.abs(Math.round(spaceLeft)) > 0) blueprintHTML += this.getDimLineHTML(palLeft, palTop + palH / 2, spaceLeft * s, 0, `${Math.round(spaceLeft)} mm`, 'manual-dim');
                 if (Math.abs(Math.round(spaceTop)) > 0) blueprintHTML += this.getDimLineHTML(palLeft + palW / 2, Math.round(palTop + (palSize.y * s / 2) - maxY * s) - spaceTop * s, 0, spaceTop * s, `${Math.round(spaceTop)} mm`, 'manual-dim');
