@@ -1136,13 +1136,13 @@ const HmiApp = {
         let extraTransform = '';
         if (dx !== 0) {
             if (dx < 0) finalX = x + dx;
-            styleLine = `width:${absDx}px; height:1px; border-top:1px dashed ${color};`;
+            styleLine = `width:${absDx}px; height:1px; border-top:1px dashed ${color}; border-bottom:0; border-left:0; border-right:0;`;
             if (type === 'gap-dim') extraTransform = 'translateY(15px)'; // Shift gap label down
             if (type === 'manual-dim') extraTransform = 'translateY(-15px)'; // Shift manual label up
         }
         else {
             if (dy < 0) finalY = y + dy;
-            styleLine = `width:1px; height:${absDy}px; border-left:1px dashed ${color};`;
+            styleLine = `width:1px; height:${absDy}px; border-left:1px dashed ${color}; border-right:0; border-top:0; border-bottom:0;`;
             if (type === 'gap-dim') extraTransform = 'translateX(15px)'; // Shift gap label right
             if (type === 'manual-dim') extraTransform = 'translateX(-15px)'; // Shift manual label left
         }
