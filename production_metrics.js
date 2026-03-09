@@ -886,14 +886,23 @@ const HmiApp = {
         if (newZoom !== this.state.zoom) {
             const rect = this.dom.singleViewArea.getBoundingClientRect();
             
-            // Calculate mouse position relative to the top-left of the singleViewArea container
+            // Get mouse position relative to container
             const mouseX = e.clientX - rect.left;
             const mouseY = e.clientY - rect.top;
 
-            // Calculate pan offset to keep the point under the mouse stationary
-            // The formula is: pan_new = mouse - (mouse - pan_old) * (newZoom / oldZoom)
-            this.state.panX = mouseX - (mouseX - this.state.panX) * (newZoom / this.state.zoom);
-            this.state.panY = mouseY - (mouseY - this.state.panY) * (newZoom / this.state.zoom);
+            // For a flex container with center/center alignment, the natural unscaled
+            // origin of the element is at the center of the container.
+            // The current center of the element is the container center offset by panX/panY.
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+
+            // Distance from the element's current center to the mouse pointer
+            const deltaX = mouseX - (centerX + this.state.panX);
+            const deltaY = mouseY - (centerY + this.state.panY);
+
+            // Adjust pan so the point under the mouse remains stationary
+            this.state.panX = this.state.panX - deltaX * (newZoom / this.state.zoom - 1);
+            this.state.panY = this.state.panY - deltaY * (newZoom / this.state.zoom - 1);
 
             this.state.zoom = newZoom;
             this.applyTransform();
@@ -922,9 +931,16 @@ const HmiApp = {
                 const mouseX = touchCenterX - rect.left;
                 const mouseY = touchCenterY - rect.top;
 
-                // Calculate pan offset to keep the point under the pinch stationary
-                this.state.panX = mouseX - (mouseX - this.state.panX) * (newZoom / this.state.zoom);
-                this.state.panY = mouseY - (mouseY - this.state.panY) * (newZoom / this.state.zoom);
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+
+                // Distance from the element's current center to the pinch center
+                const deltaX = mouseX - (centerX + this.state.panX);
+                const deltaY = mouseY - (centerY + this.state.panY);
+
+                // Adjust pan so the point under the pinch remains stationary
+                this.state.panX = this.state.panX - deltaX * (newZoom / this.state.zoom - 1);
+                this.state.panY = this.state.panY - deltaY * (newZoom / this.state.zoom - 1);
 
                 this.state.zoom = newZoom;
                 this.applyTransform();
