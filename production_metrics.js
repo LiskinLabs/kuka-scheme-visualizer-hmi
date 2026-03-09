@@ -616,8 +616,8 @@ const HmiApp = {
         this.applyTransform();
         if (this.state.showAll) {
             const txt = this.config.translations[this.state.lang].toggleAllHide;
-            this.dom.btnToggleAll.innerHTML = `<i class="fas fa-eye-slash text-xs"></i><span id="lblToggleAll" class="ml-2 text-xs"></span>`;
-            this.dom.btnToggleAll.querySelector("#lblToggleAll").textContent = txt;
+            this.dom.btnToggleAll.innerHTML = `<i class="fas fa-eye-slash text-xs"></i><span id="lblToggleAll" class="hidden"></span>`;
+            this.dom.btnToggleAll.title = txt;
             this.dom.btnToggleAll.classList.add('active');
             if (this.dom.palletArea) this.dom.palletArea.style.display = 'none';
             this.dom.allLayoutsGrid.style.display = 'flex';
@@ -631,8 +631,8 @@ const HmiApp = {
             this.renderAllLayouts();
         } else {
             const txt = this.config.translations[this.state.lang].toggleAllShow;
-            this.dom.btnToggleAll.innerHTML = `<i class="fas fa-th-large text-xs"></i><span id="lblToggleAll" class="ml-2 text-xs"></span>`;
-            this.dom.btnToggleAll.querySelector("#lblToggleAll").textContent = txt;
+            this.dom.btnToggleAll.innerHTML = `<i class="fas fa-th-large text-xs"></i><span id="lblToggleAll" class="hidden"></span>`;
+            this.dom.btnToggleAll.title = txt;
             this.dom.btnToggleAll.classList.remove('active');
             if (this.dom.palletArea) this.dom.palletArea.style.display = 'flex';
             this.dom.allLayoutsGrid.style.display = 'none';
@@ -1014,17 +1014,192 @@ const HmiApp = {
         this.dom.minimapView.style.width = indicatorW + 'px'; this.dom.minimapView.style.height = indicatorH + 'px'; this.dom.minimapView.style.left = indicatorX + 'px'; this.dom.minimapView.style.top = indicatorY + 'px';
     },
 
+    printLayout() {
+        if (!this.state.showAll) {
+            window.print();
+        } else {
+            // Re-render all layouts with FULL dimensions (not miniatures)
+            this.dom.allLayoutsGrid.innerHTML = '';
+            const allD = [1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13];
+            let html = '';
+            const originalDizilim = this.state.dizilimId;
+            const is50 = this.state.is50Group;
+            const w = this.state.width;
+            const l = this.state.length;
+
+            allD.forEach(id => {
+                if (id > 4 && id !== 6 && !is50) return;
+
+                // Get the data for this layout
+                const positions = this.logic.getPositions(this.state.currentProject, is50 ? 50 : w, is50 ? 50 : l, id);
+                if (positions.length > 0) {
+                    this.state.dizilimId = id; // Temporarily trick state to generate correct blueprint title
+                    // Render without miniature flag
+                    this.renderPalletArea('temp-pallet', positions);
+
+                    const pContainer = document.getElementById('temp-pallet');
+                    const innerHTML = pContainer ? pContainer.innerHTML : '';
+
+                    html += `<div class="dizilim-wrapper" style="position: relative; width: 100vw; height: 100vh;">
+                                <div class="pallet-area absolute border-none !bg-transparent !shadow-none !mt-0" style="transform-origin: center top;">
+                                    ${innerHTML}
+                                </div>
+                             </div>`;
+                }
+            });
+
+            this.state.dizilimId = originalDizilim; // Restore state
+            this.dom.allLayoutsGrid.innerHTML = html;
+
+            setTimeout(() => {
+                window.print();
+                // Restore the grid view afterwards
+                this.renderAllLayouts();
+            }, 1000);
+        }
+    },
+
+    printLayout() {
+        if (!this.state.showAll) {
+            window.print();
+        } else {
+            // Re-render all layouts with FULL dimensions (not miniatures)
+            this.dom.allLayoutsGrid.innerHTML = '';
+            const allD = [1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13];
+            let html = '';
+            const originalDizilim = this.state.dizilimId;
+            const is50 = this.state.is50Group;
+            const w = this.state.width;
+            const l = this.state.length;
+
+            allD.forEach(id => {
+                if (id > 4 && id !== 6 && !is50) return;
+
+                // Get the data for this layout
+                const positions = this.logic.getPositions(this.state.currentProject, is50 ? 50 : w, is50 ? 50 : l, id);
+                if (positions.length > 0) {
+                    this.state.dizilimId = id; // Temporarily trick state to generate correct blueprint title
+                    // Render without miniature flag
+                    this.renderPalletArea('temp-pallet', positions);
+
+                    const pContainer = document.getElementById('temp-pallet');
+                    const innerHTML = pContainer ? pContainer.innerHTML : '';
+
+                    html += `<div class="dizilim-wrapper" style="position: relative; width: 100vw; height: 100vh;">
+                                <div class="pallet-area absolute border-none !bg-transparent !shadow-none !mt-0" style="transform-origin: center top;">
+                                    ${innerHTML}
+                                </div>
+                             </div>`;
+                }
+            });
+
+            this.state.dizilimId = originalDizilim; // Restore state
+            this.dom.allLayoutsGrid.innerHTML = html;
+
+            setTimeout(() => {
+                window.print();
+                // Restore the grid view afterwards
+                this.renderAllLayouts();
+            }, 1000);
+        }
+    },
+
+    printLayout() {
+        if (!this.state.showAll) {
+            window.print();
+        } else {
+            // Re-render all layouts with FULL dimensions (not miniatures)
+            this.dom.allLayoutsGrid.innerHTML = '';
+            const allD = [1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13];
+            let html = '';
+            const originalDizilim = this.state.dizilimId;
+            const is50 = this.state.is50Group;
+            const w = this.state.width;
+            const l = this.state.length;
+
+            allD.forEach(id => {
+                if (id > 4 && id !== 6 && !is50) return;
+
+                // Get the data for this layout
+                const positions = this.logic.getPositions(this.state.currentProject, is50 ? 50 : w, is50 ? 50 : l, id);
+                if (positions.length > 0) {
+                    this.state.dizilimId = id; // Temporarily trick state to generate correct blueprint title
+                    // Render without miniature flag
+                    this.renderPalletArea('temp-pallet', positions);
+
+                    const pContainer = document.getElementById('temp-pallet');
+                    const innerHTML = pContainer ? pContainer.innerHTML : '';
+
+                    html += `<div class="dizilim-wrapper" style="position: relative; width: 100vw; height: 100vh;">
+                                <div class="pallet-area absolute border-none !bg-transparent !shadow-none !mt-0" style="transform-origin: center top;">
+                                    ${innerHTML}
+                                </div>
+                             </div>`;
+                }
+            });
+
+            this.state.dizilimId = originalDizilim; // Restore state
+            this.dom.allLayoutsGrid.innerHTML = html;
+
+            setTimeout(() => {
+                window.print();
+                // Restore the grid view afterwards
+                this.renderAllLayouts();
+            }, 1000);
+        }
+    },
     exportToImage() {
-        const area = document.getElementById('singleViewArea'); if (!area) return;
+        const area = this.state.showAll ? document.getElementById('allLayoutsGrid') : document.getElementById('singleViewArea');
+        if (!area) return;
+
         const oldPanX = this.state.panX, oldPanY = this.state.panY, oldZoom = this.state.zoom, oldOverflow = area.style.overflow, oldBg = area.style.backgroundColor;
+
+        // Reset view for capture
         this.state.panX = 0; this.state.panY = 0; this.state.zoom = 1; this.applyTransform();
-        area.style.overflow = 'visible'; area.style.backgroundColor = '#16161a';
-        area.classList.add('export-active'); this.render();
+
+        // Force the area to be fully visible and calculate full size
+        area.style.overflow = 'visible';
+        area.style.backgroundColor = '#16161a';
+        area.classList.add('export-active');
+
+        // Ensure all miniature dims are visible if we want full details, but for now just export what's there
+        if (this.state.showAll) {
+             area.style.position = 'relative';
+             area.style.transform = 'none';
+        }
+
+        this.render();
+
         setTimeout(() => {
-            html2canvas(area, { backgroundColor: '#16161a', scale: 2, useCORS: true, scrollX: 0, scrollY: 0 }).then(canvas => {
-                const link = document.createElement('a'); link.download = `KUKA_Scheme_${this.state.currentProject}_D${this.state.dizilimId}_${this.state.width}x${this.state.length}.png`; link.href = canvas.toDataURL('image/png'); link.click();
+            // Get actual scroll width/height for full capture
+            const w = area.scrollWidth || area.clientWidth;
+            const h = area.scrollHeight || area.clientHeight;
+
+            html2canvas(area, {
+                backgroundColor: '#16161a',
+                scale: this.state.showAll ? 1 : 2,
+                useCORS: true,
+                scrollX: 0,
+                scrollY: 0,
+                width: w,
+                height: h,
+                windowWidth: w,
+                windowHeight: h
+            }).then(canvas => {
+                const link = document.createElement('a');
+                const modeStr = this.state.showAll ? 'All_Layouts' : `D${this.state.dizilimId}`;
+                link.download = `KUKA_Scheme_${this.state.currentProject}_${modeStr}_${this.state.width}x${this.state.length}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+
+                // Restore state
                 this.state.panX = oldPanX; this.state.panY = oldPanY; this.state.zoom = oldZoom; this.applyTransform();
-                area.style.overflow = oldOverflow; area.style.backgroundColor = oldBg; area.classList.remove('export-active');
+                area.style.overflow = oldOverflow;
+                area.style.backgroundColor = oldBg;
+                area.classList.remove('export-active');
+                if (this.state.showAll) {
+                     area.style.position = 'absolute';
+                }
             });
         }, 1500);
     },

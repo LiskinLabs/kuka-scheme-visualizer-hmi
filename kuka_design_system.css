@@ -629,8 +629,22 @@
 }
 
 .rad.rad-rotated {
-    padding: 0;
-}
+        background-color: #e0e0e0;
+        background-image:
+            linear-gradient(160deg,
+                rgba(255, 255, 255, 0.3) 0%,
+                transparent 50%,
+                rgba(0, 0, 0, 0.3) 100%),
+            repeating-linear-gradient(90deg,
+                rgba(255, 255, 255, 0.6) 0px,
+                transparent 1px,
+                rgba(0, 0, 0, 0.15) 2px,
+                transparent 3px,
+                transparent 4px);
+        background-size: 100% 100%, 4px 100%;
+        color: #111;
+        border: 1px solid #666;
+    }
 
 /* Vertical pipe on LEFT/RIGHT sides */
 .rad.rad-rotated .long-pipe {
@@ -871,30 +885,40 @@
         box-shadow:
             0 2px 6px rgba(0, 0, 0, 0.5),
             inset 0 1px 0 rgba(255, 255, 255, 0.15);
+        background-color: #e0e0e0;
         background-image:
             linear-gradient(160deg,
-                rgba(255, 255, 255, 0.1) 0%,
+                rgba(255, 255, 255, 0.3) 0%,
                 transparent 50%,
-                rgba(0, 0, 0, 0.1) 100%),
+                rgba(0, 0, 0, 0.3) 100%),
             repeating-linear-gradient(180deg,
-                rgba(255, 255, 255, 0.12) 0px,
+                rgba(255, 255, 255, 0.6) 0px,
                 transparent 1px,
                 rgba(0, 0, 0, 0.15) 2px,
                 transparent 3px,
                 transparent 4px);
         background-size: 100% 100%, 100% 4px;
+        color: #111;
+        border: 1px solid #666;
     }
 
     .rad-rotated {
+        background-color: #e0e0e0;
         background-image:
             linear-gradient(160deg,
-                rgba(255, 255, 255, 0.1) 0%,
+                rgba(255, 255, 255, 0.3) 0%,
                 transparent 50%,
-                rgba(0, 0, 0, 0.1) 100%),
+                rgba(0, 0, 0, 0.3) 100%),
             repeating-linear-gradient(90deg,
-                rgba(255, 255, 255, 0.12) 0px,
+                rgba(255, 255, 255, 0.6) 0px,
                 transparent 1px,
                 rgba(0, 0, 0, 0.15) 2px,
+                transparent 3px,
+                transparent 4px);
+        background-size: 100% 100%, 4px 100%;
+        color: #111;
+        border: 1px solid #666;
+    }
                 transparent 3px,
                 transparent 4px);
         background-size: 100% 100%, 4px 100%;
@@ -1152,4 +1176,77 @@
     display: flex !important;
     align-items: center;
     justify-content: center;
+}
+
+@media print {
+    body, html {
+        background: #fff !important;
+        color: #000 !important;
+        overflow: visible !important;
+        height: auto !important;
+    }
+
+    .cad-top-bar, .cad-toolbar, #schemes-tabs, .info-card, .fab-btn, .bottom-sheet, .tool-btn, #btnToggleAll {
+        display: none !important;
+    }
+
+    #singleViewArea, #allLayoutsGrid {
+        background: transparent !important;
+        background-image: none !important;
+        transform: none !important;
+        position: static !important;
+        overflow: visible !important;
+        height: auto !important;
+        width: 100% !important;
+    }
+
+    /* CAD Style 2D Lines */
+    .pallet-area, .pallet, .pallet2 {
+        border: 2px solid #000 !important;
+        background: transparent !important;
+        box-shadow: none !important;
+    }
+
+    .rad, .rad-24050, .rad-rotated {
+        border: 1px solid #000 !important;
+        background: #fff !important;
+        box-shadow: none !important;
+    }
+
+    /* Remove inner details to look like a draft */
+    .heat-plate, .pkg-body, .pkg-corner {
+        background: transparent !important;
+        border: 1px solid #333 !important;
+        box-shadow: none !important;
+    }
+
+    .dim-line {
+        border-color: #000 !important;
+    }
+
+    .dim-label {
+        background: #fff !important;
+        color: #000 !important;
+        border: 1px solid #000 !important;
+        font-weight: bold !important;
+    }
+
+    .blueprint-only {
+        background: transparent !important;
+        color: #000 !important;
+        border: 2px solid #000 !important;
+    }
+
+    .blueprint-only div {
+        border-color: #000 !important;
+    }
+
+    /* Page breaking for Show All */
+    .dizilim-wrapper {
+        page-break-after: always;
+        break-after: page;
+        transform: scale(1.5) !important;
+        transform-origin: top left !important;
+        margin-bottom: 50px !important;
+    }
 }
