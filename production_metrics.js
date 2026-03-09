@@ -616,7 +616,8 @@ const HmiApp = {
         this.applyTransform();
         if (this.state.showAll) {
             const txt = this.config.translations[this.state.lang].toggleAllHide;
-            this.dom.btnToggleAll.innerHTML = `<i class="fas fa-eye-slash"></i><span id="lblToggleAll">${txt}</span>`;
+            this.dom.btnToggleAll.innerHTML = `<i class="fas fa-eye-slash"></i><span id="lblToggleAll"></span>`;
+            this.dom.btnToggleAll.querySelector("#lblToggleAll").textContent = txt;
             this.dom.btnToggleAll.classList.add('active');
             if (this.dom.palletArea) this.dom.palletArea.style.display = 'none';
             this.dom.allLayoutsGrid.style.display = 'flex';
@@ -630,7 +631,8 @@ const HmiApp = {
             this.renderAllLayouts();
         } else {
             const txt = this.config.translations[this.state.lang].toggleAllShow;
-            this.dom.btnToggleAll.innerHTML = `<i class="fas fa-th-large"></i><span id="lblToggleAll">${txt}</span>`;
+            this.dom.btnToggleAll.innerHTML = `<i class="fas fa-th-large"></i><span id="lblToggleAll"></span>`;
+            this.dom.btnToggleAll.querySelector("#lblToggleAll").textContent = txt;
             this.dom.btnToggleAll.classList.remove('active');
             if (this.dom.palletArea) this.dom.palletArea.style.display = 'flex';
             this.dom.allLayoutsGrid.style.display = 'none';
