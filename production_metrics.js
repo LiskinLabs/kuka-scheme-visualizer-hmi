@@ -120,7 +120,6 @@ const HmiApp = {
 
                 if (this.state.isLightTheme) {
                     document.body.classList.add('light-theme');
-                    if (this.dom.themeIcon) this.dom.themeIcon.className = 'fas fa-sun text-lg';
                 }
 
                 if (this.dom.projectSelect) this.dom.projectSelect.value = this.state.currentProject;
@@ -141,7 +140,7 @@ const HmiApp = {
     },
 
     cacheDom() {
-        const ids = ['projectSelect', 'inW', 'inL', 'gapW', 'gapH', 'palletArea', 'pallet', 'pallet2', 'centerMark', 'axisX', 'axisY', 'vizTitle', 'statCount', 'statAngle', 'cellNumber', 'currentTime', 'exportToggle', 'radPositionsPanel', 'radPosResetBtn', 'palletSizeControls', 'palW50', 'palH50', 'iW', 'iL', 'iA', 'iC', 'iP', 'iLyr', 'iTot', 'btnRU', 'btnTR', 'btnUZ', 'btnToggleAll', 'lblToggleAll', 'singleViewArea', 'allLayoutsGrid', 'btnMatrix', 'lblMatrix', 'manualModeToggle', 'btnAutoMode', 'btnManualMode', 'manualAddPanel', 'manW', 'manL', 'dizilimGridContainer', 'leftPanel', 'rightPanel', 'leftPanelIcon', 'rightPanelIcon', 'btnOpenLeft', 'btnOpenRight', 'themeIcon', 'contextMenu', 'ctxRotate', 'ctxDelete', 'minimapContainer', 'minimapView', 'btnDomestic', 'btnExport'];
+        const ids = ['projectSelect', 'inW', 'inL', 'gapW', 'gapH', 'palletArea', 'pallet', 'pallet2', 'centerMark', 'axisX', 'axisY', 'vizTitle', 'statCount', 'statAngle', 'exportToggle', 'radPositionsPanel', 'radPosResetBtn', 'palletSizeControls', 'palW50', 'palH50', 'iW', 'iL', 'iA', 'iC', 'iP', 'iLyr', 'iTot', 'btnRU', 'btnTR', 'btnUZ', 'btnToggleAll', 'lblToggleAll', 'singleViewArea', 'allLayoutsGrid', 'btnMatrix', 'lblMatrix', 'manualModeToggle', 'btnAutoMode', 'btnManualMode', 'manualAddPanel', 'manW', 'manL', 'dizilimGridContainer', 'leftPanel', 'rightPanel', 'leftPanelIcon', 'rightPanelIcon', 'btnOpenLeft', 'btnOpenRight', 'contextMenu', 'ctxRotate', 'ctxDelete', 'minimapContainer', 'minimapView', 'btnDomestic', 'btnExport'];
         ids.forEach(id => this.dom[id] = document.getElementById(id));
         this.dom.dizilimGrid = document.querySelector('.dizilim-grid');
         this.dom.palletModeSelector = document.getElementById('palletModeSelector');
@@ -224,10 +223,7 @@ const HmiApp = {
     },
 
     updateClock() {
-        const now = new Date();
-        if (this.dom.currentTime) {
-            this.dom.currentTime.textContent = now.toLocaleTimeString();
-        }
+        // Clock removed from UI
     },
 
     closeAllPanels() {
@@ -346,10 +342,8 @@ const HmiApp = {
         this.state.isLightTheme = !this.state.isLightTheme;
         if (this.state.isLightTheme) {
             document.body.classList.add('light-theme');
-            if (this.dom.themeIcon) this.dom.themeIcon.className = 'fas fa-sun text-lg';
         } else {
             document.body.classList.remove('light-theme');
-            if (this.dom.themeIcon) this.dom.themeIcon.className = 'fas fa-moon text-lg';
         }
         this.saveState();
     },
@@ -362,7 +356,6 @@ const HmiApp = {
         this.dom.exportToggle.style.display = is50 ? 'flex' : 'none';
         if (this.dom.palletModeSelector) this.dom.palletModeSelector.style.display = is50 ? 'none' : 'grid';
         if (this.dom.btnMatrix) this.dom.btnMatrix.style.display = is50 ? 'none' : 'block';
-        if (this.dom.cellNumber) this.dom.cellNumber.textContent = 'Cell ' + this.state.currentProject;
         if (is50) {
             this.state.isDualPallet = false;
             this.state.palOverrideX = 0;
@@ -892,11 +885,16 @@ const HmiApp = {
         
         if (newZoom !== this.state.zoom) {
             const rect = this.dom.singleViewArea.getBoundingClientRect();
-            const relX = e.clientX - rect.left;
-            const relY = e.clientY - rect.top;
             
-            this.state.panX = relX - (relX - this.state.panX) * (newZoom / this.state.zoom);
-            this.state.panY = relY - (relY - this.state.panY) * (newZoom / this.state.zoom);
+            // Calculate mouse position relative to the top-left of the singleViewArea container
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+
+            // Calculate pan offset to keep the point under the mouse stationary
+            // The formula is: pan_new = mouse - (mouse - pan_old) * (newZoom / oldZoom)
+            this.state.panX = mouseX - (mouseX - this.state.panX) * (newZoom / this.state.zoom);
+            this.state.panY = mouseY - (mouseY - this.state.panY) * (newZoom / this.state.zoom);
+
             this.state.zoom = newZoom;
             this.applyTransform();
         }
@@ -915,11 +913,19 @@ const HmiApp = {
             
             if (newZoom !== this.state.zoom) {
                 const rect = this.dom.singleViewArea.getBoundingClientRect();
-                const centerX = (t1.clientX + t2.clientX) / 2 - rect.left;
-                const centerY = (t1.clientY + t2.clientY) / 2 - rect.top;
                 
-                this.state.panX = centerX - (centerX - this.state.panX) * (newZoom / this.state.zoom);
-                this.state.panY = centerY - (centerY - this.state.panY) * (newZoom / this.state.zoom);
+                // Calculate the center point between the two fingers
+                const touchCenterX = (t1.clientX + t2.clientX) / 2;
+                const touchCenterY = (t1.clientY + t2.clientY) / 2;
+
+                // Calculate touch position relative to the top-left of the singleViewArea container
+                const mouseX = touchCenterX - rect.left;
+                const mouseY = touchCenterY - rect.top;
+
+                // Calculate pan offset to keep the point under the pinch stationary
+                this.state.panX = mouseX - (mouseX - this.state.panX) * (newZoom / this.state.zoom);
+                this.state.panY = mouseY - (mouseY - this.state.panY) * (newZoom / this.state.zoom);
+
                 this.state.zoom = newZoom;
                 this.applyTransform();
             }
