@@ -1,16 +1,17 @@
+import os
 import re
 
-with open('/app/kuka_design_system.css', 'r') as f:
+with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'kuka_design_system.css'), 'r') as f:
     css = f.read()
 
 # Remove border-style and color from .dim-line to let JS handle it properly
 css = re.sub(r'(\.dim-line\s*\{[^\}]*)border-style:\s*solid;([^\}]*\})', r'\1\2', css)
 css = re.sub(r'(\.dim-line\s*\{[^\}]*)border-color:\s*#FF6B2C;([^\}]*\})', r'\1\2', css)
 
-with open('/app/kuka_design_system.css', 'w') as f:
+with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'kuka_design_system.css'), 'w') as f:
     f.write(css)
 
-with open('/app/production_metrics.js', 'r') as f:
+with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'production_metrics.js'), 'r') as f:
     js = f.read()
 
 # Fix the dimensions bug
@@ -52,5 +53,5 @@ old_gap2 = "blueprintHTML += this.getDimLineHTML(palLeft + palW + 30, palTop, 0,
 new_gap2 = "blueprintHTML += this.getDimLineHTML(palLeft + tPalW + 30, palTop, 0, palH, `${palSize.y} mm`, 'gap-dim');"
 js = js.replace(old_gap2, new_gap2)
 
-with open('/app/production_metrics.js', 'w') as f:
+with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'production_metrics.js'), 'w') as f:
     f.write(js)

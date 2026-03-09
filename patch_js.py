@@ -1,6 +1,7 @@
+import os
 import re
 
-with open('/app/production_metrics.js', 'r') as f:
+with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'production_metrics.js'), 'r') as f:
     js = f.read()
 
 old_getdim = """if (dx !== 0) { if (dx < 0) finalX = x + dx; styleLine = `width:${absDx}px; height:1px; border-top:1px dashed ${color};`; }
@@ -41,5 +42,5 @@ old_gap2 = "blueprintHTML += this.getDimLineHTML(palLeft + palW + 30, palTop, 0,
 new_gap2 = "blueprintHTML += this.getDimLineHTML(palLeft + tPalW + 30, palTop, 0, palH, `${palSize.y} mm`, 'gap-dim');"
 js = js.replace(old_gap2, new_gap2)
 
-with open('/app/production_metrics.js', 'w') as f:
+with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'production_metrics.js'), 'w') as f:
     f.write(js)

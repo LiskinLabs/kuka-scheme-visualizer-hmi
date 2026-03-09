@@ -1,5 +1,6 @@
+import os
 import re
-with open('/app/kuka_design_system.css', 'r') as f:
+with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'kuka_design_system.css'), 'r') as f:
     css = f.read()
 
 # Ensure we remove border-style and border-color effectively
@@ -10,5 +11,5 @@ css = re.sub(r'(\.dim-line\s*\{[^\}]*)border-color:\s*#FF6B2C;([^\}]*\})', r'\1\
 if 'padding: 0 !important;' not in css.split('.dim-line {')[1]:
     css = css.replace('.dim-line {', '.dim-line {\n    padding: 0 !important;\n    margin: 0 !important;\n    border-width: 0 !important;')
 
-with open('/app/kuka_design_system.css', 'w') as f:
+with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'kuka_design_system.css'), 'w') as f:
     f.write(css)

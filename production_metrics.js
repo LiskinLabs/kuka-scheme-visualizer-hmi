@@ -167,20 +167,20 @@ const HmiApp = {
                 let scaleY = 700 / maxBoundsY;
                 let scale = Math.min(scaleX, scaleY);
                 if (scale > 0.6) scale = 0.6; 
-                this.dom.palletArea.style.setProperty('transform', `scale(${scale})`, 'important');
-                this.dom.palletArea.style.setProperty('transform-origin', 'top center', 'important');
-                this.dom.palletArea.style.setProperty('position', 'absolute', 'important');
-                this.dom.palletArea.style.setProperty('top', '0', 'important');
-                this.dom.palletArea.style.setProperty('left', '0', 'important');
+                if (this.dom.palletArea) this.dom.palletArea.style.setProperty('transform', `scale(${scale})`, 'important');
+                if (this.dom.palletArea) this.dom.palletArea.style.setProperty('transform-origin', 'top center', 'important');
+                if (this.dom.palletArea) this.dom.palletArea.style.setProperty('position', 'absolute', 'important');
+                if (this.dom.palletArea) this.dom.palletArea.style.setProperty('top', '0', 'important');
+                if (this.dom.palletArea) this.dom.palletArea.style.setProperty('left', '0', 'important');
             }
         });
         window.addEventListener('afterprint', () => {
             if (this.dom.palletArea) {
-                this.dom.palletArea.style.removeProperty('transform');
-                this.dom.palletArea.style.removeProperty('transform-origin');
-                this.dom.palletArea.style.removeProperty('position');
-                this.dom.palletArea.style.removeProperty('top');
-                this.dom.palletArea.style.removeProperty('left');
+                if (this.dom.palletArea) this.dom.palletArea.style.removeProperty('transform');
+                if (this.dom.palletArea) this.dom.palletArea.style.removeProperty('transform-origin');
+                if (this.dom.palletArea) this.dom.palletArea.style.removeProperty('position');
+                if (this.dom.palletArea) this.dom.palletArea.style.removeProperty('top');
+                if (this.dom.palletArea) this.dom.palletArea.style.removeProperty('left');
             }
             this.applyTransform();
         });
@@ -191,10 +191,10 @@ const HmiApp = {
         });
 
         if (this.dom.singleViewArea) {
-            this.dom.singleViewArea.addEventListener('wheel', (e) => this.handleZoom(e), { passive: false });
-            this.dom.singleViewArea.addEventListener('mousedown', (e) => this.startPan(e));
-            this.dom.singleViewArea.addEventListener('touchstart', (e) => this.startPan(e), { passive: false });
-            this.dom.singleViewArea.addEventListener('touchmove', (e) => this.handleZoomTouch(e), { passive: false });
+            if (this.dom.singleViewArea) this.dom.singleViewArea.addEventListener('wheel', (e) => this.handleZoom(e), { passive: false });
+            if (this.dom.singleViewArea) this.dom.singleViewArea.addEventListener('mousedown', (e) => this.startPan(e));
+            if (this.dom.singleViewArea) this.dom.singleViewArea.addEventListener('touchstart', (e) => this.startPan(e), { passive: false });
+            if (this.dom.singleViewArea) this.dom.singleViewArea.addEventListener('touchmove', (e) => this.handleZoomTouch(e), { passive: false });
         }
 
         if (this.dom.inW) this.dom.inW.onchange = () => this.calc();
@@ -213,13 +213,13 @@ const HmiApp = {
 
     initLengths() {
         if (!this.dom.inL) return;
-        this.dom.inL.innerHTML = '';
+        if (this.dom.inL) this.dom.inL.innerHTML = '';
         for (let i = 400; i <= 3000; i += 100) {
             const opt = document.createElement('option');
             opt.value = opt.textContent = i;
-            this.dom.inL.appendChild(opt);
+            if (this.dom.inL) this.dom.inL.appendChild(opt);
         }
-        this.dom.inL.value = 400;
+        if (this.dom.inL) this.dom.inL.value = 400;
     },
 
     updateClock() {
@@ -233,11 +233,11 @@ const HmiApp = {
         const leftOffset = isMobile ? '-100%' : '-120%';
         const rightOffset = isMobile ? '100%' : '120%';
         if (this.dom.leftPanel) {
-            this.dom.leftPanel.style.transform = `translateX(${leftOffset})`;
+            if (this.dom.leftPanel) { this.dom.leftPanel.style.transform = `translateX(${leftOffset})`; }
             if (this.dom.leftPanelIcon) this.dom.leftPanelIcon.className = 'fas fa-chevron-right';
         }
         if (this.dom.rightPanel) {
-            this.dom.rightPanel.style.transform = `translateX(${rightOffset})`;
+            if (this.dom.rightPanel) { this.dom.rightPanel.style.transform = `translateX(${rightOffset})`; }
             if (this.dom.rightPanelIcon) this.dom.rightPanelIcon.className = 'fas fa-chevron-left';
         }
         if (this.dom.btnOpenLeft) this.dom.btnOpenLeft.classList.remove('hidden');
@@ -254,11 +254,11 @@ const HmiApp = {
             this.state.isLeftPanelOpen = true;
             this.state.isRightPanelOpen = true;
             if (this.dom.leftPanel) {
-                this.dom.leftPanel.style.transform = 'translateX(0)';
+                if (this.dom.leftPanel) { this.dom.leftPanel.style.transform = 'translateX(0)'; }
                 if (this.dom.leftPanelIcon) this.dom.leftPanelIcon.className = 'fas fa-chevron-left';
             }
             if (this.dom.rightPanel) {
-                this.dom.rightPanel.style.transform = 'translateX(0)';
+                if (this.dom.rightPanel) { this.dom.rightPanel.style.transform = 'translateX(0)'; }
                 if (this.dom.rightPanelIcon) this.dom.rightPanelIcon.className = 'fas fa-chevron-right';
             }
             if (this.dom.btnOpenLeft) this.dom.btnOpenLeft.classList.add('hidden');
@@ -272,25 +272,25 @@ const HmiApp = {
         const isMobile = window.innerWidth <= 640;
         if (isMobile && this.state.isRightPanelOpen && !this.state.isLeftPanelOpen) {
             this.state.isRightPanelOpen = false;
-            if (this.dom.rightPanel) this.dom.rightPanel.style.transform = 'translateX(100%)';
+            if (this.dom.rightPanel) { this.dom.rightPanel.style.transform = 'translateX(100%)'; }
             if (this.dom.btnOpenRight) this.dom.btnOpenRight.classList.remove('hidden');
         }
         this.state.isLeftPanelOpen = !this.state.isLeftPanelOpen;
         const offset = isMobile ? '-100%' : '-120%';
         if (this.dom.leftPanel) {
             if (this.state.isLeftPanelOpen) {
-                this.dom.leftPanel.style.transform = 'translateX(0)';
+                if (this.dom.leftPanel) { this.dom.leftPanel.style.transform = 'translateX(0)'; }
                 if (this.dom.leftPanelIcon) this.dom.leftPanelIcon.className = 'fas fa-chevron-left';
             } else {
-                this.dom.leftPanel.style.transform = `translateX(${offset})`;
+                if (this.dom.leftPanel) { this.dom.leftPanel.style.transform = `translateX(${offset})`; }
                 if (this.dom.leftPanelIcon) this.dom.leftPanelIcon.className = 'fas fa-chevron-right';
             }
         }
         if (this.dom.btnOpenLeft) {
             if (this.state.isLeftPanelOpen) {
-                this.dom.btnOpenLeft.classList.add('hidden');
+                if (this.dom.btnOpenLeft) this.dom.btnOpenLeft.classList.add('hidden');
             } else {
-                this.dom.btnOpenLeft.classList.remove('hidden');
+                if (this.dom.btnOpenLeft) this.dom.btnOpenLeft.classList.remove('hidden');
             }
         }
         const backdrop = document.getElementById('mobileBackdrop');
@@ -307,25 +307,25 @@ const HmiApp = {
         const isMobile = window.innerWidth <= 640;
         if (isMobile && this.state.isLeftPanelOpen && !this.state.isRightPanelOpen) {
             this.state.isLeftPanelOpen = false;
-            if (this.dom.leftPanel) this.dom.leftPanel.style.transform = 'translateX(-100%)';
+            if (this.dom.leftPanel) { this.dom.leftPanel.style.transform = 'translateX(-100%)'; }
             if (this.dom.btnOpenLeft) this.dom.btnOpenLeft.classList.remove('hidden');
         }
         this.state.isRightPanelOpen = !this.state.isRightPanelOpen;
         const offset = isMobile ? '100%' : '120%';
         if (this.dom.rightPanel) {
             if (this.state.isRightPanelOpen) {
-                this.dom.rightPanel.style.transform = 'translateX(0)';
+                if (this.dom.rightPanel) { this.dom.rightPanel.style.transform = 'translateX(0)'; }
                 if (this.dom.rightPanelIcon) this.dom.rightPanelIcon.className = 'fas fa-chevron-right';
             } else {
-                this.dom.rightPanel.style.transform = `translateX(${offset})`;
+                if (this.dom.rightPanel) { this.dom.rightPanel.style.transform = `translateX(${offset})`; }
                 if (this.dom.rightPanelIcon) this.dom.rightPanelIcon.className = 'fas fa-chevron-left';
             }
         }
         if (this.dom.btnOpenRight) {
             if (this.state.isRightPanelOpen) {
-                this.dom.btnOpenRight.classList.add('hidden');
+                if (this.dom.btnOpenRight) this.dom.btnOpenRight.classList.add('hidden');
             } else {
-                this.dom.btnOpenRight.classList.remove('hidden');
+                if (this.dom.btnOpenRight) this.dom.btnOpenRight.classList.remove('hidden');
             }
         }
         const backdrop = document.getElementById('mobileBackdrop');
@@ -352,10 +352,10 @@ const HmiApp = {
         this.state.currentProject = this.dom.projectSelect?.value || '24048';
         const is50 = this.state.currentProject === '24050';
         if (is50) this.state.isManualMode = false;
-        if (this.dom.manualModeToggle) this.dom.manualModeToggle.style.display = 'grid'; 
-        this.dom.exportToggle.style.display = is50 ? 'flex' : 'none';
-        if (this.dom.palletModeSelector) this.dom.palletModeSelector.style.display = is50 ? 'none' : 'grid';
-        if (this.dom.btnMatrix) this.dom.btnMatrix.style.display = is50 ? 'none' : 'block';
+        if (this.dom.manualModeToggle) if (this.dom.manualModeToggle) { this.dom.manualModeToggle.style.display = 'grid'; }
+        if (this.dom.exportToggle) { this.dom.exportToggle.style.display = is50 ? 'flex' : 'none'; }
+        if (this.dom.palletModeSelector) { this.dom.palletModeSelector.style.display = is50 ? 'none' : 'grid'; }
+        if (this.dom.btnMatrix) if (this.dom.btnMatrix) { this.dom.btnMatrix.style.display = is50 ? 'none' : 'block'; }
         if (is50) {
             this.state.isDualPallet = false;
             this.state.palOverrideX = 0;
@@ -377,23 +377,23 @@ const HmiApp = {
         if (this.dom.btnAutoMode) this.dom.btnAutoMode.classList.toggle('active', !this.state.isManualMode);
         if (this.dom.btnManualMode) this.dom.btnManualMode.classList.toggle('active', this.state.isManualMode);
         if (!is50) {
-            if (this.dom.manualAddPanel) this.dom.manualAddPanel.style.display = this.state.isManualMode ? 'block' : 'none';
-            if (this.dom.dizilimGridContainer) this.dom.dizilimGridContainer.style.display = this.state.isManualMode ? 'none' : 'grid';
-            this.dom.radPositionsPanel.style.display = this.state.isManualMode ? '' : 'none';
-            this.dom.radPosResetBtn.style.display = this.state.isManualMode ? '' : 'none';
-            this.dom.palletSizeControls.style.display = 'none'; 
+            if (this.dom.manualAddPanel) if (this.dom.manualAddPanel) { this.dom.manualAddPanel.style.display = this.state.isManualMode ? 'block' : 'none'; }
+            if (this.dom.dizilimGridContainer) if (this.dom.dizilimGridContainer) { this.dom.dizilimGridContainer.style.display = this.state.isManualMode ? 'none' : 'grid'; }
+            if (this.dom.radPositionsPanel) if (this.dom.radPositionsPanel) { this.dom.radPositionsPanel.style.display = this.state.isManualMode ? '' : 'none'; }
+            if (this.dom.radPosResetBtn) if (this.dom.radPosResetBtn) { this.dom.radPosResetBtn.style.display = this.state.isManualMode ? '' : 'none'; }
+            if (this.dom.palletSizeControls) { this.dom.palletSizeControls.style.display = 'none'; }
         } else {
-            if (this.dom.manualAddPanel) this.dom.manualAddPanel.style.display = 'none';
-            if (this.dom.dizilimGridContainer) this.dom.dizilimGridContainer.style.display = '';
-            this.dom.radPositionsPanel.style.display = '';
-            this.dom.radPosResetBtn.style.display = '';
-            this.dom.palletSizeControls.style.display = '';
+            if (this.dom.manualAddPanel) if (this.dom.manualAddPanel) { this.dom.manualAddPanel.style.display = 'none'; }
+            if (this.dom.dizilimGridContainer) if (this.dom.dizilimGridContainer) { this.dom.dizilimGridContainer.style.display = ''; }
+            if (this.dom.radPositionsPanel) if (this.dom.radPositionsPanel) { this.dom.radPositionsPanel.style.display = ''; }
+            if (this.dom.radPosResetBtn) if (this.dom.radPosResetBtn) { this.dom.radPosResetBtn.style.display = ''; }
+            if (this.dom.palletSizeControls) if (this.dom.palletSizeControls) { this.dom.palletSizeControls.style.display = ''; }
         }
         if (this.dom.gapW) this.dom.gapW.disabled = !this.state.isManualMode;
         if (this.dom.gapH) this.dom.gapH.disabled = !this.state.isManualMode;
         if (this.dom.manualControlsGroup) {
-            this.dom.manualControlsGroup.style.opacity = this.state.isManualMode ? '1' : '0.4';
-            this.dom.manualControlsGroup.style.pointerEvents = this.state.isManualMode ? 'auto' : 'none';
+            if (this.dom.manualControlsGroup) if (this.dom.manualControlsGroup) { this.dom.manualControlsGroup.style.opacity = this.state.isManualMode ? '1' : '0.4'; }
+            if (this.dom.manualControlsGroup) if (this.dom.manualControlsGroup) { this.dom.manualControlsGroup.style.pointerEvents = this.state.isManualMode ? 'auto' : 'none'; }
         }
     },
 
@@ -494,8 +494,8 @@ const HmiApp = {
 
     selD(id) {
         this.state.dizilimId = id;
-        this.state.width = this.config.defW[id];
-        this.state.length = this.config.defL[id];
+        this.state.width = (id < this.config.defW.length) ? this.config.defW[id] : 200;
+        this.state.length = (id < this.config.defL.length) ? this.config.defL[id] : 500;
         if (this.dom.inW) this.dom.inW.value = this.state.width;
         if (this.dom.inL) this.dom.inL.value = this.state.length;
         this.state.isDualPallet = this.state.length > 1500;
@@ -616,26 +616,26 @@ const HmiApp = {
         this.applyTransform();
         if (this.state.showAll) {
             const txt = this.config.translations[this.state.lang].toggleAllHide;
-            this.dom.btnToggleAll.innerHTML = `<i class="fas fa-eye-slash text-xs"></i><span id="lblToggleAll" class="hidden"></span>`;
+            if (this.dom.btnToggleAll) this.dom.btnToggleAll.innerHTML = `<i class="fas fa-eye-slash text-xs"></i><span id="lblToggleAll" class="hidden"></span>`;
             this.dom.btnToggleAll.title = txt;
-            this.dom.btnToggleAll.classList.add('active');
-            if (this.dom.palletArea) this.dom.palletArea.style.display = 'none';
-            this.dom.allLayoutsGrid.style.display = 'flex';
-            this.dom.allLayoutsGrid.style.flexDirection = 'column';
-            this.dom.allLayoutsGrid.style.gap = '40px';
-            this.dom.allLayoutsGrid.style.padding = '40px';
-            this.dom.allLayoutsGrid.style.transformOrigin = '0 0';
-            this.dom.allLayoutsGrid.style.position = 'absolute';
+            if (this.dom.btnToggleAll) this.dom.btnToggleAll.classList.add('active');
+            if (this.dom.palletArea) if (this.dom.palletArea) { this.dom.palletArea.style.display = 'none'; }
+            if (this.dom.allLayoutsGrid) if (this.dom.allLayoutsGrid) { this.dom.allLayoutsGrid.style.display = 'flex'; }
+            if (this.dom.allLayoutsGrid) if (this.dom.allLayoutsGrid) { this.dom.allLayoutsGrid.style.flexDirection = 'column'; }
+            if (this.dom.allLayoutsGrid) if (this.dom.allLayoutsGrid) { this.dom.allLayoutsGrid.style.gap = '40px'; }
+            if (this.dom.allLayoutsGrid) if (this.dom.allLayoutsGrid) { this.dom.allLayoutsGrid.style.padding = '40px'; }
+            if (this.dom.allLayoutsGrid) if (this.dom.allLayoutsGrid) { this.dom.allLayoutsGrid.style.transformOrigin = '0 0'; }
+            if (this.dom.allLayoutsGrid) if (this.dom.allLayoutsGrid) { this.dom.allLayoutsGrid.style.position = 'absolute'; }
             if (this.dom.minimapContainer) this.dom.minimapContainer.classList.remove('hidden');
             document.querySelectorAll('.info-card').forEach(el => el.style.display = 'none');
             this.renderAllLayouts();
         } else {
             const txt = this.config.translations[this.state.lang].toggleAllShow;
-            this.dom.btnToggleAll.innerHTML = `<i class="fas fa-th-large text-xs"></i><span id="lblToggleAll" class="hidden"></span>`;
+            if (this.dom.btnToggleAll) this.dom.btnToggleAll.innerHTML = `<i class="fas fa-th-large text-xs"></i><span id="lblToggleAll" class="hidden"></span>`;
             this.dom.btnToggleAll.title = txt;
-            this.dom.btnToggleAll.classList.remove('active');
-            if (this.dom.palletArea) this.dom.palletArea.style.display = 'flex';
-            this.dom.allLayoutsGrid.style.display = 'none';
+            if (this.dom.btnToggleAll) this.dom.btnToggleAll.classList.remove('active');
+            if (this.dom.palletArea) if (this.dom.palletArea) { this.dom.palletArea.style.display = 'flex'; }
+            if (this.dom.allLayoutsGrid) if (this.dom.allLayoutsGrid) { this.dom.allLayoutsGrid.style.display = 'none'; }
             if (this.dom.minimapContainer) this.dom.minimapContainer.classList.add('hidden');
             document.querySelectorAll('.info-card').forEach(el => el.style.display = '');
             this.render();
@@ -753,8 +753,8 @@ const HmiApp = {
             pal2.style.left = (palLeft + Math.round(1200 * s)) + 'px'; pal2.style.top = palTop + 'px';
         } else { pal2.style.display = 'none'; }
         if (!isMiniature && this.dom.centerMark) {
-            this.dom.centerMark.style.left = (palLeft + (palSize.x * s / 2) - 5) + 'px';
-            this.dom.centerMark.style.top = (palTop + (palSize.y * s / 2) - 5) + 'px';
+            if (this.dom.centerMark) if (this.dom.centerMark) { this.dom.centerMark.style.left = (palLeft + (palSize.x * s / 2) - 5) + 'px'; }
+            if (this.dom.centerMark) if (this.dom.centerMark) { this.dom.centerMark.style.top = (palTop + (palSize.y * s / 2) - 5) + 'px'; }
             if (this.dom.axisX) this.dom.axisX.textContent = palSize.x + ' mm';
             if (this.dom.axisY) this.dom.axisY.textContent = palSize.y + ' mm';
         }
@@ -859,9 +859,9 @@ const HmiApp = {
         }
         radLayer.innerHTML = radiatorsHTML;
         if (!isMiniature && this.dom.iW) {
-            this.dom.iW.textContent = this.state.width + ' mm'; this.dom.iL.textContent = this.state.length + ' mm';
-            this.dom.iA.textContent = is50 ? '0°/180°' : angle + '°'; this.dom.iC.textContent = positions.length + ' ' + (this.config.translations[this.state.lang].pcs);
-            this.dom.iP.textContent = `${palSize.x} × ${palSize.y} (Taшma: ${Math.round(maxOv)}mm)`;
+            if (this.dom.iW) this.dom.iW.textContent = this.state.width + ' mm'; this.dom.iL.textContent = this.state.length + ' mm';
+            if (this.dom.iA) this.dom.iA.textContent = is50 ? '0°/180°' : angle + '°'; this.dom.iC.textContent = positions.length + ' ' + (this.config.translations[this.state.lang].pcs);
+            if (this.dom.iP) this.dom.iP.textContent = `${palSize.x} × ${palSize.y} (Taшma: ${Math.round(maxOv)}mm)`;
             if (is50 || this.state.isManualMode) this.renderRadTable(positions);
             this.updateVizHeader(positions.length, angle, is50);
             document.querySelectorAll('.ext-info-row').forEach(el => el.style.display = is50 ? 'none' : 'flex');
@@ -982,6 +982,7 @@ const HmiApp = {
                 this.state.lastZoomDist = null;
                 document.removeEventListener('touchmove', onMove);
                 document.removeEventListener('touchend', onUp);
+                document.removeEventListener('touchcancel', onUp);
             } else {
                 document.removeEventListener('mousemove', onMove);
                 document.removeEventListener('mouseup', onUp);
@@ -991,6 +992,7 @@ const HmiApp = {
         if (isTouch) {
             document.addEventListener('touchmove', onMove, { passive: false });
             document.addEventListener('touchend', onUp);
+            document.addEventListener('touchcancel', onUp);
         } else {
             document.addEventListener('mousemove', onMove);
             document.addEventListener('mouseup', onUp);
@@ -1000,10 +1002,10 @@ const HmiApp = {
     applyTransform() {
         const transform = `translate(${this.state.panX}px, ${this.state.panY}px) scale(${this.state.zoom})`;
         if (this.state.showAll && this.dom.allLayoutsGrid) {
-            this.dom.allLayoutsGrid.style.transform = transform;
+            if (this.dom.allLayoutsGrid) if (this.dom.allLayoutsGrid) { this.dom.allLayoutsGrid.style.transform = transform; }
             this.updateMinimap();
         } else if (this.dom.palletArea) {
-            this.dom.palletArea.style.transform = transform;
+            if (this.dom.palletArea) if (this.dom.palletArea) { this.dom.palletArea.style.transform = transform; }
         }
     },
 
@@ -1015,7 +1017,7 @@ const HmiApp = {
         const scaleX = minimapW / gridW, scaleY = minimapH / gridH;
         const indicatorW = Math.max(10, Math.min(minimapW, (viewW / this.state.zoom) * scaleX)), indicatorH = Math.max(10, Math.min(minimapH, (viewH / this.state.zoom) * scaleY));
         const indicatorX = Math.max(0, Math.min(minimapW - indicatorW, (-this.state.panX / this.state.zoom) * scaleX)), indicatorY = Math.max(0, Math.min(minimapH - indicatorH, (-this.state.panY / this.state.zoom) * scaleY));
-        this.dom.minimapView.style.width = indicatorW + 'px'; this.dom.minimapView.style.height = indicatorH + 'px'; this.dom.minimapView.style.left = indicatorX + 'px'; this.dom.minimapView.style.top = indicatorY + 'px';
+        if (this.dom.minimapView) if (this.dom.minimapView) { this.dom.minimapView.style.width = indicatorW + 'px'; } if (this.dom.minimapView) { this.dom.minimapView.style.height = indicatorH + 'px'; } if (this.dom.minimapView) { this.dom.minimapView.style.left = indicatorX + 'px'; } if (this.dom.minimapView) { this.dom.minimapView.style.top = indicatorY + 'px'; }
     },
 
     printLayout() {
@@ -1023,7 +1025,7 @@ const HmiApp = {
             window.print();
         } else {
             // Re-render all layouts with FULL dimensions (not miniatures)
-            this.dom.allLayoutsGrid.innerHTML = '';
+            if (this.dom.allLayoutsGrid) this.dom.allLayoutsGrid.innerHTML = '';
             const allD = [1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13];
             let html = '';
             const originalDizilim = this.state.dizilimId;
@@ -1053,7 +1055,7 @@ const HmiApp = {
             });
 
             this.state.dizilimId = originalDizilim; // Restore state
-            this.dom.allLayoutsGrid.innerHTML = html;
+            if (this.dom.allLayoutsGrid) this.dom.allLayoutsGrid.innerHTML = html;
 
             setTimeout(() => {
                 window.print();
@@ -1063,95 +1065,6 @@ const HmiApp = {
         }
     },
 
-    printLayout() {
-        if (!this.state.showAll) {
-            window.print();
-        } else {
-            // Re-render all layouts with FULL dimensions (not miniatures)
-            this.dom.allLayoutsGrid.innerHTML = '';
-            const allD = [1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13];
-            let html = '';
-            const originalDizilim = this.state.dizilimId;
-            const is50 = this.state.is50Group;
-            const w = this.state.width;
-            const l = this.state.length;
-
-            allD.forEach(id => {
-                if (id > 4 && id !== 6 && !is50) return;
-
-                // Get the data for this layout
-                const positions = this.logic.getPositions(this.state.currentProject, is50 ? 50 : w, is50 ? 50 : l, id);
-                if (positions.length > 0) {
-                    this.state.dizilimId = id; // Temporarily trick state to generate correct blueprint title
-                    // Render without miniature flag
-                    this.renderPalletArea('temp-pallet', positions);
-
-                    const pContainer = document.getElementById('temp-pallet');
-                    const innerHTML = pContainer ? pContainer.innerHTML : '';
-
-                    html += `<div class="dizilim-wrapper" style="position: relative; width: 100vw; height: 100vh;">
-                                <div class="pallet-area absolute border-none !bg-transparent !shadow-none !mt-0" style="transform-origin: center top;">
-                                    ${innerHTML}
-                                </div>
-                             </div>`;
-                }
-            });
-
-            this.state.dizilimId = originalDizilim; // Restore state
-            this.dom.allLayoutsGrid.innerHTML = html;
-
-            setTimeout(() => {
-                window.print();
-                // Restore the grid view afterwards
-                this.renderAllLayouts();
-            }, 1000);
-        }
-    },
-
-    printLayout() {
-        if (!this.state.showAll) {
-            window.print();
-        } else {
-            // Re-render all layouts with FULL dimensions (not miniatures)
-            this.dom.allLayoutsGrid.innerHTML = '';
-            const allD = [1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13];
-            let html = '';
-            const originalDizilim = this.state.dizilimId;
-            const is50 = this.state.is50Group;
-            const w = this.state.width;
-            const l = this.state.length;
-
-            allD.forEach(id => {
-                if (id > 4 && id !== 6 && !is50) return;
-
-                // Get the data for this layout
-                const positions = this.logic.getPositions(this.state.currentProject, is50 ? 50 : w, is50 ? 50 : l, id);
-                if (positions.length > 0) {
-                    this.state.dizilimId = id; // Temporarily trick state to generate correct blueprint title
-                    // Render without miniature flag
-                    this.renderPalletArea('temp-pallet', positions);
-
-                    const pContainer = document.getElementById('temp-pallet');
-                    const innerHTML = pContainer ? pContainer.innerHTML : '';
-
-                    html += `<div class="dizilim-wrapper" style="position: relative; width: 100vw; height: 100vh;">
-                                <div class="pallet-area absolute border-none !bg-transparent !shadow-none !mt-0" style="transform-origin: center top;">
-                                    ${innerHTML}
-                                </div>
-                             </div>`;
-                }
-            });
-
-            this.state.dizilimId = originalDizilim; // Restore state
-            this.dom.allLayoutsGrid.innerHTML = html;
-
-            setTimeout(() => {
-                window.print();
-                // Restore the grid view afterwards
-                this.renderAllLayouts();
-            }, 1000);
-        }
-    },
     exportToImage() {
         const area = this.state.showAll ? document.getElementById('allLayoutsGrid') : document.getElementById('singleViewArea');
         if (!area) return;
@@ -1215,7 +1128,7 @@ const HmiApp = {
         positions.forEach((p, i) => {
             html += `<tr><td class="rad-pos-num">${p.n}</td><td><input type="number" class="rad-pos-input" value="${p.x}" onchange="HmiApp.updateRadPosition(${i}, 'x', this.value)"></td><td><input type="number" class="rad-pos-input" value="${p.y}" onchange="HmiApp.updateRadPosition(${i}, 'y', this.value)"></td><td class="rad-pos-angle">${isManual ? `<span style="cursor:pointer;" onclick="HmiApp.rotateManualRad(${i})">${p.angle}° <i class="fas fa-sync-alt" style="font-size:10px;margin-left:2px;"></i></span>` : `${p.angle}°`}</td>${isManual ? `<td><button onclick="HmiApp.removeManualRad(${i})" style="color:#FF3D00; background:none; border:none; cursor:pointer;"><i class="fas fa-trash"></i></button></td>` : ''}</tr>`;
         });
-        this.dom.radPositionsPanel.innerHTML = html + '</table>';
+        if (this.dom.radPositionsPanel) this.dom.radPositionsPanel.innerHTML = html + '</table>';
     },
 
     getDimLineHTML(x, y, dx, dy, text, type) {
@@ -1249,7 +1162,7 @@ const HmiApp = {
 
     showContextMenu(e, idx) {
         if (!this.state.isManualMode) return; e.preventDefault(); this.state.contextRadIdx = idx;
-        if (this.dom.contextMenu) { this.dom.contextMenu.style.left = `${e.clientX}px`; this.dom.contextMenu.style.top = `${e.clientY}px`; this.dom.contextMenu.classList.remove('hidden'); }
+        if (this.dom.contextMenu) { if (this.dom.contextMenu) { this.dom.contextMenu.style.left = `${e.clientX}px`; } if (this.dom.contextMenu) { this.dom.contextMenu.style.top = `${e.clientY}px`; } this.dom.contextMenu.classList.remove('hidden'); }
     },
 
     hideContextMenu() { if (this.dom.contextMenu) this.dom.contextMenu.classList.add('hidden'); this.state.contextRadIdx = null; },
