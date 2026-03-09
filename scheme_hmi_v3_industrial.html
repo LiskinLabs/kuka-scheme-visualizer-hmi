@@ -685,6 +685,143 @@
                  });
              }
         });
+
+        // ============================================
+        // OVERRIDE: ZOOM & PAN LOGIC (CAD PRO)
+        // Corrects zoom to follow mouse cursor and clamps panning.
+        // ============================================
+        document.addEventListener('DOMContentLoaded', () => {
+            // Give production_metrics.js time to load
+            setTimeout(() => {
+                if (typeof HmiApp !== 'undefined') {
+
+                    // Override the applyTransform to include clamping
+                    const originalApplyTransform = HmiApp.applyTransform;
+                    HmiApp.applyTransform = function() {
+                        if (this.state.showAll && this.dom.allLayoutsGrid) {
+
+                            // Get the actual rendered size of the grid container (approximate based on contents)
+                            const gridW = this.dom.allLayoutsGrid.scrollWidth || 3000;
+                            const gridH = this.dom.allLayoutsGrid.scrollHeight || 3000;
+
+                            const viewW = this.dom.singleViewArea.clientWidth;
+                            const viewH = this.dom.singleViewArea.clientHeight;
+
+                            const scaledW = gridW * this.state.zoom;
+                            const scaledH = gridH * this.state.zoom;
+
+                            // Calculate bounds. We allow panning so the grid edges reach the view edges,
+                            // plus a padding margin.
+                            const padding = 50;
+
+                            // If scaled grid is smaller than view, center it.
+                            if (scaledW < viewW) {
+                                // this.state.panX = (viewW - scaledW) / 2;
+                            } else {
+                                const minX = viewW - scaledW - padding;
+                                const maxX = padding;
+                                if (this.state.panX < minX) this.state.panX = minX;
+                                if (this.state.panX > maxX) this.state.panX = maxX;
+                            }
+
+                            if (scaledH < viewH) {
+                                // this.state.panY = (viewH - scaledH) / 2;
+                            } else {
+                                const minY = viewH - scaledH - padding;
+                                const maxY = padding;
+                                if (this.state.panY < minY) this.state.panY = minY;
+                                if (this.state.panY > maxY) this.state.panY = maxY;
+                            }
+
+
+                            this.dom.allLayoutsGrid.style.transform = `translate(${this.state.panX}px, ${this.state.panY}px) scale(${this.state.zoom})`;
+                            this.updateMinimap();
+                        } else if (this.dom.palletArea) {
+                            this.dom.palletArea.style.transform = `translate(${this.state.panX}px, ${this.state.panY}px) scale(${this.state.zoom})`;
+                        }
+                    };
+
+                    // Override Zoom
+                    HmiApp.handleZoom = function(e) {
+                        if (!this.state.showAll) return;
+                        e.preventDefault();
+
+                        // Smoother zoom step
+                        const zoomStep = 0.05;
+                        let newZoom = this.state.zoom;
+
+                        if (e.deltaY < 0) {
+                            newZoom = Math.min(this.state.zoom * (1 + zoomStep), 4);
+                        } else {
+                            newZoom = Math.max(this.state.zoom * (1 - zoomStep), 0.15);
+                        }
+
+                        if (newZoom !== this.state.zoom) {
+                            const rect = this.dom.singleViewArea.getBoundingClientRect();
+
+                            // Get mouse position relative to container
+                            const mouseX = e.clientX - rect.left;
+                            const mouseY = e.clientY - rect.top;
+
+                            // Calculate element coordinates under mouse
+                            const elementX = (mouseX - this.state.panX) / this.state.zoom;
+                            const elementY = (mouseY - this.state.panY) / this.state.zoom;
+
+                            this.state.zoom = newZoom;
+
+                            // Adjust pan so that element stays under mouse
+                            this.state.panX = mouseX - (elementX * this.state.zoom);
+                            this.state.panY = mouseY - (elementY * this.state.zoom);
+
+                            this.applyTransform();
+                        }
+                    };
+
+                    // Override Pan to ensure bounds check applies during drag too
+                    const originalStartPan = HmiApp.startPan;
+                    HmiApp.startPan = function(e) {
+                        if (!this.state.showAll) return;
+                        const isTouch = e.type === 'touchstart';
+                        if (isTouch && e.touches.length > 1) return;
+                        if (!isTouch && e.button !== 1 && e.button !== 0) return;
+                        if (e.target.closest('.rad') || e.target.closest('.rad-24050')) return;
+                        if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'SELECT' && e.target.tagName !== 'BUTTON') e.preventDefault();
+
+                        let startX = isTouch ? e.touches[0].clientX : e.clientX;
+                        let startY = isTouch ? e.touches[0].clientY : e.clientY;
+                        let startPanX = this.state.panX, startPanY = this.state.panY;
+
+                        const onMove = (ev) => {
+                            let cx = isTouch ? ev.touches[0].clientX : ev.clientX;
+                            let cy = isTouch ? ev.touches[0].clientY : ev.clientY;
+                            this.state.panX = startPanX + (cx - startX);
+                            this.state.panY = startPanY + (cy - startY);
+                            this.applyTransform(); // Apply transform will clamp
+                        };
+
+                        const onUp = () => {
+                            if (isTouch) {
+                                this.state.lastZoomDist = null;
+                                document.removeEventListener('touchmove', onMove);
+                                document.removeEventListener('touchend', onUp);
+                            } else {
+                                document.removeEventListener('mousemove', onMove);
+                                document.removeEventListener('mouseup', onUp);
+                            }
+                        };
+
+                        if (isTouch) {
+                            document.addEventListener('touchmove', onMove, { passive: false });
+                            document.addEventListener('touchend', onUp);
+                        } else {
+                            document.addEventListener('mousemove', onMove);
+                            document.addEventListener('mouseup', onUp);
+                        }
+                    };
+                }
+            }, 500); // Wait half a second for HmiApp to initialize
+
+        });
     </script>
 
     <!-- External Dependencies & Logic -->

@@ -1,7 +1,8 @@
 /* ============================================
-   KUKA INDUSTRIAL DESIGN SYSTEM v3.3 (Dark CAD Pro)
+   KUKA INDUSTRIAL DESIGN SYSTEM v4.0 (Dark CAD Pro Unified)
    Modern Industrial HMI Interface - PERFORMANCE OPTIMIZED
    Refined to match strict dark CAD visual language (anthracite, grids, monospace).
+   Pallets and Radiators unified into wireframe/flat technical drawing style.
    ============================================ */
 
 :root {
@@ -14,20 +15,20 @@
     --cad-text: #e0e0e0;
     --cad-muted: #888888;
 
-    /* Status Colors */
-    --success: #00E676;
-    --warning: #FFD600;
-    --error: #FF3D00;
-    --info: #00A8E8;
+    /* CAD Blueprint Colors */
+    --blueprint-line: #4CAF50; /* Green for pallets */
+    --blueprint-rad: #03A9F4;  /* Blue for radiators */
+    --blueprint-text: #ffffff;
+    --blueprint-bg: transparent;
 
     /* Typography */
     --font-ui: 'Inter', system-ui, -apple-system, sans-serif;
     --font-numbers: 'JetBrains Mono', monospace;
 
     /* Border Radius - Strict square look */
-    --radius-sm: 2px;
-    --radius-md: 2px;
-    --radius-lg: 2px;
+    --radius-sm: 0px;
+    --radius-md: 0px;
+    --radius-lg: 0px;
 }
 
 /* ============================================
@@ -40,33 +41,33 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    /* Grid is now on #main-view, transparent here */
     background: transparent;
     overflow: hidden;
 }
 
 .rad-overflow {
     border-color: #FF3D00 !important;
-    box-shadow: 0 0 10px rgba(255, 61, 0, 0.4) !important;
+    box-shadow: 0 0 5px rgba(255, 61, 0, 0.4) !important;
+    background-color: rgba(255, 61, 0, 0.1) !important;
 }
 
-/* --- Pallet Re-skin (Darker, thinner lines) --- */
+/* --- Pallet Re-skin (Wireframe CAD Blueprint) --- */
 .pallet {
     position: absolute;
-    background: linear-gradient(135deg, #1565C0 0%, #0D47A1 100%);
-    border: 1px solid #000;
+    background: rgba(76, 175, 80, 0.05);
+    border: 1px solid var(--blueprint-line);
     border-radius: 0px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.7);
+    box-shadow: none;
 
     background-image:
         repeating-linear-gradient(0deg,
-            rgba(0, 0, 0, 0.3) 0px,
-            rgba(0, 0, 0, 0.3) calc(1px * var(--rad-scale, 1)),
+            rgba(76, 175, 80, 0.1) 0px,
+            rgba(76, 175, 80, 0.1) calc(1px * var(--rad-scale, 1)),
             transparent calc(1px * var(--rad-scale, 1)),
             transparent calc(20px * var(--rad-scale, 1))),
         repeating-linear-gradient(90deg,
-            rgba(0, 0, 0, 0.3) 0px,
-            rgba(0, 0, 0, 0.3) calc(1px * var(--rad-scale, 1)),
+            rgba(76, 175, 80, 0.1) 0px,
+            rgba(76, 175, 80, 0.1) calc(1px * var(--rad-scale, 1)),
             transparent calc(1px * var(--rad-scale, 1)),
             transparent calc(20px * var(--rad-scale, 1)));
     background-size: 100% calc(20px * var(--rad-scale, 1)), calc(20px * var(--rad-scale, 1)) 100%;
@@ -74,21 +75,21 @@
 
 .pallet2 {
     position: absolute;
-    background: linear-gradient(135deg, #1565C0 0%, #0D47A1 100%);
-    border: 1px solid #000;
-    border-left: 1px dashed rgba(255, 255, 255, 0.3);
+    background: rgba(76, 175, 80, 0.05);
+    border: 1px solid var(--blueprint-line);
+    border-left: 1px dashed var(--blueprint-line);
     border-radius: 0px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.7);
+    box-shadow: none;
 
     background-image:
         repeating-linear-gradient(0deg,
-            rgba(0, 0, 0, 0.3) 0px,
-            rgba(0, 0, 0, 0.3) calc(1px * var(--rad-scale, 1)),
+            rgba(76, 175, 80, 0.1) 0px,
+            rgba(76, 175, 80, 0.1) calc(1px * var(--rad-scale, 1)),
             transparent calc(1px * var(--rad-scale, 1)),
             transparent calc(20px * var(--rad-scale, 1))),
         repeating-linear-gradient(90deg,
-            rgba(0, 0, 0, 0.3) 0px,
-            rgba(0, 0, 0, 0.3) calc(1px * var(--rad-scale, 1)),
+            rgba(76, 175, 80, 0.1) 0px,
+            rgba(76, 175, 80, 0.1) calc(1px * var(--rad-scale, 1)),
             transparent calc(1px * var(--rad-scale, 1)),
             transparent calc(20px * var(--rad-scale, 1)));
     background-size: 100% calc(20px * var(--rad-scale, 1)), calc(20px * var(--rad-scale, 1)) 100%;
@@ -113,16 +114,16 @@
     justify-content: center;
 }
 
-/* --- Heat Plate (inner body) --- */
+/* --- Heat Plate (inner body) Flat Wireframe --- */
 .rad .heat-plate {
     position: relative;
     width: 100%;
     height: 100%;
-    background-color: #555;
-    border-radius: 2px;
+    background-color: rgba(3, 169, 244, 0.1);
+    border-radius: 0px;
     box-sizing: border-box;
-    box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.6);
-    border: 1px solid #111;
+    box-shadow: none;
+    border: 1px solid var(--blueprint-rad);
     overflow: visible;
     display: flex;
     align-items: center;
@@ -130,15 +131,18 @@
     padding: 2px;
 }
 
-/* --- Ribbed Pattern Area --- */
+/* --- Ribbed Pattern Area (subtle CAD hatch) --- */
 .rad .pattern-area {
     width: 100%;
     height: 100%;
-    border-radius: 1px;
-    background-color: #444;
+    border-radius: 0px;
+    background-color: transparent;
     background-image:
-        linear-gradient(to bottom,
-            #333 0%, #666 10%, #888 35%, #999 50%, #888 64%, #666 85%, #333 100%);
+        repeating-linear-gradient(to bottom,
+            rgba(3, 169, 244, 0.1) 0px,
+            rgba(3, 169, 244, 0.1) 1px,
+            transparent 1px,
+            transparent 4px);
     overflow: visible;
     position: relative;
     display: flex;
@@ -146,116 +150,103 @@
     justify-content: center;
 }
 
-/* --- Number badge (inside pattern-area) --- */
+/* --- Number badge (CAD Text) --- */
 .rad .rad-num {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    font-size: 12px;
-    font-weight: bold;
+    font-size: 11px;
+    font-weight: normal;
     font-family: var(--font-numbers);
-    color: #fff;
+    color: var(--blueprint-rad);
     z-index: 5;
-    background: rgba(0, 0, 0, 0.85);
+    background: var(--cad-bg);
     padding: 1px 4px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 2px;
+    border: 1px solid var(--blueprint-rad);
+    border-radius: 0px;
     pointer-events: none;
 }
 
-/* --- Horizontal pipes (TOP / BOTTOM) --- */
+/* --- Horizontal pipes (CAD Lines) --- */
 .rad .long-pipe {
     position: absolute;
     left: 10%;
     right: 10%;
-    height: 4px;
-    background: #222;
-    border: 1px solid #111;
-    border-radius: 1px;
+    height: 2px;
+    background: var(--blueprint-rad);
+    border: none;
+    border-radius: 0px;
     z-index: 0;
     pointer-events: none;
 }
+.rad .long-pipe.top { top: -1px; }
+.rad .long-pipe.bottom { bottom: -1px; }
 
-.rad .long-pipe.top { top: -2px; }
-.rad .long-pipe.bottom { bottom: -2px; }
-
-/* --- Port connectors --- */
+/* --- Port connectors (CAD Dots/Boxes) --- */
 .rad .port {
     position: absolute;
     width: 10%;
-    height: 4px;
-    background: #333;
-    border: 1px solid #111;
+    height: 2px;
+    background: var(--cad-bg);
+    border: 1px solid var(--blueprint-rad);
     z-index: 2;
     pointer-events: none;
 }
-
-.rad .port.top-left { top: -2px; left: 10%; }
-.rad .port.top-right { top: -2px; right: 10%; }
-.rad .port.bottom-left { bottom: -2px; left: 10%; }
-.rad .port.bottom-right { bottom: -2px; right: 10%; }
+.rad .port.top-left { top: -1px; left: 10%; }
+.rad .port.top-right { top: -1px; right: 10%; }
+.rad .port.bottom-left { bottom: -1px; left: 10%; }
+.rad .port.bottom-right { bottom: -1px; right: 10%; }
 
 /* --- Mounting clips --- */
-.rad .clip {
-    position: absolute;
-    width: 6%;
-    height: 20%;
-    background: #444;
-    border: 1px solid #111;
-    z-index: 4;
-    pointer-events: none;
-}
-.rad .clip.tl { top: 14%; left: 9%; }
-.rad .clip.tr { top: 14%; right: 9%; }
-.rad .clip.bl { bottom: 14%; left: 9%; }
-.rad .clip.br { bottom: 14%; right: 9%; }
+.rad .clip { display: none; } /* Removed clips for a cleaner CAD blueprint look */
+
 
 /* ==========================================
    PROJECT 24050: PACKAGED PANEL RADIATOR
    ========================================== */
 .rad-24050 {
     position: absolute;
-    background-color: #E2E8F0;
-    border: 1px solid #000;
-    border-radius: 2px;
+    background-color: rgba(3, 169, 244, 0.05);
+    border: 1px solid var(--blueprint-rad);
+    border-radius: 0px;
     text-align: center;
     font-size: 11px;
-    font-weight: 800;
+    font-weight: normal;
     font-family: var(--font-numbers);
-    color: #1E293B;
+    color: var(--blueprint-rad);
     z-index: 10;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 1px 1px 5px rgba(0,0,0,0.5);
+    box-shadow: none;
     cursor: pointer;
+    /* Hatch pattern for 24050 */
+    background-image: repeating-linear-gradient(45deg, rgba(3, 169, 244, 0.05) 0px, rgba(3, 169, 244, 0.05) 2px, transparent 2px, transparent 8px);
 }
-.rad-24050:hover { filter: brightness(1.1); }
-.rad-24050-flipped { background-color: #F5F5F5; }
+.rad-24050:hover { background-color: rgba(3, 169, 244, 0.2); }
+.rad-24050-flipped { background-image: repeating-linear-gradient(-45deg, rgba(3, 169, 244, 0.05) 0px, rgba(3, 169, 244, 0.05) 2px, transparent 2px, transparent 8px); border-style: dashed; }
 
 /* Rotated layout adjustments */
 .rad.rad-rotated { padding: 0; }
 .rad.rad-rotated .long-pipe {
     top: 10%; bottom: 10%; left: auto; right: auto;
-    width: 4px; height: auto;
+    width: 2px; height: auto;
 }
-.rad.rad-rotated .long-pipe.top { left: -2px; right: auto; }
-.rad.rad-rotated .long-pipe.bottom { right: -2px; left: auto; top: 10%; bottom: 10%; }
-.rad.rad-rotated .port { width: 4px; height: 10%; }
-.rad.rad-rotated .port.top-left { left: -2px; top: 10%; bottom: auto; }
-.rad.rad-rotated .port.top-right { left: -2px; bottom: 10%; top: auto; }
-.rad.rad-rotated .port.bottom-left { right: -2px; top: 10%; }
-.rad.rad-rotated .port.bottom-right { right: -2px; bottom: 10%; }
-.rad.rad-rotated .clip { width: 20%; height: 6%; }
-.rad.rad-rotated .clip.tl { top: 9%; left: 14%; bottom: auto; }
-.rad.rad-rotated .clip.tr { top: 9%; right: 14%; left: auto; bottom: auto; }
-.rad.rad-rotated .clip.bl { bottom: 9%; left: 14%; top: auto; }
-.rad.rad-rotated .clip.br { bottom: 9%; right: 14%; top: auto; left: auto; }
+.rad.rad-rotated .long-pipe.top { left: -1px; right: auto; }
+.rad.rad-rotated .long-pipe.bottom { right: -1px; left: auto; top: 10%; bottom: 10%; }
+.rad.rad-rotated .port { width: 2px; height: 10%; }
+.rad.rad-rotated .port.top-left { left: -1px; top: 10%; bottom: auto; }
+.rad.rad-rotated .port.top-right { left: -1px; bottom: 10%; top: auto; }
+.rad.rad-rotated .port.bottom-left { right: -1px; top: 10%; }
+.rad.rad-rotated .port.bottom-right { right: -1px; bottom: 10%; }
 .rad.rad-rotated .pattern-area {
     background-image:
-        linear-gradient(to right,
-            #333 0%, #666 10%, #888 35%, #999 50%, #888 64%, #666 85%, #333 100%);
+        repeating-linear-gradient(to right,
+            rgba(3, 169, 244, 0.1) 0px,
+            rgba(3, 169, 244, 0.1) 1px,
+            transparent 1px,
+            transparent 4px);
 }
 
 .rad span { display: none; }
@@ -266,19 +257,19 @@
     z-index: 20;
     pointer-events: none;
     border-style: solid !important; /* Force solid CAD lines */
+    border-color: #888 !important; /* Muted dimensions */
 }
 
 .dim-label {
     position: absolute;
     transform: translate(-50%, -50%);
-    background: #111; /* Dark CAD background for labels */
-    color: #FF6B2C;
-    border: 1px solid #FF6B2C;
+    background: var(--cad-bg);
+    color: #888;
+    border: none;
     font-family: var(--font-numbers);
     font-size: 10px;
     font-weight: normal;
-    padding: 2px 4px;
-    border-radius: 2px;
+    padding: 0 2px;
     z-index: 21;
     pointer-events: none;
 }
@@ -288,14 +279,21 @@
     width: 8px;
     height: 8px;
     border: 1px solid var(--kuka-orange);
-    border-radius: 50%;
+    border-radius: 0px; /* Square center mark */
     z-index: 5;
+    background: transparent;
 }
+.center-mark::after, .center-mark::before {
+    content: '';
+    position: absolute;
+    background: var(--kuka-orange);
+}
+.center-mark::after { width: 14px; height: 1px; top: 3px; left: -4px; }
+.center-mark::before { width: 1px; height: 14px; left: 3px; top: -4px; }
 
 /* ============================================
    EXPORT / PRINT MODE
    ============================================ */
-
 .export-active *,
 .export-active *::before,
 .export-active *::after {
@@ -316,12 +314,25 @@
 /* Wooden Pallet & Packages 24050 Specific Detail Removals */
 .pallet-wood {
     position: absolute;
-    background-color: #6a492b;
-    border: 1px solid #222;
+    background-color: rgba(255, 152, 0, 0.05);
+    border: 1px solid #FF9800;
     border-radius: 0;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.7);
+    box-shadow: none;
+    background-image:
+        repeating-linear-gradient(0deg,
+            rgba(255, 152, 0, 0.1) 0px,
+            rgba(255, 152, 0, 0.1) calc(1px * var(--rad-scale, 1)),
+            transparent calc(1px * var(--rad-scale, 1)),
+            transparent calc(20px * var(--rad-scale, 1))),
+        repeating-linear-gradient(90deg,
+            rgba(255, 152, 0, 0.1) 0px,
+            rgba(255, 152, 0, 0.1) calc(1px * var(--rad-scale, 1)),
+            transparent calc(1px * var(--rad-scale, 1)),
+            transparent calc(20px * var(--rad-scale, 1)));
+    background-size: 100% calc(20px * var(--rad-scale, 1)), calc(20px * var(--rad-scale, 1)) 100%;
 }
-.rad-24050 .pkg-body { background: #E2E8F0; position: absolute; inset: 0;}
+
+.rad-24050 .pkg-body { background: transparent; position: absolute; inset: 0;}
 .rad-24050 .pkg-card { display: none; }
 .rad-24050 .pkg-corner { display: none; }
 .rad-24050 .pkg-label { display: none; }
@@ -330,15 +341,19 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background: transparent;
-    color: #111;
-    font-size: 12px;
+    background: var(--cad-bg);
+    color: var(--blueprint-rad);
+    border: 1px solid var(--blueprint-rad);
+    padding: 1px 4px;
+    font-size: 11px;
+    font-weight: normal;
 }
 
 /* Table */
 .rad-pos-table { width: 100%; border-collapse: collapse; font-family: var(--font-numbers); }
-.rad-pos-table th { background: #2d2d2d; color: #888; font-size: 9px; padding: 4px; border-bottom: 1px solid #333; }
+.rad-pos-table th { background: #1a1a1a; color: #888; font-size: 9px; padding: 4px; border-bottom: 1px solid #333; }
 .rad-pos-table td { padding: 4px; text-align: center; border-bottom: 1px solid #333; }
 .rad-pos-num { color: #FF6B2C; }
 .rad-pos-input { width: 45px; background: #121212; border: 1px solid #333; color: #e0e0e0; text-align: center; }
+.rad-pos-input:focus { border-color: #FF6B2C; outline: none; }
 .rad-pos-angle { color: #888; font-size: 10px; }
