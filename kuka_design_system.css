@@ -479,7 +479,7 @@
     min-width: 8px;
     max-width: 30px;
     background-color: #bfa588;
-    background-image: repeating-linear-gradient(to bottom,
+    background-image: none !important; /*repeating-linear-gradient(to bottom,
             transparent 0px, transparent 3px,
             rgba(0, 0, 0, 0.06) 4px, rgba(0, 0, 0, 0.06) 5px);
     border: 1px solid #9c8061;
@@ -1114,62 +1114,16 @@
    PRINT AND SCREENSHOT STYLING
    Force the dark CAD theme even during prints/exports and hide UI chrome.
    ======================================================================= */
-@media print {
-    * {
-        transition: none !important;
-        animation: none !important;
-    }
-
-    body {
-        background-color: #1a1a1a !important;
-        color: #e2e8f0 !important;
-        /* Disable automatic browser background adjustments */
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-    }
-
-    /* Hide all panels except the main CAD view */
-    #toolbar,
-    #topBar,
-    #rightPanel,
-    #schemes-tabs,
-    #minimapContainer,
-    #mobile-fab,
-    #mobile-sheet {
-        display: none !important;
-    }
-
-    /* Ensure the single view takes the full page context without scrollbars */
-    #singleViewArea {
-        position: absolute !important;
-        top: 0 !important;
-        left: 0 !important;
-        width: 100vw !important;
-        height: 100vh !important;
-        background-color: #1a1a1a !important;
-        overflow: visible !important;
-    }
-
-    /* When printing "Show All" or "Single Pallet", ensure the transform doesn't clip off-screen */
-    .pallet-area, .all-layouts-grid {
-        position: absolute !important;
-    }
-
-    /* Prevent printing of the blueprint info block since it's white and clashes with CAD mode */
-    .blueprint-only {
-        /* display: none !important; */
-    }
-}
 
 .export-active, .export-active * {
     background-color: transparent;
 }
 .export-active {
     background-color: #16161a !important; /* CAD Dark */
-    background-image:
+    background-image: none !important; /*
         linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
         linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px) !important;
-    background-size: 20px 20px !important;
+    background-size: 20px 20px !important; */
 }
 
 .tool-btn {
@@ -1245,8 +1199,14 @@
     .dizilim-wrapper {
         page-break-after: always;
         break-after: page;
-        transform: scale(1.5) !important;
+        transform: scale(0.8) !important;
         transform-origin: top left !important;
         margin-bottom: 50px !important;
+    }
+}
+
+@media print {
+    .export-active, .export-active * {
+        background-color: transparent !important;
     }
 }
