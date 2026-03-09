@@ -753,8 +753,10 @@
 
 /* dim labels inside rad */
 .rad .dim-w,
-.rad .dim-h {
-    display: none;
+.rad .dim-h,
+.rad-24050 .dim-w,
+.rad-24050 .dim-h {
+    display: none !important;
 }
 
 .rad span {
@@ -780,19 +782,21 @@
 }
 
 .dim-w {
-    bottom: 2px;
+    bottom: -20px;
     left: 50%;
     transform: translateX(-50%);
 }
 
 .dim-h {
-    left: 2px;
+    left: -20px;
     top: 50%;
     transform: translateY(-50%) rotate(-90deg);
 }
 
 .dim-line {
     position: absolute;
+    border-style: solid;
+    border-color: #FF6B2C;
     z-index: 20;
     pointer-events: none;
 }
@@ -800,8 +804,10 @@
 .dim-label {
     position: absolute;
     transform: translate(-50%, -50%);
-    background: var(--error);
-    color: white;
+    background: #111 !important;
+    color: #FF6B2C !important;
+    border: 1px solid #FF6B2C !important;
+    border-radius: 2px !important;
     font-size: 10px;
     font-weight: bold;
     padding: 2px 4px;
@@ -1070,21 +1076,63 @@
     font-family: 'JetBrains Mono', monospace !important;
 }
 
-/* CAD Dim Label */
-.dim-label {
-    background: #111 !important;
-    color: #FF6B2C !important;
-    border: 1px solid #FF6B2C !important;
-    border-radius: 2px !important;
-}
-.dim-line {
-    border-style: solid !important;
-    border-color: #888 !important;
-}
+
 
 /* 24050 Base */
 .rad-24050 {
     background-color: transparent !important;
     border: none !important;
     box-shadow: none !important;
+}
+
+
+/* =======================================================================
+   PRINT AND SCREENSHOT STYLING
+   Force the dark CAD theme even during prints/exports and hide UI chrome.
+   ======================================================================= */
+@media print {
+    * {
+        transition: none !important;
+        animation: none !important;
+    }
+
+    body {
+        background-color: #1a1a1a !important;
+        color: #e2e8f0 !important;
+        /* Disable automatic browser background adjustments */
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    /* Hide all panels except the main CAD view */
+    #toolbar,
+    #topBar,
+    #rightPanel,
+    #schemes-tabs,
+    #minimapContainer,
+    #mobile-fab,
+    #mobile-sheet {
+        display: none !important;
+    }
+
+    /* Ensure the single view takes the full page context without scrollbars */
+    #singleViewArea {
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        background-color: #1a1a1a !important;
+        overflow: visible !important;
+    }
+
+    /* When printing "Show All" or "Single Pallet", ensure the transform doesn't clip off-screen */
+    .pallet-area, .all-layouts-grid {
+        position: absolute !important;
+    }
+
+    /* Prevent printing of the blueprint info block since it's white and clashes with CAD mode */
+    .blueprint-only {
+        /* display: none !important; */
+    }
 }
