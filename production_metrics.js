@@ -1085,8 +1085,8 @@ const HmiApp = {
 
     resetPalletSize() { this.state.palOverrideX = 0; this.state.palOverrideY = 0; if (this.dom.palW50) this.dom.palW50.value = 0; if (this.dom.palH50) this.dom.palH50.value = 0; this.render(); },
 
-    openMatrixModal() { if (!document.getElementById('matrixModal')) this.buildMatrixModal(); document.getElementById('matrixModal').style.display = 'flex'; },
-    closeMatrixModal() { if (document.getElementById('matrixModal')) document.getElementById('matrixModal').style.display = 'none'; },
+    openMatrixModal() { let modal = document.getElementById('matrixModal'); if (!modal) { modal = this.buildMatrixModal(); } modal.style.display = 'flex'; },
+    closeMatrixModal() { const modal = document.getElementById('matrixModal'); if (modal) modal.style.display = 'none'; },
 
     buildMatrixModal() {
         const overlay = document.createElement('div'); overlay.id = 'matrixModal'; overlay.className = 'modal-overlay'; overlay.onclick = (e) => { if (e.target === overlay) this.closeMatrixModal(); };
@@ -1103,7 +1103,7 @@ const HmiApp = {
             containerHtml += `</div>`;
         });
         containerHtml += `</div><div style="margin-top:15px; font-size:13px; display:flex; gap:15px; justify-content: center; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.1);"><div style="display:flex; align-items:center; gap:5px;"><div style="width:15px;height:15px; border-radius:3px;" class="pal-1"></div> <= 1500mm (1 Palet)</div><div style="display:flex; align-items:center; gap:5px;"><div style="width:15px;height:15px; border-radius:3px;" class="pal-2"></div> >= 1600mm (2 Palet)</div></div>`;
-        content.innerHTML = header + containerHtml; overlay.appendChild(content); document.body.appendChild(overlay);
+        content.innerHTML = header + containerHtml; overlay.appendChild(content); document.body.appendChild(overlay); return overlay;
     },
 
     selectFromMatrix(w, l) { if (this.dom.inW) this.dom.inW.value = w; if (this.dom.inL) this.dom.inL.value = l; this.closeMatrixModal(); this.calc(); },
