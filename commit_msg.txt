@@ -1,0 +1,5 @@
+feat: enable manual mode for project 24050
+
+- Allows manual addition and modification of radiators in 24050.
+- Implements correct 90/180/270 degree rotation logic for 24050 radiators while keeping the labels readable.
+- Includes 24050 in the matrix.

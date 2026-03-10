@@ -371,11 +371,10 @@ const HmiApp = {
     selectProject() {
         this.state.currentProject = this.dom.projectSelect?.value || '24048';
         const is50 = this.state.currentProject === '24050';
-        if (is50) this.state.isManualMode = false;
         if (this.dom.manualModeToggle) this.dom.manualModeToggle.style.display = 'grid'; 
         if(this.dom.exportToggle) this.dom.exportToggle.style.display = is50 ? 'flex' : 'none';
         if (this.dom.palletModeSelector) this.dom.palletModeSelector.style.display = is50 ? 'none' : 'grid';
-        if (this.dom.btnMatrix) this.dom.btnMatrix.style.display = is50 ? 'none' : 'block';
+        if (this.dom.btnMatrix) this.dom.btnMatrix.style.display = 'block';
         if (is50) {
             this.state.isDualPallet = false;
             this.state.palOverrideX = 0;
@@ -396,19 +395,11 @@ const HmiApp = {
         const is50 = this.state.currentProject === '24050';
         if (this.dom.btnAutoMode) this.dom.btnAutoMode.classList.toggle('active', !this.state.isManualMode);
         if (this.dom.btnManualMode) this.dom.btnManualMode.classList.toggle('active', this.state.isManualMode);
-        if (!is50) {
-            if (this.dom.manualAddPanel) this.dom.manualAddPanel.style.display = this.state.isManualMode ? 'block' : 'none';
-            if (this.dom.dizilimGridContainer) this.dom.dizilimGridContainer.style.display = this.state.isManualMode ? 'none' : 'grid';
-            if(this.dom.radPositionsPanel) this.dom.radPositionsPanel.style.display = this.state.isManualMode ? '' : 'none';
-            if(this.dom.radPosResetBtn) this.dom.radPosResetBtn.style.display = this.state.isManualMode ? '' : 'none';
-            if(this.dom.palletSizeControls) this.dom.palletSizeControls.style.display = 'none';
-        } else {
-            if (this.dom.manualAddPanel) this.dom.manualAddPanel.style.display = 'none';
-            if (this.dom.dizilimGridContainer) this.dom.dizilimGridContainer.style.display = '';
-            if(this.dom.radPositionsPanel) this.dom.radPositionsPanel.style.display = '';
-            if(this.dom.radPosResetBtn) this.dom.radPosResetBtn.style.display = '';
-            if(this.dom.palletSizeControls) this.dom.palletSizeControls.style.display = '';
-        }
+        if (this.dom.manualAddPanel) this.dom.manualAddPanel.style.display = this.state.isManualMode ? 'block' : 'none';
+        if (this.dom.dizilimGridContainer) this.dom.dizilimGridContainer.style.display = this.state.isManualMode ? 'none' : 'grid';
+        if(this.dom.radPositionsPanel) this.dom.radPositionsPanel.style.display = this.state.isManualMode || is50 ? '' : 'none';
+        if(this.dom.radPosResetBtn) this.dom.radPosResetBtn.style.display = this.state.isManualMode || is50 ? '' : 'none';
+        if(this.dom.palletSizeControls) this.dom.palletSizeControls.style.display = this.state.isManualMode || is50 ? 'flex' : 'none';
         if (this.dom.gapW) this.dom.gapW.disabled = !this.state.isManualMode;
         if (this.dom.gapH) this.dom.gapH.disabled = !this.state.isManualMode;
         if (this.dom.manualControlsGroup) {
@@ -418,7 +409,7 @@ const HmiApp = {
     },
 
     addManualRadiator() {
-        if (this.state.currentProject === '24050') return;
+
         const w = parseInt(this.dom.manW?.value) || this.state.width;
         const l = parseInt(this.dom.manL?.value) || this.state.length;
         this.state.manualPositions.push({
@@ -589,6 +580,7 @@ const HmiApp = {
         let pos = [];
         let globalAngle = 0;
         if (this.state.currentProject === '24050') {
+            if (this.state.isManualMode) return { positions: this.state.manualPositions, angle: 0, isPerPieceAngle: true, isManual: true };
             if (!this.state.rad50UserEdited) this.state.rad50Positions = this.getDefaultPositions24050(d, w, l);
             return { positions: this.state.rad50Positions, angle: 0, isPerPieceAngle: true };
         }
@@ -756,8 +748,8 @@ const HmiApp = {
             let currentW = p.w !== undefined ? p.w : this.state.width;
             let currentL = p.l !== undefined ? p.l : this.state.length;
             let pAngle = isPerPieceAngle ? p.angle : angle;
-            const rw = is50 ? currentL : (pAngle % 180 === 0 ? currentW : currentL);
-            const rh = is50 ? currentW : (pAngle % 180 === 0 ? currentL : currentW);
+            const rw = is50 ? (pAngle % 180 === 0 ? currentL : currentW) : (pAngle % 180 === 0 ? currentW : currentL);
+            const rh = is50 ? (pAngle % 180 === 0 ? currentW : currentL) : (pAngle % 180 === 0 ? currentL : currentW);
             maxExtentX = Math.max(maxExtentX, Math.abs(p.x) + rw / 2);
             maxExtentY = Math.max(maxExtentY, Math.abs(p.y) + rh / 2);
         });
@@ -792,18 +784,18 @@ const HmiApp = {
             const isFlipped = is50 && thisAngle === 180;
             const isRotated = thisAngle % 180 !== 0;
             const dualClass = (!is50 && this.state.isDualPallet) ? ' rad-dual' : '';
-            const className = is50 ? (isFlipped ? 'rad-24050 rad-24050-flipped' : 'rad-24050') : (isRotated ? 'rad rad-rotated' + dualClass : 'rad' + dualClass);
+            const className = is50 ? 'rad-24050' : (isRotated ? 'rad rad-rotated' + dualClass : 'rad' + dualClass);
             let currentW = p.w !== undefined ? p.w : this.state.width;
             let currentL = p.l !== undefined ? p.l : this.state.length;
-            const rw = is50 ? (currentL * s) : (thisAngle % 180 === 0 ? currentW * s : currentL * s);
-            const rh = is50 ? (currentW * s) : (thisAngle % 180 === 0 ? currentL * s : currentW * s);
+            const rw = is50 ? (thisAngle % 180 === 0 ? currentL * s : currentW * s) : (thisAngle % 180 === 0 ? currentW * s : currentL * s);
+            const rh = is50 ? (thisAngle % 180 === 0 ? currentW * s : currentL * s) : (thisAngle % 180 === 0 ? currentL * s : currentW * s);
             const wPx = Math.round(rw), hPx = Math.round(rh);
             const radLeft = Math.round(palLeft + (palSize.x * s / 2) + (p.x * s) - (rw / 2));
             const radTop = Math.round(palTop + (palSize.y * s / 2) - (p.y * s) - (rh / 2));
             const numLabel = `${p.n}${isFlipped ? '↻' : ''}`;
-            const innerHTML = this.getRadiatorHTML(is50, isMiniature, numLabel, isFlipped);
-            let realW = is50 ? currentL : (thisAngle % 180 === 0 ? currentW : currentL);
-            let realH = is50 ? currentW : (thisAngle % 180 === 0 ? currentL : currentW);
+            const innerHTML = this.getRadiatorHTML(is50, isMiniature, numLabel, isFlipped, thisAngle, s, currentW, currentL);
+            let realW = is50 ? (thisAngle % 180 === 0 ? currentL : currentW) : (thisAngle % 180 === 0 ? currentW : currentL);
+            let realH = is50 ? (thisAngle % 180 === 0 ? currentW : currentL) : (thisAngle % 180 === 0 ? currentL : currentW);
             const ovX = Math.max(0, Math.abs(p.x) + realW / 2 - palSize.x / 2), ovY = Math.max(0, Math.abs(p.y) + realH / 2 - palSize.y / 2);
             const ov = Math.max(ovX, ovY); let extraClass = '';
             if (ov > 1) {
@@ -813,7 +805,7 @@ const HmiApp = {
                     if (ovY > 0) radiatorsHTML += this.getDimLineHTML(radLeft + rw / 2, radTop + (p.y > 0 ? -20 : rh), 0, 20, Math.round(ovY), 'overhang');
                 }
             }
-            if (!isMiniature && !is50 && this.state.showDimCenter) {
+            if (!isMiniature && this.state.showDimCenter) {
                 radiatorsHTML += this.getDimLineHTML(radLeft + rw / 2, radTop + rh + 10, -p.x * s, 0, Math.round(p.x), 'manual-dim');
                 radiatorsHTML += this.getDimLineHTML(radLeft - 10, radTop + rh / 2, 0, p.y * s, Math.round(p.y), 'manual-dim');
             }
@@ -823,8 +815,8 @@ const HmiApp = {
             let boxes = positions.map(p => {
                 let pAngle = isPerPieceAngle ? p.angle : angle;
                 let currentW = p.w !== undefined ? p.w : this.state.width, currentL = p.l !== undefined ? p.l : this.state.length;
-                let realW = is50 ? currentL : (pAngle % 180 === 0 ? currentW : currentL);
-                let realH = is50 ? currentW : (pAngle % 180 === 0 ? currentL : currentW);
+                let realW = is50 ? (pAngle % 180 === 0 ? currentL : currentW) : (pAngle % 180 === 0 ? currentW : currentL);
+                let realH = is50 ? (pAngle % 180 === 0 ? currentW : currentL) : (pAngle % 180 === 0 ? currentL : currentW);
                 return { left: p.x - realW / 2, right: p.x + realW / 2, top: p.y + realH / 2, bottom: p.y - realH / 2, x: p.x, y: p.y, rw: realW, rh: realH };
             });
             for(let i=0; i<boxes.length; i++) {
@@ -865,8 +857,8 @@ const HmiApp = {
                 positions.forEach(p => {
                     let pAngle = isPerPieceAngle ? p.angle : angle;
                     let currentW = p.w !== undefined ? p.w : this.state.width, currentL = p.l !== undefined ? p.l : this.state.length;
-                    let realW = is50 ? currentL : (pAngle % 180 === 0 ? currentW : currentL);
-                    let realH = is50 ? currentW : (pAngle % 180 === 0 ? currentL : currentW);
+                    let realW = is50 ? (pAngle % 180 === 0 ? currentL : currentW) : (pAngle % 180 === 0 ? currentW : currentL);
+                    let realH = is50 ? (pAngle % 180 === 0 ? currentW : currentL) : (pAngle % 180 === 0 ? currentL : currentW);
                     minX = Math.min(minX, p.x - realW / 2); maxX = Math.max(maxX, p.x + realW / 2); minY = Math.min(minY, p.y - realH / 2); maxY = Math.max(maxY, p.y + realH / 2);
                 });
                 let spaceRight = (palSize.x / 2) - maxX, spaceLeft = minX - (-palSize.x / 2), spaceTop = (palSize.y / 2) - maxY, spaceBottom = minY - (-palSize.y / 2);
@@ -912,10 +904,25 @@ const HmiApp = {
         }
     },
 
-    getRadiatorHTML(is50, isMiniature, numLabel, isFlipped) {
+    getRadiatorHTML(is50, isMiniature, numLabel, isFlipped, angle, s, currentW, currentL) {
         if (is50) {
-            if (isMiniature) return `<div class="pkg-body"></div><div class="pkg-card left"></div><div class="pkg-card right"></div><div class="pkg-num">${numLabel}</div>`;
-            return `<div class="pkg-body"></div><div class="pkg-card left"></div><div class="pkg-card right"></div><div class="pkg-corner tl"></div><div class="pkg-corner bl"></div><div class="pkg-corner tr"></div><div class="pkg-corner br"></div><div class="pkg-label"><div class="pkg-label-red">LIDER</div><div class="pkg-label-white"><span>СТАЛЬНОЙ<br>РАДИАТОР</span></div></div><div class="pkg-num">${numLabel}</div>`;
+            const isRotated90 = angle === 90 || angle === 270;
+            // The unrotated base dimensions (where length is horizontal)
+            const baseW = Math.round(currentL * s);
+            const baseH = Math.round(currentW * s);
+            const transform = isRotated90 ? `transform: rotate(${angle}deg); transform-origin: center center;` : `transform: rotate(${angle === 180 ? 180 : 0}deg);`;
+
+            // To keep the number upright, we counter-rotate it
+            const numStyle = isRotated90 ? `style="transform: rotate(-${angle}deg);"` : (angle === 180 ? `style="transform: rotate(-180deg);"` : '');
+
+            if (isMiniature) {
+                return `<div style="position:absolute; width:${baseW}px; height:${baseH}px; left:50%; top:50%; margin-left:-${baseW/2}px; margin-top:-${baseH/2}px; ${transform}">
+                            <div class="pkg-body"></div><div class="pkg-card left"></div><div class="pkg-card right"></div><div class="pkg-num" ${numStyle}>${numLabel}</div>
+                        </div>`;
+            }
+            return `<div style="position:absolute; width:${baseW}px; height:${baseH}px; left:50%; top:50%; margin-left:-${baseW/2}px; margin-top:-${baseH/2}px; ${transform}">
+                        <div class="pkg-body"></div><div class="pkg-card left"></div><div class="pkg-card right"></div><div class="pkg-corner tl"></div><div class="pkg-corner bl"></div><div class="pkg-corner tr"></div><div class="pkg-corner br"></div><div class="pkg-label"><div class="pkg-label-red">LIDER</div><div class="pkg-label-white"><span>СТАЛЬНОЙ<br>РАДИАТОР</span></div></div><div class="pkg-num" ${numStyle}>${numLabel}</div>
+                    </div>`;
         }
         if (isMiniature) return `<div class="heat-plate" style="width:100%;height:100%;"><div class="pattern-area"><div class="rad-num" style="font-size:9px;padding:1px 3px;">${numLabel}</div></div><div class="long-pipe top"></div><div class="long-pipe bottom"></div></div>`;
         return `<div class="heat-plate"><div class="pattern-area"><div class="rad-num">${numLabel}</div></div><div class="clip tl"></div><div class="clip tr"></div><div class="clip bl"></div><div class="clip br"></div><div class="long-pipe top"></div><div class="long-pipe bottom"></div><div class="port top-left"></div><div class="port top-right"></div><div class="port bottom-left"></div><div class="port bottom-right"></div></div>`;
@@ -1160,7 +1167,7 @@ const HmiApp = {
     buildMatrixModal() {
         const overlay = document.createElement('div'); overlay.id = 'matrixModal'; overlay.className = 'modal-overlay'; overlay.onclick = (e) => { if (e.target === overlay) this.closeMatrixModal(); };
         const content = document.createElement('div'); content.className = 'modal-content'; content.style.width = '90vw'; content.style.maxWidth = '1200px';
-        let header = `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; border-bottom: 2px solid var(--kuka-orange); padding-bottom: 10px;"><h3 style="margin:0; color:var(--kuka-orange);"><i class="fas fa-table"></i> ${this.config.translations[this.state.lang].matrix} (24048/49)</h3><button onclick="HmiApp.closeMatrixModal()" style="background:none;border:none;color:white;font-size:30px;cursor:pointer;">&times;</button></div>`;
+        let header = `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; border-bottom: 2px solid var(--kuka-orange); padding-bottom: 10px;"><h3 style="margin:0; color:var(--kuka-orange);"><i class="fas fa-table"></i> ${this.config.translations[this.state.lang].matrix} (24048/49/50)</h3><button onclick="HmiApp.closeMatrixModal()" style="background:none;border:none;color:white;font-size:30px;cursor:pointer;">&times;</button></div>`;
         const widths = [200, 300, 400, 500, 600, 900];
         let containerHtml = `<div style="max-height: 70vh; overflow-y: auto; padding-right: 10px;">`;
         widths.forEach(w => {
