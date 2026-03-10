@@ -1091,49 +1091,63 @@
    Force the dark CAD theme even during prints/exports and hide UI chrome.
    ======================================================================= */
 @media print {
+    @page { size: A4 landscape; margin: 1cm; }
     * {
         transition: none !important;
         animation: none !important;
+        box-shadow: none !important;
     }
 
     body {
-        background-color: #1a1a1a !important;
-        color: #e2e8f0 !important;
-        /* Disable automatic browser background adjustments */
+        background-color: #fff !important;
+        color: #000 !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
     }
 
-    /* Hide all panels except the main CAD view */
-    #toolbar,
-    #topBar,
-    #rightPanel,
-    #schemes-tabs,
-    #minimapContainer,
-    #mobile-fab,
-    #mobile-sheet {
+    #toolbar, #topBar, #rightPanel, #leftPanel, #schemes-tabs, #minimapContainer, #mobile-fab, #mobile-sheet, #top-nav {
         display: none !important;
     }
 
-    /* Ensure the single view takes the full page context without scrollbars */
     #singleViewArea {
         position: absolute !important;
         top: 0 !important;
         left: 0 !important;
         width: 100vw !important;
         height: 100vh !important;
-        background-color: #1a1a1a !important;
+        background-color: #fff !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
         overflow: visible !important;
     }
 
-    /* When printing "Show All" or "Single Pallet", ensure the transform doesn't clip off-screen */
     .pallet-area, .all-layouts-grid {
-        position: absolute !important;
+        position: relative !important;
+        margin: 0 auto !important;
     }
 
-    /* Prevent printing of the blueprint info block since it's white and clashes with CAD mode */
+    /* Override any CAD styles to be purely 2D blueprint lines */
+    .rad, .rad-24050 {
+        border: 1px solid #000 !important;
+        background-color: #fff !important;
+        background-image: none !important;
+        border-radius: 0 !important;
+    }
+
+    .pallet, .pallet2 {
+        border: 2px solid #000 !important;
+        background: transparent !important;
+        border-radius: 0 !important;
+    }
+    .pallet2 {
+        border: 2px dashed #000 !important;
+    }
+
     .blueprint-only {
-        /* display: none !important; */
+        /* let JS or html inline handle display if needed */
+        color: #000 !important;
+        border-color: #000 !important;
     }
 }
 
@@ -1152,4 +1166,32 @@
     display: flex !important;
     align-items: center;
     justify-content: center;
+}
+
+@media print {
+    .rad, .rad-24050 {
+        background-color: #ffffff !important;
+        background-image: none !important;
+        border: 1px solid #000000 !important;
+        box-shadow: none !important;
+        background: #fff !important;
+    }
+    .rad::before, .rad::after {
+        display: none !important;
+    }
+    .print-data-block {
+        display: block !important;
+        color: #000000 !important;
+        background-color: #ffffff !important;
+        background: #fff !important;
+        border: 2px solid #000000 !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+}
+
+@media print {
+    .rad {
+        background: #ffffff !important;
+    }
 }

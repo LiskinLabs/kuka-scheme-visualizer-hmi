@@ -55,263 +55,92 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="kuka_design_system.css">
     <style>
-        /* CAD Theme Overrides & Layout Specifics */
-        body {
-            background-color: var(--cad-bg, #121212);
-            color: var(--cad-text, #e0e0e0);
-            overflow: hidden;
-            font-family: 'Inter', sans-serif;
-            margin: 0;
-            padding: 0;
-        }
-
-        /* Grid Background */
-        .cad-grid-bg {
-            background-color: #121212;
-            background-image:
-                linear-gradient(#1a1a1a 1px, transparent 1px),
-                linear-gradient(90deg, #1a1a1a 1px, transparent 1px);
-            background-size: 20px 20px;
-        }
-
-        /* Forms & Inputs */
-        select, input {
-            background-color: #121212;
-            border: 1px solid #333;
-            color: #FF6B2C;
-            font-family: 'JetBrains Mono', monospace;
-            border-radius: 2px;
-            outline: none;
-        }
-        select:focus, input:focus {
-            border-color: #FF6B2C;
-        }
-
-        /* Thin scrollbars */
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: #121212; }
-        ::-webkit-scrollbar-thumb { background: #333; border-radius: 0; }
-        ::-webkit-scrollbar-thumb:hover { background: #555; }
-
-        /* Base Component Classes */
-        .cad-panel {
-            background-color: #1e1e1e;
-            border: 1px solid #333;
-        }
-        .cad-btn {
-            background-color: #1e1e1e;
-            border: 1px solid #333;
-            color: #e0e0e0;
-            transition: all 0.1s;
-            cursor: pointer;
-            border-radius: 2px;
-        }
-        .cad-btn:hover { background-color: #2d2d2d; border-color: #555; }
-        .cad-btn.active { background-color: rgba(255, 107, 44, 0.1); border-color: #FF6B2C; color: #FF6B2C; }
-
-        .cad-text-mono { font-family: 'JetBrains Mono', monospace; }
-
-        /* App Layout structure */
-        #app-container {
-            display: grid;
-            grid-template-rows: 40px 1fr;
-            grid-template-columns: 40px 1fr 300px;
-            grid-template-areas:
-                "topbar topbar topbar"
-                "toolbar main sidebar";
-            height: 100vh;
-            width: 100vw;
-        }
-
-        #top-property-bar { grid-area: topbar; border-bottom: 1px solid #333; z-index: 20; display: flex; align-items: center; padding: 0 10px; background: #1e1e1e; gap: 15px;}
-        #left-toolbar { grid-area: toolbar; border-right: 1px solid #333; z-index: 10; display: flex; flex-direction: column; align-items: center; padding-top: 10px; background: #1e1e1e; gap: 5px;}
-        #main-view { grid-area: main; position: relative; overflow: hidden; display: flex; flex-direction: column; }
-        #right-sidebar { grid-area: sidebar; border-left: 1px solid #333; z-index: 10; background: #1e1e1e; display: flex; flex-direction: column; transition: transform 0.2s;}
-
-        .sidebar-collapsed #app-container { grid-template-columns: 40px 1fr 0px; }
-        .sidebar-collapsed #right-sidebar { transform: translateX(100%); }
-
-        /* Schemes Tabs */
-        #schemes-tabs {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 36px;
-            background: #1e1e1e;
-            border-top: 1px solid #333;
-            display: flex;
-            overflow-x: auto;
-            z-index: 15;
-        }
-        .scheme-tab {
-            padding: 0 15px;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-right: 1px solid #333;
-            border-top: 2px solid transparent;
-            color: #888;
-            font-size: 11px;
-            cursor: pointer;
-            white-space: nowrap;
-            background: #121212;
-            font-family: 'JetBrains Mono', monospace;
-        }
-        .scheme-tab:hover { background: #1e1e1e; color: #e0e0e0; }
-        .scheme-tab.active {
-            background: #1e1e1e;
-            border-top-color: #FF6B2C;
-            color: #FF6B2C;
-            font-weight: bold;
-        }
-
-        /* Accordion */
-        .accordion-header {
-            padding: 8px 12px;
-            background: #252525;
-            border-bottom: 1px solid #333;
-            border-top: 1px solid #333;
-            cursor: pointer;
-            font-size: 11px;
-            font-weight: bold;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            color: #aaa;
-            text-transform: uppercase;
-            user-select: none;
-            margin-top: -1px;
-        }
-        .accordion-header:hover { background: #2d2d2d; color: #e0e0e0; }
-        .accordion-content {
-            padding: 10px;
-            background: #1e1e1e;
-            font-size: 12px;
-            display: none;
-        }
-        .accordion-content.open { display: block; }
-
-        /* Key-Value Pair in Accordion */
-        .kv-pair {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 6px;
-            font-size: 11px;
-        }
-        .kv-key { color: #888; }
-        .kv-val { color: #FF6B2C; font-family: 'JetBrains Mono', monospace; font-weight: bold;}
-
-        /* Tool Buttons (Left Toolbar) */
-        .tool-btn {
-            width: 30px;
-            height: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 1px solid transparent;
-            border-radius: 2px;
-            color: #888;
-            cursor: pointer;
-            background: transparent;
-            margin-bottom: 2px;
-        }
-        .tool-btn:hover { background: #2d2d2d; color: #e0e0e0; border-color: #555; }
-        .tool-btn.active { background: rgba(255, 107, 44, 0.1); border-color: #FF6B2C; color: #FF6B2C; }
-        .tool-separator { width: 20px; height: 1px; background: #333; margin: 5px 0; }
-
-        /* Legacy compatibility structures */
-        .mode-selector { display: flex; gap: 4px; }
-        .mode-btn { flex: 1; padding: 4px; font-size: 10px; text-align: center; }
-
-        /* Mobile FAB & Bottom Sheet */
-        #mobile-fab { display: none; }
-        #mobile-sheet { display: none; }
-
-        @media (max-width: 768px) {
-            #app-container {
-                display: block;
-            }
-            #top-property-bar, #left-toolbar, #right-sidebar { display: none; }
-            #main-view { height: calc(100vh - 40px); width: 100vw; }
-            #schemes-tabs { bottom: 0; }
-
-            #mobile-fab {
-                display: flex;
-                position: fixed;
-                bottom: 50px;
-                right: 20px;
-                width: 48px;
-                height: 48px;
-                border-radius: 24px;
-                background: #FF6B2C;
-                color: #121212;
-                align-items: center;
-                justify-content: center;
-                font-size: 20px;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-                z-index: 100;
-                cursor: pointer;
-            }
-
-            #mobile-sheet {
-                position: fixed;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                background: #1e1e1e;
-                border-top: 1px solid #333;
-                z-index: 90;
-                transform: translateY(100%);
-                transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-                max-height: 80vh;
-                display: flex;
-                flex-direction: column;
-                box-shadow: 0 -10px 30px rgba(0,0,0,0.8);
-            }
-            #mobile-sheet.open { transform: translateY(0); }
-            .sheet-handle { width: 40px; height: 4px; background: #555; border-radius: 2px; margin: 10px auto; }
-            .sheet-content { padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
-        }
-
-        /* Print styles */
+        /* Devastating Print Styles */
         @media print {
-            body { background: white !important; margin: 0; padding: 0; }
-            body * { visibility: hidden; }
-            #main-view, #main-view * { visibility: visible; }
-            #main-view { position: fixed; left: 0; top: 0; width: 100vw; height: 100vh; background: white !important; display: flex; align-items: center; justify-content: center; overflow: hidden;}
-            .cad-grid-bg { background-image: none !important; background-color: white !important;}
-            #schemes-tabs, #top-nav, #btnDomestic, #btnExport, #leftPanel, #rightPanel, .info-card { display: none !important; }
+            @page { size: A4 landscape; margin: 10mm; }
+            body, html { background: white !important; margin: 0; padding: 0; color: black !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            * { box-shadow: none !important; transition: none !important; animation: none !important; }
 
-            /* Black and White CAD styling */
-            .radiator { border: 1px solid black !important; background: white !important; border-radius: 0 !important; color: black !important; }
-            .radiator-top, .radiator-bottom, .radiator-grid { display: none !important; }
+            /* Hide UI Elements completely */
+            #topBar, #leftPanel, #rightPanel, #toolbar, #schemes-tabs, #minimapContainer, .zoom-controls, .controls-container, #mobile-fab, #mobile-sheet { display: none !important; width: 0 !important; height: 0 !important; overflow: hidden !important; }
+
+            #main-view { position: fixed !important; inset: 0 !important; width: 100vw !important; height: 100vh !important; background: white !important; display: flex !important; align-items: center !important; justify-content: center !important; overflow: hidden !important; }
+
+            /* Force CAD grid background off */
+            .cad-grid-bg { background-image: none !important; background-color: white !important; }
+
+            /* Radiator flat styling */
+            div[class*="rad"], div[class*="radiator"] {
+                background: white !important;
+                background-color: white !important;
+                background-image: none !important;
+                border: 1px solid black !important;
+                box-shadow: none !important;
+                color: black !important;
+                border-radius: 0 !important;
+            }
+            .radiator-top, .radiator-bottom, .radiator-grid, .rad-pattern { display: none !important; }
+
+            /* Pallet flat styling */
             .pallet { border: 2px solid black !important; background: transparent !important; border-radius: 0 !important; }
             .pallet2 { border: 2px dashed black !important; background: transparent !important; border-radius: 0 !important; }
-            .center-mark { background: black !important; }
 
-            .dim-line { border-bottom: 1px solid black !important; border-left: 1px solid black !important; border-right: 1px solid black !important; }
-            .dim-text { color: black !important; background: white !important; font-weight: bold; }
-            .print-data-block { color: black !important; background: white !important; border: 2px solid black !important; }
-            .print-data-block table td { border-bottom: 1px solid #ccc; color: black !important; padding: 4px; }
+            /* Dimensions and text */
+            .dim-line { border-color: black !important; background: transparent !important; }
+            .dim-text { color: black !important; background: white !important; border: 1px solid white !important; font-weight: bold !important; }
+            .center-mark, .center-x, .center-y { background: black !important; background-color: black !important; }
 
-            #singleViewArea { position: static; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
-            #palletArea { transform-origin: center center !important; position: relative !important; top: auto !important; left: auto !important; margin: auto !important;}
+            /* Specification block */
+            .print-data-block {
+                display: block !important;
+                opacity: 1 !important;
+                visibility: visible !important;
+                color: black !important;
+                background: white !important;
+                border: 2px solid black !important;
+                box-shadow: none !important;
+            }
+            .print-data-block * { color: black !important; border-color: black !important; }
+
+            /* Alignment fixes */
+            #singleViewArea { position: absolute !important; inset: 0 !important; display: flex !important; align-items: center !important; justify-content: center !important; background: white !important; width: 100vw !important; height: 100vh !important; }
+            #palletArea { transform-origin: center center !important; margin: 0 auto !important; position: relative !important; }
         }
-        
-        .all-layouts-grid { display: none; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); justify-content: center; gap: 15px; padding: 20px; }
-        .layout-card { background: #1e1e1e; border: 1px solid #333; padding: 10px; text-align: center; }
-        
-        .hidden { display: none !important; }
-        
-        /* Modal */
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 1000; display: none; align-items: center; justify-content: center; }
-        .modal-content { background: #1e1e1e; border: 1px solid #333; padding: 20px; max-width: 95vw; max-height: 90vh; overflow-y: auto; }
-        
-        /* Helpers */
-        .flex-center { display: flex; align-items: center; justify-content: center; }
-        .text-xs { font-size: 0.75rem; line-height: 1rem; }
+</style>
+
+    <style>
+        @media print {
+            .rad {
+                background-color: #ffffff !important;
+                background-image: none !important;
+                border: 1px solid #000000 !important;
+                box-shadow: none !important;
+            }
+            .rad::before, .rad::after {
+                display: none !important;
+            }
+            .rad-24050 {
+                background-color: #ffffff !important;
+                background-image: none !important;
+                border: 1px solid #000000 !important;
+                box-shadow: none !important;
+            }
+            .dim-text, .dim-line, .center-mark {
+                color: #000000 !important;
+                border-color: #000000 !important;
+                background-color: #ffffff !important;
+            }
+            .center-mark {
+                background-color: #000000 !important;
+            }
+            .print-data-block {
+                display: block !important;
+                opacity: 1 !important;
+                visibility: visible !important;
+                color: #000000 !important;
+                background-color: #ffffff !important;
+            }
+        }
     </style>
 </head>
 
