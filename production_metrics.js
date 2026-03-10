@@ -5,6 +5,15 @@
 
 const HmiApp = {
     // --- State ---
+
+    debounce(func, wait) {
+        let timeout;
+        return function(...args) {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func.apply(this, args), wait);
+        };
+    },
+
     state: {
         currentProject: '24048',
         isDualPallet: false,
@@ -208,12 +217,12 @@ const HmiApp = {
             this.dom.singleViewArea.addEventListener('touchcancel', (e) => { this.state.lastZoomDist = null; });
         }
 
-        if (this.dom.inW) this.dom.inW.onchange = () => this.calc();
-        if (this.dom.inL) this.dom.inL.onchange = () => this.calc();
-        if (this.dom.gapW) this.dom.gapW.onchange = () => this.calc();
-        if (this.dom.gapH) this.dom.gapH.onchange = () => this.calc();
-        if (this.dom.palW50) this.dom.palW50.onchange = () => this.updatePalletSize();
-        if (this.dom.palH50) this.dom.palH50.onchange = () => this.updatePalletSize();
+        if (this.dom.inW) this.dom.inW.oninput = this.debounce(() => this.calc(), 200);
+        if (this.dom.inL) this.dom.inL.oninput = this.debounce(() => this.calc(), 200);
+        if (this.dom.gapW) this.dom.gapW.oninput = this.debounce(() => this.calc(), 200);
+        if (this.dom.gapH) this.dom.gapH.oninput = this.debounce(() => this.calc(), 200);
+        if (this.dom.palW50) this.dom.palW50.oninput = this.debounce(() => this.updatePalletSize(), 200);
+        if (this.dom.palH50) this.dom.palH50.oninput = this.debounce(() => this.updatePalletSize(), 200);
 
         document.addEventListener('click', (e) => {
             if (this.dom.contextMenu && !this.dom.contextMenu.classList.contains('hidden')) {
@@ -1025,7 +1034,7 @@ const HmiApp = {
     },
 
     applyTransform() {
-        const transform = `translate(${this.state.panX}px, ${this.state.panY}px) scale(${this.state.zoom})`;
+        const transform = `translate3d(${this.state.panX}px, ${this.state.panY}px, 0) scale(${this.state.zoom})`;
         if (this.state.showAll && this.dom.allLayoutsGrid) {
             if(this.dom.allLayoutsGrid) this.dom.allLayoutsGrid.style.transform = transform;
             this.updateMinimap();
