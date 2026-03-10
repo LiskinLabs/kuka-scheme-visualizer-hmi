@@ -7,7 +7,8 @@ def run():
         page = browser.new_page()
 
         # Determine the absolute path to the HTML file
-        cwd = os.getcwd()
+        cwd = os.path.dirname(os.path.abspath(__file__))
+        cwd = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         file_path = f"file://{cwd}/scheme_hmi_v3_industrial.html"
 
         print(f"Navigating to: {file_path}")
