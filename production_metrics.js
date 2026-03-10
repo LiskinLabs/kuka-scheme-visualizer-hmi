@@ -157,67 +157,59 @@ const HmiApp = {
     initEventListeners() {
         window.addEventListener('beforeprint', () => {
             if (this.state.showAll && this.dom.allLayoutsGrid) {
-                let scale = Math.min(1000 / 1400, 700 / 1000);
-                if (scale > 0.6) scale = 0.6;
+                // Approximate A4 landscape dimensions in pixels for print sizing
+                const A4_W = 1050;
+                const A4_H = 750;
+
+                // Remove existing transform to measure true size
+                const oldTransform = this.dom.allLayoutsGrid.style.transform;
+                this.dom.allLayoutsGrid.style.transform = 'none';
+
+                const rect = this.dom.allLayoutsGrid.getBoundingClientRect();
+                const actualWidth = rect.width;
+                const actualHeight = rect.height;
+
+                let scale = Math.min(A4_W / actualWidth, A4_H / actualHeight);
+                if (scale > 1) scale = 1; // Don't scale up if it fits
+
+                // Use important to override any inline styles during print
                 this.dom.allLayoutsGrid.style.setProperty('transform', `scale(${scale})`, 'important');
-                this.dom.allLayoutsGrid.style.setProperty('transform-origin', 'center center', 'important');
-                this.dom.allLayoutsGrid.style.setProperty('margin', 'auto', 'important');
+                this.dom.allLayoutsGrid.style.setProperty('transform-origin', 'top center', 'important');
+
             } else if (this.dom.palletArea) {
-                let s = this.state.scale || 1;
-                const palSize = this.getPalletSize();
-                const palW = palSize.x * s;
-                const palH = palSize.y * s;
+                // Get the raw width/height of palletArea
+                // Pallet area uses state.zoom, temporarily disable to get raw bounds
+                const oldTransform = this.dom.palletArea.style.transform;
+                this.dom.palletArea.style.transform = 'none';
 
-                // Allow extra space for the bottom table (approx 350px)
-                let maxBoundsX = palW + 300;
-                let maxBoundsY = palH + 450;
+                const rect = this.dom.palletArea.getBoundingClientRect();
+                const rawW = rect.width;
+                const rawH = rect.height + 250; // Include tech block height
 
-                // A4 landscape internal canvas roughly 1000x700
-                let scaleX = 1000 / maxBoundsX;
-                let scaleY = 700 / maxBoundsY;
-                let scale = Math.min(scaleX, scaleY);
-                if (scale > 0.6) scale = 0.6; 
+                const pageW = 1050;
+                const pageH = 700;
 
+                let scale = Math.min(pageW / rawW, pageH / rawH);
+
+                // Re-apply scale without the panX/panY translation
                 this.dom.palletArea.style.setProperty('transform', `scale(${scale})`, 'important');
-                this.dom.palletArea.style.setProperty('transform-origin', 'center center', 'important');
+                this.dom.palletArea.style.setProperty('transform-origin', 'top center', 'important');
             }
         });
+
         window.addEventListener('afterprint', () => {
             if (this.state.showAll && this.dom.allLayoutsGrid) {
                 this.dom.allLayoutsGrid.style.removeProperty('transform');
                 this.dom.allLayoutsGrid.style.removeProperty('transform-origin');
-                this.dom.allLayoutsGrid.style.removeProperty('margin');
+                // Reapply zoom
+                if (this.dom.allLayoutsGrid) {
+                    this.dom.allLayoutsGrid.style.transform = `translate(${this.state.panX}px, ${this.state.panY}px) scale(${this.state.zoom})`;
+                    this.dom.allLayoutsGrid.style.transformOrigin = '0 0';
+                }
             } else if (this.dom.palletArea) {
                 this.dom.palletArea.style.removeProperty('transform');
                 this.dom.palletArea.style.removeProperty('transform-origin');
-            }
-            this.applyTransform();
-        });
-
-        window.addEventListener('resize', () => {
-            this.syncPanelsUI();
-            this.render();
-        });
-
-        if (this.dom.singleViewArea) {
-            this.dom.singleViewArea.addEventListener('wheel', (e) => this.handleZoom(e), { passive: false });
-            this.dom.singleViewArea.addEventListener('mousedown', (e) => this.startPan(e));
-            this.dom.singleViewArea.addEventListener('touchstart', (e) => this.startPan(e), { passive: false });
-            this.dom.singleViewArea.addEventListener('touchmove', (e) => this.handleZoomTouch(e), { passive: false });
-            this.dom.singleViewArea.addEventListener('touchend', (e) => { this.state.lastZoomDist = null; });
-            this.dom.singleViewArea.addEventListener('touchcancel', (e) => { this.state.lastZoomDist = null; });
-        }
-
-        if (this.dom.inW) this.dom.inW.onchange = () => this.calc();
-        if (this.dom.inL) this.dom.inL.onchange = () => this.calc();
-        if (this.dom.gapW) this.dom.gapW.onchange = () => this.calc();
-        if (this.dom.gapH) this.dom.gapH.onchange = () => this.calc();
-        if (this.dom.palW50) this.dom.palW50.onchange = () => this.updatePalletSize();
-        if (this.dom.palH50) this.dom.palH50.onchange = () => this.updatePalletSize();
-        
-        document.addEventListener('click', (e) => {
-            if (this.dom.contextMenu && !this.dom.contextMenu.classList.contains('hidden')) {
-                this.hideContextMenu();
+                this.applyTransform(); // restore pan/zoom
             }
         });
     },
@@ -866,20 +858,41 @@ const HmiApp = {
             let bottomBound = Math.max(palH + palTop, palTop + (palSize.y * s / 2) + maxY * s);
             let titleBlockY = Math.round(bottomBound) + 60;
 
-            // To make it centered: it's a fixed width element (e.g. 400px wide) relative to the palletArea
-            let blockWidth = 500;
-            // palLeft is the X start of pallet, palW is width. The visual center of pallet is palLeft + palW/2
+            // Calculate Y position to be exactly under the pallet + gap
+            let marginBelowPallet = 60; // Distance below pallet bounding box
+            let finalTitleBlockY = palTop + palH + marginBelowPallet;
+
+            // Make it match the width of the pallet or a fixed good size
+            let blockWidth = Math.max(800, palW);
             let blockLeft = palLeft + (palW / 2) - (blockWidth / 2);
 
-            blueprintHTML += `<div class="blueprint-only print-data-block" style="position: absolute; top: ${titleBlockY}px; left: ${blockLeft}px; background: #fff; color: #000; border: 2px solid #000; padding: 10px; font-family: monospace; font-size: 14px; width: ${blockWidth}px; text-align: left; z-index: 1000; box-sizing: border-box;">
-                <div style="border-bottom: 2px solid #000; padding-bottom: 5px; margin-bottom: 10px; font-weight: bold; font-size: 18px; text-align: center; text-transform: uppercase;">KUKA CELL VISUALIZER - TECH DATA</div>
+            // Collect the new stats required
+            let gapWStr = this.state.gapW + ' mm';
+            let gapHStr = this.state.gapH + ' mm';
+            let angleStr = is50 ? '0° / 180°' : this.state.angle + '°';
+
+            // Only display block if printing, otherwise hide using display:none
+            // We use inline display:none, and in css we'll override it with display:block !important in @media print
+            // Also need a specific CSS class that is displayed only on print
+            blueprintHTML += `<div class="blueprint-only print-data-block" style=" position: absolute; top: ${finalTitleBlockY}px; left: ${blockLeft}px; background: #fff; color: #000; border: 2px solid #000; padding: 15px; font-family: monospace; font-size: 14px; width: ${blockWidth}px; text-align: left; z-index: 1000; box-sizing: border-box;">
+                <div style="border-bottom: 2px solid #000; padding-bottom: 5px; margin-bottom: 10px; font-weight: bold; font-size: 18px; text-align: center; text-transform: uppercase;">KUKA TECH DATA / OPERATOR SHEET</div>
                 <table style="width: 100%; border-collapse: collapse; text-align: left;">
-                    <tr><td style="width: 35%; font-weight: bold; padding: 4px; border-bottom: 1px solid #ccc;">Project:</td><td style="padding: 4px; border-bottom: 1px solid #ccc;">${prjStr}</td></tr>
-                    <tr><td style="font-weight: bold; padding: 4px; border-bottom: 1px solid #ccc;">Scheme / Layout:</td><td style="padding: 4px; border-bottom: 1px solid #ccc;">${schStr}</td></tr>
-                    <tr><td style="font-weight: bold; padding: 4px; border-bottom: 1px solid #ccc;">Radiator Size:</td><td style="padding: 4px; border-bottom: 1px solid #ccc;">${radStr}</td></tr>
-                    <tr><td style="font-weight: bold; padding: 4px; border-bottom: 1px solid #ccc;">Quantity / Layer:</td><td style="padding: 4px; border-bottom: 1px solid #ccc;">${cntStr}</td></tr>
-                    <tr><td style="font-weight: bold; padding: 4px; border-bottom: 1px solid #ccc;">Pallet Size:</td><td style="padding: 4px; border-bottom: 1px solid #ccc;">${palStr}</td></tr>
-                    <tr><td style="font-weight: bold; padding: 4px;">Date Generated:</td><td style="padding: 4px;">${dStr}</td></tr>
+                    <tr>
+                        <td style="width: 25%; font-weight: bold; padding: 6px; border-bottom: 1px solid #000; border-right: 1px solid #000;">Project:</td><td style="width: 25%; padding: 6px; border-bottom: 1px solid #000; border-right: 1px solid #000;">${prjStr}</td>
+                        <td style="width: 25%; font-weight: bold; padding: 6px; border-bottom: 1px solid #000; border-right: 1px solid #000;">Gap W / Gap H:</td><td style="width: 25%; padding: 6px; border-bottom: 1px solid #000;">${gapWStr} / ${gapHStr}</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: bold; padding: 6px; border-bottom: 1px solid #000; border-right: 1px solid #000;">Scheme / Layout:</td><td style="padding: 6px; border-bottom: 1px solid #000; border-right: 1px solid #000;">${schStr}</td>
+                        <td style="font-weight: bold; padding: 6px; border-bottom: 1px solid #000; border-right: 1px solid #000;">Angle:</td><td style="padding: 6px; border-bottom: 1px solid #000;">${angleStr}</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: bold; padding: 6px; border-bottom: 1px solid #000; border-right: 1px solid #000;">Radiator Type:</td><td style="padding: 6px; border-bottom: 1px solid #000; border-right: 1px solid #000;">${radStr}</td>
+                        <td style="font-weight: bold; padding: 6px; border-bottom: 1px solid #000; border-right: 1px solid #000;">Pallet Characteristics:</td><td style="padding: 6px; border-bottom: 1px solid #000;">${palStr} ${this.state.isDualPallet ? '(Dual Pallet)' : '(Single Pallet)'}</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: bold; padding: 6px; border-bottom: 1px solid #000; border-right: 1px solid #000;">Quantity / Layer:</td><td style="padding: 6px; border-bottom: 1px solid #000; border-right: 1px solid #000;">${cntStr}</td>
+                        <td style="font-weight: bold; padding: 6px; border-bottom: 1px solid #000; border-right: 1px solid #000;">Date Generated:</td><td style="padding: 6px; border-bottom: 1px solid #000;">${dStr}</td>
+                    </tr>
                 </table>
             </div>`;
             blueprintHTML += '</div>'; radiatorsHTML += blueprintHTML;
