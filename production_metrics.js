@@ -156,7 +156,18 @@ const HmiApp = {
 
     initEventListeners() {
         window.addEventListener('beforeprint', () => {
-            if (this.dom.palletArea) {
+            if (this.state.showAll && this.dom.allLayoutsGrid) {
+                // When in show-all mode, scale the entire grid
+                let maxBoundsX = 1400; // Estimated A4 landscape width for the grid
+                let maxBoundsY = 1000;
+                let scale = Math.min(1000 / maxBoundsX, 700 / maxBoundsY);
+                if (scale > 0.6) scale = 0.6;
+                this.dom.allLayoutsGrid.style.setProperty('transform', `scale(${scale})`, 'important');
+                this.dom.allLayoutsGrid.style.setProperty('transform-origin', 'top left', 'important');
+                this.dom.allLayoutsGrid.style.setProperty('position', 'absolute', 'important');
+                this.dom.allLayoutsGrid.style.setProperty('top', '0', 'important');
+                this.dom.allLayoutsGrid.style.setProperty('left', '0', 'important');
+            } else if (this.dom.palletArea) {
                 let s = this.state.scale || 1;
                 const palSize = this.getPalletSize();
                 const palW = palSize.x * s;
@@ -175,7 +186,13 @@ const HmiApp = {
             }
         });
         window.addEventListener('afterprint', () => {
-            if (this.dom.palletArea) {
+            if (this.state.showAll && this.dom.allLayoutsGrid) {
+                this.dom.allLayoutsGrid.style.removeProperty('transform');
+                this.dom.allLayoutsGrid.style.removeProperty('transform-origin');
+                this.dom.allLayoutsGrid.style.removeProperty('position');
+                this.dom.allLayoutsGrid.style.removeProperty('top');
+                this.dom.allLayoutsGrid.style.removeProperty('left');
+            } else if (this.dom.palletArea) {
                 this.dom.palletArea.style.removeProperty('transform');
                 this.dom.palletArea.style.removeProperty('transform-origin');
                 this.dom.palletArea.style.removeProperty('position');
@@ -195,6 +212,8 @@ const HmiApp = {
             this.dom.singleViewArea.addEventListener('mousedown', (e) => this.startPan(e));
             this.dom.singleViewArea.addEventListener('touchstart', (e) => this.startPan(e), { passive: false });
             this.dom.singleViewArea.addEventListener('touchmove', (e) => this.handleZoomTouch(e), { passive: false });
+            this.dom.singleViewArea.addEventListener('touchend', (e) => { this.state.lastZoomDist = null; });
+            this.dom.singleViewArea.addEventListener('touchcancel', (e) => { this.state.lastZoomDist = null; });
         }
 
         if (this.dom.inW) this.dom.inW.onchange = () => this.calc();
@@ -233,11 +252,11 @@ const HmiApp = {
         const leftOffset = isMobile ? '-100%' : '-120%';
         const rightOffset = isMobile ? '100%' : '120%';
         if (this.dom.leftPanel) {
-            this.dom.leftPanel.style.transform = `translateX(${leftOffset})`;
+            if(this.dom.leftPanel) this.dom.leftPanel.style.transform = `translateX(${leftOffset})`;
             if (this.dom.leftPanelIcon) this.dom.leftPanelIcon.className = 'fas fa-chevron-right';
         }
         if (this.dom.rightPanel) {
-            this.dom.rightPanel.style.transform = `translateX(${rightOffset})`;
+            if(this.dom.rightPanel) this.dom.rightPanel.style.transform = `translateX(${rightOffset})`;
             if (this.dom.rightPanelIcon) this.dom.rightPanelIcon.className = 'fas fa-chevron-left';
         }
         if (this.dom.btnOpenLeft) this.dom.btnOpenLeft.classList.remove('hidden');
@@ -254,11 +273,11 @@ const HmiApp = {
             this.state.isLeftPanelOpen = true;
             this.state.isRightPanelOpen = true;
             if (this.dom.leftPanel) {
-                this.dom.leftPanel.style.transform = 'translateX(0)';
+                if(this.dom.leftPanel) this.dom.leftPanel.style.transform = 'translateX(0)';
                 if (this.dom.leftPanelIcon) this.dom.leftPanelIcon.className = 'fas fa-chevron-left';
             }
             if (this.dom.rightPanel) {
-                this.dom.rightPanel.style.transform = 'translateX(0)';
+                if(this.dom.rightPanel) this.dom.rightPanel.style.transform = 'translateX(0)';
                 if (this.dom.rightPanelIcon) this.dom.rightPanelIcon.className = 'fas fa-chevron-right';
             }
             if (this.dom.btnOpenLeft) this.dom.btnOpenLeft.classList.add('hidden');
@@ -272,17 +291,17 @@ const HmiApp = {
         const isMobile = window.innerWidth <= 640;
         if (isMobile && this.state.isRightPanelOpen && !this.state.isLeftPanelOpen) {
             this.state.isRightPanelOpen = false;
-            if (this.dom.rightPanel) this.dom.rightPanel.style.transform = 'translateX(100%)';
+            if (this.dom.rightPanel) if(this.dom.rightPanel) this.dom.rightPanel.style.transform = 'translateX(100%)';
             if (this.dom.btnOpenRight) this.dom.btnOpenRight.classList.remove('hidden');
         }
         this.state.isLeftPanelOpen = !this.state.isLeftPanelOpen;
         const offset = isMobile ? '-100%' : '-120%';
         if (this.dom.leftPanel) {
             if (this.state.isLeftPanelOpen) {
-                this.dom.leftPanel.style.transform = 'translateX(0)';
+                if(this.dom.leftPanel) this.dom.leftPanel.style.transform = 'translateX(0)';
                 if (this.dom.leftPanelIcon) this.dom.leftPanelIcon.className = 'fas fa-chevron-left';
             } else {
-                this.dom.leftPanel.style.transform = `translateX(${offset})`;
+                if(this.dom.leftPanel) this.dom.leftPanel.style.transform = `translateX(${offset})`;
                 if (this.dom.leftPanelIcon) this.dom.leftPanelIcon.className = 'fas fa-chevron-right';
             }
         }
@@ -307,17 +326,17 @@ const HmiApp = {
         const isMobile = window.innerWidth <= 640;
         if (isMobile && this.state.isLeftPanelOpen && !this.state.isRightPanelOpen) {
             this.state.isLeftPanelOpen = false;
-            if (this.dom.leftPanel) this.dom.leftPanel.style.transform = 'translateX(-100%)';
+            if (this.dom.leftPanel) if(this.dom.leftPanel) this.dom.leftPanel.style.transform = 'translateX(-100%)';
             if (this.dom.btnOpenLeft) this.dom.btnOpenLeft.classList.remove('hidden');
         }
         this.state.isRightPanelOpen = !this.state.isRightPanelOpen;
         const offset = isMobile ? '100%' : '120%';
         if (this.dom.rightPanel) {
             if (this.state.isRightPanelOpen) {
-                this.dom.rightPanel.style.transform = 'translateX(0)';
+                if(this.dom.rightPanel) this.dom.rightPanel.style.transform = 'translateX(0)';
                 if (this.dom.rightPanelIcon) this.dom.rightPanelIcon.className = 'fas fa-chevron-right';
             } else {
-                this.dom.rightPanel.style.transform = `translateX(${offset})`;
+                if(this.dom.rightPanel) this.dom.rightPanel.style.transform = `translateX(${offset})`;
                 if (this.dom.rightPanelIcon) this.dom.rightPanelIcon.className = 'fas fa-chevron-left';
             }
         }
@@ -353,7 +372,7 @@ const HmiApp = {
         const is50 = this.state.currentProject === '24050';
         if (is50) this.state.isManualMode = false;
         if (this.dom.manualModeToggle) this.dom.manualModeToggle.style.display = 'grid'; 
-        this.dom.exportToggle.style.display = is50 ? 'flex' : 'none';
+        if(this.dom.exportToggle) this.dom.exportToggle.style.display = is50 ? 'flex' : 'none';
         if (this.dom.palletModeSelector) this.dom.palletModeSelector.style.display = is50 ? 'none' : 'grid';
         if (this.dom.btnMatrix) this.dom.btnMatrix.style.display = is50 ? 'none' : 'block';
         if (is50) {
@@ -379,21 +398,21 @@ const HmiApp = {
         if (!is50) {
             if (this.dom.manualAddPanel) this.dom.manualAddPanel.style.display = this.state.isManualMode ? 'block' : 'none';
             if (this.dom.dizilimGridContainer) this.dom.dizilimGridContainer.style.display = this.state.isManualMode ? 'none' : 'grid';
-            this.dom.radPositionsPanel.style.display = this.state.isManualMode ? '' : 'none';
-            this.dom.radPosResetBtn.style.display = this.state.isManualMode ? '' : 'none';
-            this.dom.palletSizeControls.style.display = 'none'; 
+            if(this.dom.radPositionsPanel) this.dom.radPositionsPanel.style.display = this.state.isManualMode ? '' : 'none';
+            if(this.dom.radPosResetBtn) this.dom.radPosResetBtn.style.display = this.state.isManualMode ? '' : 'none';
+            if(this.dom.palletSizeControls) this.dom.palletSizeControls.style.display = 'none';
         } else {
             if (this.dom.manualAddPanel) this.dom.manualAddPanel.style.display = 'none';
             if (this.dom.dizilimGridContainer) this.dom.dizilimGridContainer.style.display = '';
-            this.dom.radPositionsPanel.style.display = '';
-            this.dom.radPosResetBtn.style.display = '';
-            this.dom.palletSizeControls.style.display = '';
+            if(this.dom.radPositionsPanel) this.dom.radPositionsPanel.style.display = '';
+            if(this.dom.radPosResetBtn) this.dom.radPosResetBtn.style.display = '';
+            if(this.dom.palletSizeControls) this.dom.palletSizeControls.style.display = '';
         }
         if (this.dom.gapW) this.dom.gapW.disabled = !this.state.isManualMode;
         if (this.dom.gapH) this.dom.gapH.disabled = !this.state.isManualMode;
         if (this.dom.manualControlsGroup) {
-            this.dom.manualControlsGroup.style.opacity = this.state.isManualMode ? '1' : '0.4';
-            this.dom.manualControlsGroup.style.pointerEvents = this.state.isManualMode ? 'auto' : 'none';
+            if(this.dom.manualControlsGroup) this.dom.manualControlsGroup.style.opacity = this.state.isManualMode ? '1' : '0.4';
+            if(this.dom.manualControlsGroup) this.dom.manualControlsGroup.style.pointerEvents = this.state.isManualMode ? 'auto' : 'none';
         }
     },
 
@@ -493,9 +512,10 @@ const HmiApp = {
     },
 
     selD(id) {
+        if (id >= this.config.defW.length || id < 0) id = 2; // Default to D2
         this.state.dizilimId = id;
-        this.state.width = this.config.defW[id];
-        this.state.length = this.config.defL[id];
+        this.state.width = this.config.defW[id] || 200;
+        this.state.length = this.config.defL[id] || 1000;
         if (this.dom.inW) this.dom.inW.value = this.state.width;
         if (this.dom.inL) this.dom.inL.value = this.state.length;
         this.state.isDualPallet = this.state.length > 1500;
@@ -509,7 +529,7 @@ const HmiApp = {
         for (let i = 1; i <= 12; i++) {
             const btn = this.dom.dizilimButtons[i];
             if (btn) {
-                if (i === 1 || i === 5) { btn.style.display = 'none'; continue; }
+                if (i === 1 || i === 5) { if(btn) btn.style.display = 'none'; continue; }
                 btn.classList.toggle('active', i === this.state.dizilimId);
                 if (this.state.currentProject !== '24050') {
                     btn.innerHTML = `D${i}<span style="font-size:11px; opacity:0.8; display:block; line-height:1.2; font-weight:normal; margin-top:2px;">${counts[i]} adet / ${angles[i]}°</span>`;
@@ -616,26 +636,26 @@ const HmiApp = {
         this.applyTransform();
         if (this.state.showAll) {
             const txt = this.config.translations[this.state.lang].toggleAllHide;
-            this.dom.btnToggleAll.innerHTML = `<i class="fas fa-eye-slash text-xs"></i><span id="lblToggleAll" class="ml-2 text-xs"></span>`;
+            this.dom.btnToggleAll.innerHTML = `<i class="fas fa-eye-slash text-xs"></i><span id="lblToggleAll" class="hidden"></span>`;
             this.dom.btnToggleAll.querySelector("#lblToggleAll").textContent = txt;
             this.dom.btnToggleAll.classList.add('active');
-            if (this.dom.palletArea) this.dom.palletArea.style.display = 'none';
-            this.dom.allLayoutsGrid.style.display = 'flex';
-            this.dom.allLayoutsGrid.style.flexDirection = 'column';
-            this.dom.allLayoutsGrid.style.gap = '40px';
-            this.dom.allLayoutsGrid.style.padding = '40px';
-            this.dom.allLayoutsGrid.style.transformOrigin = '0 0';
-            this.dom.allLayoutsGrid.style.position = 'absolute';
+            if (this.dom.palletArea) if(this.dom.palletArea) this.dom.palletArea.style.display = 'none';
+            if(this.dom.allLayoutsGrid) this.dom.allLayoutsGrid.style.display = 'flex';
+            if(this.dom.allLayoutsGrid) this.dom.allLayoutsGrid.style.flexDirection = 'column';
+            if(this.dom.allLayoutsGrid) this.dom.allLayoutsGrid.style.gap = '40px';
+            if(this.dom.allLayoutsGrid) this.dom.allLayoutsGrid.style.padding = '40px';
+            if(this.dom.allLayoutsGrid) this.dom.allLayoutsGrid.style.transformOrigin = '0 0';
+            if(this.dom.allLayoutsGrid) this.dom.allLayoutsGrid.style.position = 'absolute';
             if (this.dom.minimapContainer) this.dom.minimapContainer.classList.remove('hidden');
             document.querySelectorAll('.info-card').forEach(el => el.style.display = 'none');
             this.renderAllLayouts();
         } else {
             const txt = this.config.translations[this.state.lang].toggleAllShow;
-            this.dom.btnToggleAll.innerHTML = `<i class="fas fa-th-large text-xs"></i><span id="lblToggleAll" class="ml-2 text-xs"></span>`;
+            this.dom.btnToggleAll.innerHTML = `<i class="fas fa-th-large text-xs"></i><span id="lblToggleAll" class="hidden"></span>`;
             this.dom.btnToggleAll.querySelector("#lblToggleAll").textContent = txt;
             this.dom.btnToggleAll.classList.remove('active');
-            if (this.dom.palletArea) this.dom.palletArea.style.display = 'flex';
-            this.dom.allLayoutsGrid.style.display = 'none';
+            if (this.dom.palletArea) if(this.dom.palletArea) this.dom.palletArea.style.display = 'flex';
+            if(this.dom.allLayoutsGrid) this.dom.allLayoutsGrid.style.display = 'none';
             if (this.dom.minimapContainer) this.dom.minimapContainer.classList.add('hidden');
             document.querySelectorAll('.info-card').forEach(el => el.style.display = '');
             this.render();
@@ -741,20 +761,20 @@ const HmiApp = {
         }
         this.state.scale = s;
         pal.className = is50 ? 'pallet-wood' : 'pallet';
-        pal.style.setProperty('--rad-scale', s);
+        if(pal) pal.style.setProperty('--rad-scale', s);
         const palW = Math.round(palSize.x * s), palH = Math.round(palSize.y * s);
         const totalW = (this.state.isDualPallet && !is50) ? Math.round(2400 * s) : palW;
         const palLeft = Math.round((area.clientWidth - totalW) / 2);
         const palTop = Math.round((area.clientHeight - palH) / 2);
-        pal.style.width = palW + 'px'; pal.style.height = palH + 'px'; pal.style.left = palLeft + 'px'; pal.style.top = palTop + 'px';
+        if(pal) pal.style.width = palW + 'px'; if(pal) pal.style.height = palH + 'px'; if(pal) pal.style.left = palLeft + 'px'; if(pal) pal.style.top = palTop + 'px';
         if (!is50 && this.state.isDualPallet) {
-            pal2.style.display = 'block'; pal2.style.setProperty('--rad-scale', s);
-            pal2.style.width = Math.round(1200 * s) + 'px'; pal2.style.height = palH + 'px';
-            pal2.style.left = (palLeft + Math.round(1200 * s)) + 'px'; pal2.style.top = palTop + 'px';
-        } else { pal2.style.display = 'none'; }
+            if(pal2) pal2.style.display = 'block'; if(pal2) pal2.style.setProperty('--rad-scale', s);
+            if(pal2) pal2.style.width = Math.round(1200 * s) + 'px'; if(pal2) pal2.style.height = palH + 'px';
+            if(pal2) pal2.style.left = (palLeft + Math.round(1200 * s)) + 'px'; if(pal2) pal2.style.top = palTop + 'px';
+        } else { if(pal2) pal2.style.display = 'none'; }
         if (!isMiniature && this.dom.centerMark) {
-            this.dom.centerMark.style.left = (palLeft + (palSize.x * s / 2) - 5) + 'px';
-            this.dom.centerMark.style.top = (palTop + (palSize.y * s / 2) - 5) + 'px';
+            if(this.dom.centerMark) this.dom.centerMark.style.left = (palLeft + (palSize.x * s / 2) - 5) + 'px';
+            if(this.dom.centerMark) this.dom.centerMark.style.top = (palTop + (palSize.y * s / 2) - 5) + 'px';
             if (this.dom.axisX) this.dom.axisX.textContent = palSize.x + ' mm';
             if (this.dom.axisY) this.dom.axisY.textContent = palSize.y + ' mm';
         }
@@ -996,10 +1016,10 @@ const HmiApp = {
     applyTransform() {
         const transform = `translate(${this.state.panX}px, ${this.state.panY}px) scale(${this.state.zoom})`;
         if (this.state.showAll && this.dom.allLayoutsGrid) {
-            this.dom.allLayoutsGrid.style.transform = transform;
+            if(this.dom.allLayoutsGrid) this.dom.allLayoutsGrid.style.transform = transform;
             this.updateMinimap();
         } else if (this.dom.palletArea) {
-            this.dom.palletArea.style.transform = transform;
+            if(this.dom.palletArea) this.dom.palletArea.style.transform = transform;
         }
     },
 
@@ -1011,18 +1031,27 @@ const HmiApp = {
         const scaleX = minimapW / gridW, scaleY = minimapH / gridH;
         const indicatorW = Math.max(10, Math.min(minimapW, (viewW / this.state.zoom) * scaleX)), indicatorH = Math.max(10, Math.min(minimapH, (viewH / this.state.zoom) * scaleY));
         const indicatorX = Math.max(0, Math.min(minimapW - indicatorW, (-this.state.panX / this.state.zoom) * scaleX)), indicatorY = Math.max(0, Math.min(minimapH - indicatorH, (-this.state.panY / this.state.zoom) * scaleY));
-        this.dom.minimapView.style.width = indicatorW + 'px'; this.dom.minimapView.style.height = indicatorH + 'px'; this.dom.minimapView.style.left = indicatorX + 'px'; this.dom.minimapView.style.top = indicatorY + 'px';
+        if(this.dom.minimapView) this.dom.minimapView.style.width = indicatorW + 'px'; if(this.dom.minimapView) this.dom.minimapView.style.height = indicatorH + 'px'; if(this.dom.minimapView) this.dom.minimapView.style.left = indicatorX + 'px'; if(this.dom.minimapView) this.dom.minimapView.style.top = indicatorY + 'px';
     },
 
     exportToImage() {
         const area = document.getElementById('singleViewArea'); if (!area) return;
+        const targetElement = this.state.showAll ? this.dom.allLayoutsGrid : area;
+
         const oldPanX = this.state.panX, oldPanY = this.state.panY, oldZoom = this.state.zoom, oldOverflow = area.style.overflow, oldBg = area.style.backgroundColor;
         this.state.panX = 0; this.state.panY = 0; this.state.zoom = 1; this.applyTransform();
+
         area.style.overflow = 'visible'; area.style.backgroundColor = '#16161a';
         area.classList.add('export-active'); this.render();
+
         setTimeout(() => {
-            html2canvas(area, { backgroundColor: '#16161a', scale: 2, useCORS: true, scrollX: 0, scrollY: 0 }).then(canvas => {
-                const link = document.createElement('a'); link.download = `KUKA_Scheme_${this.state.currentProject}_D${this.state.dizilimId}_${this.state.width}x${this.state.length}.png`; link.href = canvas.toDataURL('image/png'); link.click();
+            html2canvas(targetElement, { backgroundColor: '#16161a', scale: 2, useCORS: true, scrollX: 0, scrollY: 0 }).then(canvas => {
+                const link = document.createElement('a');
+                let filename = this.state.showAll ? `KUKA_All_Schemes_${this.state.width}x${this.state.length}.png` : `KUKA_Scheme_${this.state.currentProject}_D${this.state.dizilimId}_${this.state.width}x${this.state.length}.png`;
+                link.download = filename;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+
                 this.state.panX = oldPanX; this.state.panY = oldPanY; this.state.zoom = oldZoom; this.applyTransform();
                 area.style.overflow = oldOverflow; area.style.backgroundColor = oldBg; area.classList.remove('export-active');
             });
