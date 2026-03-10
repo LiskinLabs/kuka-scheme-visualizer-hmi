@@ -672,24 +672,6 @@
                      });
                      inW.value = 200;
                  }
-
-                 // Initial sync of tabs active state
-                 HmiApp.updateDizilimActiveState = function() {
-                    for (let i = 1; i <= 12; i++) {
-                        const btn = this.dom.dizilimButtons[i];
-                        if (btn) {
-                            if (i === 1 || i === 5) { btn.style.display = 'none'; continue; }
-                            if (i === this.state.dizilimId) {
-                                btn.classList.add('active');
-                            } else {
-                                btn.classList.remove('active');
-                            }
-                            btn.textContent = `D${i}`; // Tabs only show D name for cleaner look
-                        }
-                    }
-                    if (this.dom.modeButtons[0]) this.dom.modeButtons[0].classList.toggle('active', !this.state.isDualPallet);
-                    if (this.dom.modeButtons[1]) this.dom.modeButtons[1].classList.toggle('active', this.state.isDualPallet);
-                };
              };
 
              // Initial width population hack since it was hardcoded in old HTML

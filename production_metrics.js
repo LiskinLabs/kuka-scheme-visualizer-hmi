@@ -525,16 +525,18 @@ const HmiApp = {
     },
 
     updateDizilimActiveState() {
-        const counts = [0, 0, 6, 5, 3, 0, 4, 3, 2, 2, 1, 1, 2];
-        const angles = [0, 0, 90, 0, 90, 0, 90, 0, 90, 0, 90, 0, 90];
+        const is50 = this.state.currentProject === '24050';
         for (let i = 1; i <= 12; i++) {
             const btn = this.dom.dizilimButtons[i];
             if (btn) {
-                if (i === 1 || i === 5) { if(btn) btn.style.display = 'none'; continue; }
-                btn.classList.toggle('active', i === this.state.dizilimId);
-                if (this.state.currentProject !== '24050') {
-                    btn.innerHTML = `D${i}<span style="font-size:11px; opacity:0.8; display:block; line-height:1.2; font-weight:normal; margin-top:2px;">${counts[i]} adet / ${angles[i]}°</span>`;
-                } else { btn.innerHTML = `D${i}`; }
+                const shouldHide = is50 ? (i > 7) : (i === 1 || i === 5);
+                if (shouldHide) {
+                    btn.style.setProperty('display', 'none', 'important');
+                } else {
+                    btn.style.setProperty('display', 'flex', 'important');
+                    btn.classList.toggle('active', i === this.state.dizilimId);
+                    btn.textContent = `D${i}`;
+                }
             }
         }
         if (this.dom.modeButtons[0]) this.dom.modeButtons[0].classList.toggle('active', !this.state.isDualPallet);
@@ -610,23 +612,28 @@ const HmiApp = {
     getDefaultPositions24050(d, w, l) {
         const p = [];
         const m = Math.round;
-        if (d == 1) { p.push({ n: 1, x: 0, y: m(w / 2 + 14.5), angle: 0 }, { n: 2, x: 0, y: m(-w / 2 - 14.5), angle: 180 }); }
+        const xOff = 0;
+        if (d == 1) { p.push({ n: 1, x: xOff, y: m(w / 2 + 15), angle: 0 }, { n: 2, x: -xOff, y: m(-w / 2 - 15), angle: 180 }); }
         else if (d == 2) {
-            p.push({ n: 1, x: m(-l / 2 - 10), y: w + 90, angle: 0 }, { n: 2, x: m(l / 2 + 12), y: w + 90, angle: 0 },
-                { n: 3, x: m(-l / 2 - 10), y: 50, angle: 0 }, { n: 4, x: m(l / 2 + 12), y: 50, angle: 0 },
-                { n: 5, x: m(l / 2 + 12), y: -w, angle: 180 }, { n: 6, x: m(-l / 2 - 10), y: -w, angle: 180 });
+            p.push({ n: 1, x: m(-l / 2 + xOff - 10), y: w + 100, angle: 0 }, { n: 2, x: m(l / 2 + xOff + 12), y: w + 100, angle: 0 },
+                { n: 3, x: m(-l / 2 + xOff - 10), y: 50, angle: 0 }, { n: 4, x: m(l / 2 + xOff + 12), y: 50, angle: 0 },
+                { n: 5, x: m(l / 2 - xOff + 12), y: -w, angle: 180 }, { n: 6, x: m(-l / 2 - xOff - 10), y: -w, angle: 180 });
         }
         else if (d == 3) {
-            p.push({ n: 1, x: m(-l / 2 - 10), y: m(w / 2 + 16), angle: 0 }, { n: 2, x: m(l / 2 + 12), y: m(w / 2 + 16), angle: 0 },
-                { n: 3, x: m(l / 2 + 12), y: m(-w / 2 - 16), angle: 180 }, { n: 4, x: m(-l / 2 - 10), y: m(-w / 2 - 16), angle: 180 });
+            p.push({ n: 1, x: m(-l / 2 + xOff - 12), y: m(w / 2 + 16), angle: 0 }, { n: 2, x: m(l / 2 + xOff + 12), y: m(w / 2 + 16), angle: 0 },
+                { n: 3, x: m(l / 2 - xOff + 12), y: m(-w / 2 - 16), angle: 180 }, { n: 4, x: m(-l / 2 - xOff - 12), y: m(-w / 2 - 16), angle: 180 });
         }
         else if (d == 4) {
-            p.push({ n: 1, x: 0, y: m(w * 1.5 + 39), angle: 0 }, { n: 2, x: 0, y: m(w / 2 + 13), angle: 180 },
-                { n: 3, x: 0, y: m(-w / 2 - 13), angle: 0 }, { n: 4, x: 0, y: m(-w * 1.5 - 39), angle: 180 });
+            p.push({ n: 1, x: xOff, y: m(w * 1.5 + 45), angle: 0 }, { n: 2, x: -xOff, y: m(w / 2 + 15), angle: 180 },
+                { n: 3, x: xOff, y: m(-w / 2 - 15), angle: 0 }, { n: 4, x: -xOff, y: m(-w * 1.5 - 45), angle: 180 });
         }
-        else if (d == 5) p.push({ n: 1, x: 0, y: 0, angle: 0 });
-        else if (d == 6) p.push({ n: 1, x: m(l / 2 + 13), y: 0, angle: 0 }, { n: 2, x: m(-l / 2 - 13), y: 0, angle: 180 });
-        else if (d == 7) p.push({ n: 1, x: 0, y: w + 26, angle: 0 }, { n: 2, x: 0, y: 0, angle: 180 }, { n: 3, x: 0, y: -w - 26, angle: 180 });
+        else if (d == 5) p.push({ n: 1, x: xOff, y: 0, angle: 0 });
+        else if (d == 6) {
+            p.push({ n: 1, x: m(l / 2 + xOff + 15), y: 0, angle: 0 }, { n: 2, x: m(-l / 2 - xOff - 15), y: 0, angle: 180 });
+        }
+        else if (d == 7) {
+            p.push({ n: 1, x: xOff, y: w + 29, angle: 0 }, { n: 2, x: -xOff, y: 0, angle: 180 }, { n: 3, x: -xOff, y: -w - 29, angle: 180 });
+        }
         return p;
     },
 
@@ -1075,7 +1082,7 @@ const HmiApp = {
                 this.state.panX = oldPanX; this.state.panY = oldPanY; this.state.zoom = oldZoom; this.applyTransform();
                 area.style.overflow = oldOverflow; area.style.backgroundColor = oldBg; area.classList.remove('export-active');
             });
-        }, 1500);
+        }, 1000);
     },
 
     renderRadTable(positions) {
