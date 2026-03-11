@@ -397,9 +397,9 @@ const HmiApp = {
         if (this.dom.btnManualMode) this.dom.btnManualMode.classList.toggle('active', this.state.isManualMode);
         if (this.dom.manualAddPanel) this.dom.manualAddPanel.style.display = this.state.isManualMode ? 'block' : 'none';
         if (this.dom.dizilimGridContainer) this.dom.dizilimGridContainer.style.display = this.state.isManualMode ? 'none' : 'grid';
-        if(this.dom.radPositionsPanel) this.dom.radPositionsPanel.style.display = this.state.isManualMode || is50 ? '' : 'none';
-        if(this.dom.radPosResetBtn) this.dom.radPosResetBtn.style.display = this.state.isManualMode || is50 ? '' : 'none';
-        if(this.dom.palletSizeControls) this.dom.palletSizeControls.style.display = this.state.isManualMode || is50 ? 'flex' : 'none';
+        if(this.dom.radPositionsPanel) this.dom.radPositionsPanel.style.display = this.state.isManualMode ? '' : 'none';
+        if(this.dom.radPosResetBtn) this.dom.radPosResetBtn.style.display = this.state.isManualMode ? '' : 'none';
+        if(this.dom.palletSizeControls) this.dom.palletSizeControls.style.display = this.state.isManualMode ? 'flex' : 'none';
         if (this.dom.gapW) this.dom.gapW.disabled = !this.state.isManualMode;
         if (this.dom.gapH) this.dom.gapH.disabled = !this.state.isManualMode;
         if (this.dom.manualControlsGroup) {
