@@ -766,12 +766,51 @@ const HmiApp = {
             maxExtentX = Math.max(maxExtentX, Math.abs(p.x) + rw / 2);
             maxExtentY = Math.max(maxExtentY, Math.abs(p.y) + rh / 2);
         });
+                // Move maxOv calculation up
+        let maxOv = 0;
+        positions.forEach(p => {
+            let currentW = p.w !== undefined ? p.w : this.state.width;
+            let currentL = p.l !== undefined ? p.l : this.state.length;
+            let pAngle = isPerPieceAngle ? p.angle : angle;
+            let realW = is50 ? (pAngle % 180 === 0 ? currentL : currentW) : (pAngle % 180 === 0 ? currentW : currentL);
+            let realH = is50 ? (pAngle % 180 === 0 ? currentW : currentL) : (pAngle % 180 === 0 ? currentL : currentW);
+            const ovX = Math.max(0, Math.abs(p.x) + realW / 2 - palSize.x / 2);
+            const ovY = Math.max(0, Math.abs(p.y) + realH / 2 - palSize.y / 2);
+            maxOv = Math.max(maxOv, Math.max(ovX, ovY));
+        });
+
         let s;
-        if (isMiniature) { s = 0.12; } else {
+        let padTop = 20, padBottom = 20, padLeft = 20, padRight = 20;
+
+        if (isMiniature) {
+            s = 0.12;
+        } else {
             const areaW = area.clientWidth, areaH = area.clientHeight;
-            const isMobile = window.innerWidth <= 768;
-            const paddingScale = isMobile ? 0.90 : 0.85; // Give more padding on mobile for dimensions
-            const sX = (areaW * paddingScale) / (maxExtentX * 2), sY = (areaH * paddingScale) / (maxExtentY * 2);
+
+            // Dynamic padding based on visible UI elements (Option 3)
+            padTop = 50;   // Top pallet dimension line
+            padRight = 90; // Right pallet dimension line + text
+
+            if (this.state.showDimCenter) {
+                padLeft = Math.max(padLeft, 60);
+                padBottom = Math.max(padBottom, 50);
+            }
+            if (this.state.showDimEdges) {
+                padTop = Math.max(padTop, 60);
+                padBottom = Math.max(padBottom, 50);
+            }
+            if (maxOv > 0) {
+                padLeft = Math.max(padLeft, 50);
+                padRight = Math.max(padRight, 100);
+                padTop = Math.max(padTop, 50);
+                padBottom = Math.max(padBottom, 50);
+            }
+
+            const extraPxX = padLeft + padRight;
+            const extraPxY = padTop + padBottom;
+
+            const sX = Math.max(0.05, (areaW - extraPxX) / (maxExtentX * 2));
+            const sY = Math.max(0.05, (areaH - extraPxY) / (maxExtentY * 2));
             s = Math.min(sX, sY);
         }
         this.state.scale = s;
@@ -779,8 +818,31 @@ const HmiApp = {
         if(pal) pal.style.setProperty('--rad-scale', s);
         const palW = Math.round(palSize.x * s), palH = Math.round(palSize.y * s);
         const totalW = (this.state.isDualPallet && !is50) ? Math.round(2400 * s) : palW;
-        const palLeft = Math.round((area.clientWidth - totalW) / 2);
-        const palTop = Math.round((area.clientHeight - palH) / 2);
+
+        let palLeft = 0, palTop = 0;
+        if (isMiniature) {
+            palLeft = Math.round((area.clientWidth - totalW) / 2);
+            palTop = Math.round((area.clientHeight - palH) / 2);
+        } else {
+            const areaW = area.clientWidth, areaH = area.clientHeight;
+            const extraPxX = padLeft + padRight;
+            const extraPxY = padTop + padBottom;
+
+            // Calculate remaining space after applying required padding
+            const leftoverX = areaW - (maxExtentX * 2 * s);
+            const leftoverY = areaH - (maxExtentY * 2 * s);
+
+            // Distribute leftover space evenly
+            const leftEdge = padLeft + (leftoverX - extraPxX) / 2;
+            const topEdge = padTop + (leftoverY - extraPxY) / 2;
+
+            const palCenterX = leftEdge + (maxExtentX * s);
+            const palCenterY = topEdge + (maxExtentY * s);
+
+            // Position relative to pallet center
+            palLeft = Math.round(palCenterX - (totalW / 2));
+            palTop = Math.round(palCenterY - (palH / 2));
+        }
         if(pal) pal.style.width = palW + 'px'; if(pal) pal.style.height = palH + 'px'; if(pal) pal.style.left = palLeft + 'px'; if(pal) pal.style.top = palTop + 'px';
         if (!is50 && this.state.isDualPallet) {
             if(pal2) pal2.style.display = 'block'; if(pal2) pal2.style.setProperty('--rad-scale', s);
@@ -793,7 +855,7 @@ const HmiApp = {
             if (this.dom.axisX) this.dom.axisX.textContent = palSize.x + ' mm';
             if (this.dom.axisY) this.dom.axisY.textContent = palSize.y + ' mm';
         }
-        let radiatorsHTML = ''; let maxOv = 0;
+        let radiatorsHTML = '';
         positions.forEach((p, i) => {
             const thisAngle = isPerPieceAngle ? p.angle : angle;
             const isFlipped = is50 && thisAngle === 180;
