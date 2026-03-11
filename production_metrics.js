@@ -149,7 +149,7 @@ const HmiApp = {
     },
 
     cacheDom() {
-        const ids = ['projectSelect', 'inW', 'inL', 'gapW', 'gapH', 'palletArea', 'pallet', 'pallet2', 'centerMark', 'axisX', 'axisY', 'vizTitle', 'statCount', 'statAngle', 'exportToggle', 'radPositionsPanel', 'radPosResetBtn', 'palletSizeControls', 'palW50', 'palH50', 'iW', 'iL', 'iA', 'iC', 'iP', 'iLyr', 'iTot', 'btnRU', 'btnTR', 'btnUZ', 'btnToggleAll', 'lblToggleAll', 'singleViewArea', 'allLayoutsGrid', 'btnMatrix', 'lblMatrix', 'manualModeToggle', 'btnAutoMode', 'btnManualMode', 'manualAddPanel', 'manW', 'manL', 'dizilimGridContainer', 'leftPanel', 'rightPanel', 'leftPanelIcon', 'rightPanelIcon', 'btnOpenLeft', 'btnOpenRight', 'contextMenu', 'ctxRotate', 'ctxDelete', 'minimapContainer', 'minimapView', 'btnDomestic', 'btnExport'];
+        const ids = ['projectSelect', 'inW', 'inL', 'gapW', 'gapH', 'palletArea', 'pallet', 'pallet2', 'centerMark', 'axisX', 'axisY', 'vizTitle', 'statCount', 'statAngle', 'exportToggle', 'radPositionsPanel', 'radPosResetBtn', 'palletSizeControls', 'palW50', 'palH50', 'iW', 'iL', 'iA', 'iC', 'iP', 'iLyr', 'iTot', 'btnRU', 'btnTR', 'btnUZ', 'btnToggleAll', 'lblToggleAll', 'singleViewArea', 'allLayoutsGrid', 'btnMatrix', 'lblMatrix', 'manualModeToggle', 'btnAutoMode', 'btnManualMode', 'manualAddPanel', 'manW', 'manL', 'dizilimGridContainer', 'leftPanel', 'rightPanel', 'leftPanelIcon', 'rightPanelIcon', 'btnOpenLeft', 'btnOpenRight', 'contextMenu', 'ctxRotate', 'ctxDelete', 'btnDomestic', 'btnExport'];
         ids.forEach(id => this.dom[id] = document.getElementById(id));
         this.dom.dizilimGrid = document.querySelector('.dizilim-grid');
         this.dom.palletModeSelector = document.getElementById('palletModeSelector');
@@ -269,6 +269,8 @@ const HmiApp = {
     syncPanelsUI() {
         const isMobile = window.innerWidth <= 640;
         if (isMobile) {
+            this.toggleManualMode(false);
+
             this.closeAllPanels();
         } else {
             this.state.isLeftPanelOpen = true;
@@ -646,7 +648,7 @@ const HmiApp = {
             if(this.dom.allLayoutsGrid) this.dom.allLayoutsGrid.style.padding = '40px';
             if(this.dom.allLayoutsGrid) this.dom.allLayoutsGrid.style.transformOrigin = '0 0';
             if(this.dom.allLayoutsGrid) this.dom.allLayoutsGrid.style.position = 'absolute';
-            if (this.dom.minimapContainer) this.dom.minimapContainer.classList.remove('hidden');
+
             document.querySelectorAll('.info-card').forEach(el => el.style.display = 'none');
             this.renderAllLayouts();
         } else {
@@ -656,7 +658,7 @@ const HmiApp = {
             this.dom.btnToggleAll.classList.remove('active');
             if (this.dom.palletArea) if(this.dom.palletArea) this.dom.palletArea.style.display = 'flex';
             if(this.dom.allLayoutsGrid) this.dom.allLayoutsGrid.style.display = 'none';
-            if (this.dom.minimapContainer) this.dom.minimapContainer.classList.add('hidden');
+
             document.querySelectorAll('.info-card').forEach(el => el.style.display = '');
             this.render();
         }
@@ -1051,21 +1053,10 @@ const HmiApp = {
         const transform = `translate3d(${this.state.panX}px, ${this.state.panY}px, 0) scale(${this.state.zoom})`;
         if (this.state.showAll && this.dom.allLayoutsGrid) {
             if(this.dom.allLayoutsGrid) this.dom.allLayoutsGrid.style.transform = transform;
-            this.updateMinimap();
+
         } else if (this.dom.palletArea) {
             if(this.dom.palletArea) this.dom.palletArea.style.transform = transform;
         }
-    },
-
-    updateMinimap() {
-        if (!this.state.showAll || !this.dom.minimapContainer || !this.dom.minimapView || !this.dom.allLayoutsGrid || !this.dom.singleViewArea) return;
-        const gridW = this.dom.allLayoutsGrid.scrollWidth || 2000, gridH = this.dom.allLayoutsGrid.scrollHeight || 2000;
-        const viewW = this.dom.singleViewArea.clientWidth, viewH = this.dom.singleViewArea.clientHeight;
-        const minimapW = this.dom.minimapContainer.clientWidth, minimapH = this.dom.minimapContainer.clientHeight;
-        const scaleX = minimapW / gridW, scaleY = minimapH / gridH;
-        const indicatorW = Math.max(10, Math.min(minimapW, (viewW / this.state.zoom) * scaleX)), indicatorH = Math.max(10, Math.min(minimapH, (viewH / this.state.zoom) * scaleY));
-        const indicatorX = Math.max(0, Math.min(minimapW - indicatorW, (-this.state.panX / this.state.zoom) * scaleX)), indicatorY = Math.max(0, Math.min(minimapH - indicatorH, (-this.state.panY / this.state.zoom) * scaleY));
-        if(this.dom.minimapView) this.dom.minimapView.style.width = indicatorW + 'px'; if(this.dom.minimapView) this.dom.minimapView.style.height = indicatorH + 'px'; if(this.dom.minimapView) this.dom.minimapView.style.left = indicatorX + 'px'; if(this.dom.minimapView) this.dom.minimapView.style.top = indicatorY + 'px';
     },
 
     exportToImage() {
@@ -1186,11 +1177,18 @@ const HmiApp = {
 
     setLang(lang) {
         this.state.lang = lang;
-        ['RU', 'TR', 'UZ'].forEach(l => {
-            const btn = document.getElementById('btn' + l); if (!btn) return;
-            const isActive = l.toLowerCase() === lang; btn.classList.toggle('active', isActive);
-            if (isActive) { btn.classList.remove('bg-slate-900/50', 'border-slate-700', 'text-slate-400', 'hover:bg-slate-700'); btn.classList.add('bg-orange-500', 'border-orange-500', 'text-slate-900', 'hover:bg-orange-600'); }
-            else { btn.classList.remove('bg-orange-500', 'border-orange-500', 'text-slate-900', 'hover:bg-orange-600'); btn.classList.add('bg-slate-900/50', 'border-slate-700', 'text-slate-400', 'hover:bg-slate-700'); }
+        ['ru', 'tr', 'uz'].forEach(l => {
+            const btns = document.querySelectorAll('.lang-btn-' + l);
+            const isActive = l === lang;
+            btns.forEach(btn => {
+                if (isActive) {
+                    btn.classList.add('bg-[#FF6B2C]', 'text-[#121212]');
+                    btn.classList.remove('text-cad-muted', 'hover:text-white');
+                } else {
+                    btn.classList.remove('bg-[#FF6B2C]', 'text-[#121212]');
+                    btn.classList.add('text-cad-muted', 'hover:text-white');
+                }
+            });
         });
         const t = this.config.translations[lang];
         const map = { lblControls: 'controls', lblProject: 'project', lblWidth: 'width', lblLength: 'length', lblCalc: 'calc', lblLayout: 'layout', lblInfo: 'info', lblRadiator: 'radiator', lblW2: 'widthL', lblL2: 'lengthL', lblPlacement: 'placement', lblAngle: 'angle', lblPcs: 'pcs', lblLayers: 'layers', lblTotal: 'total', lblPallet: 'pallet', lblPalSize: 'palSize', lblLegend: 'legend', lblLegRad: 'legRad', lblLegPal: 'legPal', lbl1Pal: 'p1', lbl2Pal: 'p2', lblDom: 'dom', lblExp: 'exp', lblReset: 'reset', lblToggleAll: this.state.showAll ? 'toggleAllHide' : 'toggleAllShow', lblPrint: 'print', lblMatrix: 'matrix' };
