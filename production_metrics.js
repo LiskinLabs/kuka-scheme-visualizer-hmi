@@ -802,7 +802,7 @@ const HmiApp = {
             const ov = Math.max(ovX, ovY); let extraClass = '';
             if (ov > 1) {
                 extraClass = ' rad-overflow'; maxOv = Math.max(maxOv, ov);
-                if (!isMiniature) {
+                if (!isMiniature && this.state.showDimEdges) {
                     if (ovX > 0) radiatorsHTML += this.getDimLineHTML(radLeft + (p.x > 0 ? rw : -20), radTop + rh / 2, 20, 0, Math.round(ovX), 'overhang');
                     if (ovY > 0) radiatorsHTML += this.getDimLineHTML(radLeft + rw / 2, radTop + (p.y > 0 ? -20 : rh), 0, 20, Math.round(ovY), 'overhang');
                 }
