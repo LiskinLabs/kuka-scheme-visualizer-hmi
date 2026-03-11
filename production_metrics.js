@@ -808,8 +808,8 @@ const HmiApp = {
                 }
             }
             if (!isMiniature && this.state.showDimCenter) {
-                radiatorsHTML += this.getDimLineHTML(radLeft + rw / 2, radTop + rh + 10, -p.x * s, 0, Math.round(p.x), 'manual-dim');
-                radiatorsHTML += this.getDimLineHTML(radLeft - 10, radTop + rh / 2, 0, p.y * s, Math.round(p.y), 'manual-dim');
+                radiatorsHTML += this.getDimLineHTML(radLeft + rw / 2, radTop + rh + 10, -p.x * s, 0, Math.round(p.x), 'manual-dim-x');
+                radiatorsHTML += this.getDimLineHTML(radLeft - 10, radTop + rh / 2, 0, p.y * s, Math.round(p.y), 'manual-dim-y');
             }
             radiatorsHTML += `<div class="${className}${extraClass}" style="--rad-scale:${s}; width:${wPx}px; height:${hPx}px; left:${radLeft}px; top:${radTop}px; pointer-events:auto;" onmousedown="HmiApp.startDrag(event, ${i})" oncontextmenu="HmiApp.showContextMenu(event, ${i})">${innerHTML}</div>`;
         });
@@ -864,10 +864,10 @@ const HmiApp = {
                     minX = Math.min(minX, p.x - realW / 2); maxX = Math.max(maxX, p.x + realW / 2); minY = Math.min(minY, p.y - realH / 2); maxY = Math.max(maxY, p.y + realH / 2);
                 });
                 let spaceRight = (palSize.x / 2) - maxX, spaceLeft = minX - (-palSize.x / 2), spaceTop = (palSize.y / 2) - maxY, spaceBottom = minY - (-palSize.y / 2);
-                if (Math.abs(Math.round(spaceRight)) > 0) blueprintHTML += this.getDimLineHTML(Math.round(palLeft + (palSize.x * s / 2) + maxX * s), palTop + palH / 2, spaceRight * s, 0, `${Math.round(spaceRight)} mm`, 'manual-dim');
-                if (Math.abs(Math.round(spaceLeft)) > 0) blueprintHTML += this.getDimLineHTML(palLeft, palTop + palH / 2, spaceLeft * s, 0, `${Math.round(spaceLeft)} mm`, 'manual-dim');
-                if (Math.abs(Math.round(spaceTop)) > 0) blueprintHTML += this.getDimLineHTML(palLeft + palW / 2, Math.round(palTop + (palSize.y * s / 2) - maxY * s) - spaceTop * s, 0, spaceTop * s, `${Math.round(spaceTop)} mm`, 'manual-dim');
-                if (Math.abs(Math.round(spaceBottom)) > 0) blueprintHTML += this.getDimLineHTML(palLeft + palW / 2, palTop + palH - spaceBottom * s, 0, spaceBottom * s, `${Math.round(spaceBottom)} mm`, 'manual-dim');
+                if (Math.round(spaceRight) > 0) blueprintHTML += this.getDimLineHTML(Math.round(palLeft + (palSize.x * s / 2) + maxX * s), palTop + palH / 2, spaceRight * s, 0, `${Math.round(spaceRight)} mm`, 'edge-dim-x');
+                if (Math.round(spaceLeft) > 0) blueprintHTML += this.getDimLineHTML(palLeft, palTop + palH / 2, spaceLeft * s, 0, `${Math.round(spaceLeft)} mm`, 'edge-dim-x');
+                if (Math.round(spaceTop) > 0) blueprintHTML += this.getDimLineHTML(palLeft + palW / 2, Math.round(palTop + (palSize.y * s / 2) - maxY * s) - spaceTop * s, 0, spaceTop * s, `${Math.round(spaceTop)} mm`, 'edge-dim-y');
+                if (Math.round(spaceBottom) > 0) blueprintHTML += this.getDimLineHTML(palLeft + palW / 2, palTop + palH - spaceBottom * s, 0, spaceBottom * s, `${Math.round(spaceBottom)} mm`, 'edge-dim-y');
             }
             const dStr = new Date().toLocaleString(this.state.lang);
             const prjStr = `Proj ${this.state.currentProject}`, schStr = `Scheme D${this.state.dizilimId}`, radStr = `${this.state.width}x${this.state.length}mm`, cntStr = `${positions.length} pcs`, palStr = `${palSize.x}x${palSize.y}mm`;
@@ -1095,19 +1095,28 @@ const HmiApp = {
 
     getDimLineHTML(x, y, dx, dy, text, type) {
         let styleLine, finalX = x, finalY = y, absDx = Math.abs(dx), absDy = Math.abs(dy);
-        let color = type === 'gap-dim' ? '#4CAF50' : (type === 'manual-dim' ? '#03A9F4' : '#FF3D00');
+
+        // Define varied colors based on the dimension type
+        let color = '#FF3D00'; // Default orange-red
+        if (type.startsWith('gap-dim')) color = '#4CAF50'; // Green
+        else if (type === 'manual-dim-x') color = '#03A9F4'; // Light Blue
+        else if (type === 'manual-dim-y') color = '#9C27B0'; // Purple
+        else if (type === 'edge-dim-x') color = '#FFC107'; // Amber
+        else if (type === 'edge-dim-y') color = '#E91E63'; // Pink
+        else if (type === 'overhang') color = '#FF3D00'; // Red
+
         let extraTransform = '';
         if (dx !== 0) {
             if (dx < 0) finalX = x + dx;
             styleLine = `width:${absDx}px; height:1px; border-top:1px dashed ${color};`;
-            if (type === 'gap-dim') extraTransform = 'translateY(15px)'; // Shift gap label down
-            if (type === 'manual-dim') extraTransform = 'translateY(-15px)'; // Shift manual label up
+            if (type.startsWith('gap-dim')) extraTransform = 'translateY(15px)'; // Shift gap label down
+            if (type.startsWith('manual-dim') || type.startsWith('edge-dim')) extraTransform = 'translateY(-15px)'; // Shift manual/edge label up
         }
         else {
             if (dy < 0) finalY = y + dy;
             styleLine = `width:1px; height:${absDy}px; border-left:1px dashed ${color};`;
-            if (type === 'gap-dim') extraTransform = 'translateX(15px)'; // Shift gap label right
-            if (type === 'manual-dim') extraTransform = 'translateX(-15px)'; // Shift manual label left
+            if (type.startsWith('gap-dim')) extraTransform = 'translateX(15px)'; // Shift gap label right
+            if (type.startsWith('manual-dim') || type.startsWith('edge-dim')) extraTransform = 'translateX(-15px)'; // Shift manual/edge label left
         }
         return `<div class="dim-line ${type}" style="left:${finalX}px; top:${finalY}px; ${styleLine}"></div><div class="dim-label" style="left:${finalX + absDx / 2}px; top:${finalY + absDy / 2}px; transform: translate(-50%, -50%) ${extraTransform}; background:#111; color:${color}; border:1px solid ${color}; border-radius:2px; z-index: 50; padding: 2px 4px; font-size: 10px;">${text}</div>`;
     },
