@@ -149,7 +149,7 @@ const HmiApp = {
     },
 
     cacheDom() {
-        const ids = ['projectSelect', 'inW', 'inL', 'gapW', 'gapH', 'palletArea', 'pallet', 'pallet2', 'centerMark', 'axisX', 'axisY', 'vizTitle', 'statCount', 'statAngle', 'exportToggle', 'radPositionsPanel', 'radPosResetBtn', 'palletSizeControls', 'palW50', 'palH50', 'iW', 'iL', 'iA', 'iC', 'iP', 'iLyr', 'iTot', 'btnRU', 'btnTR', 'btnUZ', 'btnToggleAll', 'lblToggleAll', 'singleViewArea', 'allLayoutsGrid', 'btnMatrix', 'lblMatrix', 'manualModeToggle', 'btnAutoMode', 'btnManualMode', 'manualAddPanel', 'manW', 'manL', 'dizilimGridContainer', 'leftPanel', 'rightPanel', 'leftPanelIcon', 'rightPanelIcon', 'btnOpenLeft', 'btnOpenRight', 'contextMenu', 'ctxRotate', 'ctxDelete', 'btnDomestic', 'btnExport'];
+        const ids = ['projectSelect', 'inW', 'inL', 'gapW', 'gapH', 'palletArea', 'pallet', 'pallet2', 'centerMark', 'axisX', 'axisY', 'vizTitle', 'statCount', 'statAngle', 'exportToggle', 'radPositionsPanel', 'radPosResetBtn', 'palletSizeControls', 'palW50', 'palH50', 'iW', 'iL', 'iA', 'iC', 'iP', 'iLyr', 'iTot', 'btnRU', 'btnTR', 'btnUZ', 'btnToggleAll', 'lblToggleAll', 'singleViewArea', 'allLayoutsGrid', 'btnMatrix', 'lblMatrix', 'manualModeToggle', 'btnAutoMode', 'btnManualMode', 'manualAddPanel', 'manW', 'manL', 'dizilimGridContainer', 'leftPanel', 'rightPanel', 'leftPanelIcon', 'rightPanelIcon', 'btnOpenLeft', 'btnOpenRight', 'contextMenu', 'ctxRotate', 'ctxDelete', 'btnDomestic', 'btnExport', 'mTopRadSize', 'mTopPalSize'];
         ids.forEach(id => this.dom[id] = document.getElementById(id));
         this.dom.dizilimGrid = document.querySelector('.dizilim-grid');
         this.dom.palletModeSelector = document.getElementById('palletModeSelector');
@@ -758,7 +758,9 @@ const HmiApp = {
         let s;
         if (isMiniature) { s = 0.12; } else {
             const areaW = area.clientWidth, areaH = area.clientHeight;
-            const sX = (areaW * 0.85) / (maxExtentX * 2), sY = (areaH * 0.85) / (maxExtentY * 2);
+            const isMobile = window.innerWidth <= 768;
+            const paddingScale = isMobile ? 0.65 : 0.85; // Give more padding on mobile for dimensions
+            const sX = (areaW * paddingScale) / (maxExtentX * 2), sY = (areaH * paddingScale) / (maxExtentY * 2);
             s = Math.min(sX, sY);
         }
         this.state.scale = s;
@@ -901,6 +903,8 @@ const HmiApp = {
             this.dom.iP.textContent = `${palSize.x} × ${palSize.y} (Taшma: ${Math.round(maxOv)}mm)`;
             if (is50 || this.state.isManualMode) this.renderRadTable(positions);
             this.updateVizHeader(positions.length, angle, is50);
+            if (this.dom.mTopRadSize) this.dom.mTopRadSize.textContent = `${this.state.width}x${this.state.length} mm (${positions.length} pcs)`;
+            if (this.dom.mTopPalSize) this.dom.mTopPalSize.textContent = `${palSize.x}x${palSize.y} mm`;
             document.querySelectorAll('.ext-info-row').forEach(el => el.style.display = is50 ? 'none' : 'flex');
             if (!is50) { if (this.dom.iLyr) this.dom.iLyr.textContent = '10'; if (this.dom.iTot) this.dom.iTot.textContent = (positions.length * 10).toString(); }
         }
