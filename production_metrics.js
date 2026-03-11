@@ -270,7 +270,10 @@ const HmiApp = {
         const isMobile = window.innerWidth <= 640;
         if (isMobile) {
             this.toggleManualMode(false);
-
+            this.state.showDimCenter = false;
+            this.state.showDimGap = false;
+            if (document.getElementById('chkDimCenter')) document.getElementById('chkDimCenter').checked = false;
+            if (document.getElementById('chkDimGap')) document.getElementById('chkDimGap').checked = false;
             this.closeAllPanels();
         } else {
             this.state.isLeftPanelOpen = true;
@@ -759,7 +762,7 @@ const HmiApp = {
         if (isMiniature) { s = 0.12; } else {
             const areaW = area.clientWidth, areaH = area.clientHeight;
             const isMobile = window.innerWidth <= 768;
-            const paddingScale = isMobile ? 0.65 : 0.85; // Give more padding on mobile for dimensions
+            const paddingScale = isMobile ? 0.90 : 0.85; // Give more padding on mobile for dimensions
             const sX = (areaW * paddingScale) / (maxExtentX * 2), sY = (areaH * paddingScale) / (maxExtentY * 2);
             s = Math.min(sX, sY);
         }
@@ -866,8 +869,10 @@ const HmiApp = {
                     minX = Math.min(minX, p.x - realW / 2); maxX = Math.max(maxX, p.x + realW / 2); minY = Math.min(minY, p.y - realH / 2); maxY = Math.max(maxY, p.y + realH / 2);
                 });
                 let spaceRight = (palSize.x / 2) - maxX, spaceLeft = minX - (-palSize.x / 2), spaceTop = (palSize.y / 2) - maxY, spaceBottom = minY - (-palSize.y / 2);
-                if (Math.round(spaceRight) > 0) blueprintHTML += this.getDimLineHTML(Math.round(palLeft + (palSize.x * s / 2) + maxX * s), palTop + palH / 2, spaceRight * s, 0, `${Math.round(spaceRight)} mm`, 'edge-dim-x');
-                if (Math.round(spaceLeft) > 0) blueprintHTML += this.getDimLineHTML(palLeft, palTop + palH / 2, spaceLeft * s, 0, `${Math.round(spaceLeft)} mm`, 'edge-dim-x');
+                // We shift X-axis dimensions (left/right) to display above/below the pallet so they don't clip on narrow mobile screens
+                if (Math.round(spaceLeft) > 0) blueprintHTML += this.getDimLineHTML(palLeft, palTop - 15, spaceLeft * s, 0, `${Math.round(spaceLeft)} mm`, 'edge-dim-x');
+                if (Math.round(spaceRight) > 0) blueprintHTML += this.getDimLineHTML(Math.round(palLeft + (palSize.x * s / 2) + maxX * s), palTop + palH + 15, spaceRight * s, 0, `${Math.round(spaceRight)} mm`, 'edge-dim-x');
+                // Y-axis dimensions remain vertical
                 if (Math.round(spaceTop) > 0) blueprintHTML += this.getDimLineHTML(palLeft + palW / 2, Math.round(palTop + (palSize.y * s / 2) - maxY * s) - spaceTop * s, 0, spaceTop * s, `${Math.round(spaceTop)} mm`, 'edge-dim-y');
                 if (Math.round(spaceBottom) > 0) blueprintHTML += this.getDimLineHTML(palLeft + palW / 2, palTop + palH - spaceBottom * s, 0, spaceBottom * s, `${Math.round(spaceBottom)} mm`, 'edge-dim-y');
             }
