@@ -638,6 +638,15 @@
             const sheet = document.getElementById('mobile-sheet');
             sheet.classList.toggle('open');
 
+            const fab = document.getElementById('mobile-fab');
+            if(fab) {
+                if(sheet.classList.contains('open')) {
+                    fab.style.display = 'none';
+                } else {
+                    fab.style.display = 'flex';
+                }
+            }
+
             // Sync mobile dropdowns with real ones
             if(sheet.classList.contains('open')) {
                 const mW = document.getElementById('m-inW');
