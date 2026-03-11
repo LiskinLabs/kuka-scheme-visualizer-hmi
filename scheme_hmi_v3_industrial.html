@@ -357,9 +357,9 @@
 
             <!-- Language Selectors (Moved to top right) -->
             <div class="flex gap-1 border border-[#333] rounded-sm bg-[#121212] p-0.5">
-                <button id="btnRU" onclick="HmiApp.setLang('ru')" class="px-1.5 py-0.5 text-[9px] font-bold text-cad-muted hover:text-white rounded-sm">RU</button>
-                <button id="btnTR" onclick="HmiApp.setLang('tr')" class="px-1.5 py-0.5 text-[9px] font-bold bg-[#FF6B2C] text-[#121212] rounded-sm">TR</button>
-                <button id="btnUZ" onclick="HmiApp.setLang('uz')" class="px-1.5 py-0.5 text-[9px] font-bold text-cad-muted hover:text-white rounded-sm">UZ</button>
+                <button id="btnRU" onclick="HmiApp.setLang('ru')" class="lang-btn-ru px-1.5 py-0.5 text-[9px] font-bold text-cad-muted hover:text-white rounded-sm">RU</button>
+                <button id="btnTR" onclick="HmiApp.setLang('tr')" class="lang-btn-tr px-1.5 py-0.5 text-[9px] font-bold bg-[#FF6B2C] text-[#121212] rounded-sm">TR</button>
+                <button id="btnUZ" onclick="HmiApp.setLang('uz')" class="lang-btn-uz px-1.5 py-0.5 text-[9px] font-bold text-cad-muted hover:text-white rounded-sm">UZ</button>
             </div>
 
             <!-- Sidebar toggle -->
@@ -439,10 +439,7 @@
                 <div id="b12" onclick="HmiApp.selD(12)" class="scheme-tab dizilim-btn">D12</div>
             </div>
 
-            <!-- Minimap -->
-            <div id="minimapContainer" class="hidden absolute bottom-12 right-4 z-40 w-32 h-24 bg-[#1e1e1e] border border-[#333] shadow-lg pointer-events-none overflow-hidden opacity-80">
-                <div id="minimapView" class="absolute border border-[#FF6B2C] bg-[#FF6B2C]/20"></div>
-            </div>
+
         </div>
 
         <!-- Right Sidebar (Properties & Details Accordion) -->
@@ -590,8 +587,9 @@
                      <div class="flex-1"><label class="text-xs text-cad-muted">L(mm)</label><select id="m-inL" onchange="document.getElementById('inL').value=this.value; HmiApp.calc();" class="w-full p-2"></select></div>
                  </div>
                  <div class="flex gap-2">
-                     <button onclick="HmiApp.toggleManualMode(false); toggleBottomSheet();" class="cad-btn flex-1 py-2 text-xs">Auto</button>
-                     <button onclick="HmiApp.toggleManualMode(true); toggleBottomSheet();" class="cad-btn flex-1 py-2 text-xs">Manual</button>
+                     <button onclick="HmiApp.setLang('ru'); toggleBottomSheet();" class="lang-btn-ru cad-btn flex-1 py-2 text-xs font-bold text-cad-muted hover:text-white">RU</button>
+                     <button onclick="HmiApp.setLang('tr'); toggleBottomSheet();" class="lang-btn-tr cad-btn flex-1 py-2 text-xs font-bold bg-[#FF6B2C] text-[#121212]">TR</button>
+                     <button onclick="HmiApp.setLang('uz'); toggleBottomSheet();" class="lang-btn-uz cad-btn flex-1 py-2 text-xs font-bold text-cad-muted hover:text-white">UZ</button>
                  </div>
                  <div class="flex gap-2">
                      <button onclick="HmiApp.toggleAllLayouts(); toggleBottomSheet();" class="cad-btn flex-1 py-2 text-xs">Grid View</button>
