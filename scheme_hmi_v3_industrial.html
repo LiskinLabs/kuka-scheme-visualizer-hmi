@@ -401,37 +401,37 @@
         <!-- Left Toolbar (Vertical) -->
         <div id="left-toolbar">
             <!-- Modes -->
-            <button id="btnAutoMode" onclick="HmiApp.toggleManualMode(false)" class="tool-btn active" aria-label="Auto Mode" title="Auto Mode"><i class="fas fa-magic text-xs"></i></button>
-            <button id="btnManualMode" onclick="HmiApp.toggleManualMode(true)" class="tool-btn" aria-label="Manual Mode" title="Manual Mode"><i class="fas fa-hand-paper text-xs"></i></button>
+            <button id="btnAutoMode" onclick="HmiApp.toggleManualMode(false)" class="tool-btn active" aria-label="Auto Mode" id="btnAutoModeT" title="Auto Mode"><i class="fas fa-magic text-xs"></i></button>
+            <button id="btnManualMode" onclick="HmiApp.toggleManualMode(true)" class="tool-btn" aria-label="Manual Mode" id="btnManualModeT" title="Manual Mode"><i class="fas fa-hand-paper text-xs"></i></button>
 
             <div class="tool-separator"></div>
 
             <!-- Tools (Reset view) -->
-            <button onclick="HmiApp.resetView()" class="tool-btn" aria-label="Reset View" title="Reset View / Fit"><i class="fas fa-crosshairs text-xs"></i></button>
+            <button id="btnResetView" onclick="HmiApp.resetView()" class="tool-btn" aria-label="Reset View" id="btnResetViewT" title="Reset View / Fit"><i class="fas fa-crosshairs text-xs"></i></button>
 
             <div class="tool-separator"></div>
 
             <!-- Pallet / Export Modes (Dynamically shown/hidden by JS) -->
             <div id="palletModeSelector" class="flex flex-col gap-1 w-full px-1">
-                <button id="m1" onclick="HmiApp.setMode(0)" class="cad-btn active text-[9px] py-1 text-center" title="1 Pallet">1P</button>
-                <button id="m2" onclick="HmiApp.setMode(1)" class="cad-btn text-[9px] py-1 text-center" title="2 Pallet">2P</button>
+                <button id="m1" onclick="HmiApp.setMode(0)" class="cad-btn active text-[9px] py-1 text-center" id="m1T" title="1 Pallet">1P</button>
+                <button id="m2" onclick="HmiApp.setMode(1)" class="cad-btn text-[9px] py-1 text-center" id="m2T" title="2 Pallet">2P</button>
             </div>
 
             <div id="exportToggle" class="flex flex-col gap-1 w-full px-1" style="display:none;">
-                <button id="btnDomestic" onclick="HmiApp.toggleExport(0)" class="cad-btn active text-[9px] py-1 text-center" title="Domestic">DOM</button>
-                <button id="btnExport" onclick="HmiApp.toggleExport(1)" class="cad-btn text-[9px] py-1 text-center" title="Export">EXP</button>
+                <button id="btnDomestic" onclick="HmiApp.toggleExport(0)" class="cad-btn active text-[9px] py-1 text-center" id="btnDomesticT" title="Domestic">DOM</button>
+                <button id="btnExport" onclick="HmiApp.toggleExport(1)" class="cad-btn text-[9px] py-1 text-center" id="btnExportT" title="Export">EXP</button>
             </div>
 
             <div class="tool-separator"></div>
 
             <!-- Grid/Layout tools -->
-            <button id="btnToggleAll" onclick="HmiApp.toggleAllLayouts()" class="tool-btn" aria-label="Toggle All Layouts" title="Show All Layouts Grid"><i class="fas fa-th-large text-xs"></i><span id="lblToggleAll" class="hidden">Show All</span></button>
-            <button id="btnMatrix" onclick="HmiApp.openMatrixModal()" class="tool-btn" aria-label="Layout Matrix" title="Layout Matrix"><i class="fas fa-table text-xs"></i><span id="lblMatrix" class="hidden"></span></button>
+            <button id="btnToggleAll" onclick="HmiApp.toggleAllLayouts()" class="tool-btn" aria-label="Toggle All Layouts" id="btnToggleAllT" title="Show All Layouts Grid"><i class="fas fa-th-large text-xs"></i><span id="lblToggleAll" class="hidden">Show All</span></button>
+            <button id="btnMatrix" onclick="HmiApp.openMatrixModal()" class="tool-btn" aria-label="Layout Matrix" id="btnMatrixT" title="Layout Matrix"><i class="fas fa-table text-xs"></i><span id="lblMatrix" class="hidden"></span></button>
 
             <div class="flex-grow"></div>
 
-            <button onclick="window.print()" class="tool-btn" aria-label="Print Layout" title="Print Layout"><i class="fas fa-print text-xs"></i><span id="lblPrint" class="hidden"></span></button>
-            <button id="btnExportImg" onclick="HmiApp.exportToImage()" class="tool-btn" aria-label="Download Image" title="Download Image"><i class="fas fa-download text-xs"></i><span id="lblExportImg" class="hidden"></span></button>
+            <button id="btnPrint" onclick="window.print()" class="tool-btn" aria-label="Print Layout" id="btnPrintT" title="Print Layout"><i class="fas fa-print text-xs"></i><span id="lblPrint" class="hidden"></span></button>
+            <button id="btnExportImg" onclick="HmiApp.exportToImage()" class="tool-btn" aria-label="Download Image" id="btnExportImgT" title="Download Image"><i class="fas fa-download text-xs"></i><span id="lblExportImg" class="hidden"></span></button>
 
             <!-- Hidden elements for legacy js compat -->
             <div class="hidden" id="manualModeToggle"></div>
@@ -477,7 +477,7 @@
 
             <div class="p-3 border-b border-[#333] flex items-center gap-2">
                 <i class="fas fa-sliders-h text-cad-accent"></i>
-                <span class="text-xs font-bold uppercase tracking-widest text-cad-muted">Properties</span>
+                <span id="lblProperties" class="text-xs font-bold uppercase tracking-widest text-cad-muted">Properties</span>
             </div>
 
             <!-- Parameters Accordion -->
@@ -518,7 +518,7 @@
                         <div class="kv-pair"><span class="kv-key" id="lblPalSize">Size:</span><span class="kv-val" id="iP">1200x800</span></div>
                         <!-- Pallet Overrides -->
                         <div id="palletSizeControls" style="display:none;" class="mt-3 border-t border-[#333] pt-2">
-                            <div class="text-[10px] text-cad-muted mb-1">Override Size:</div>
+                            <div class="text-[10px] text-cad-muted mb-1" id="lblOverrideSize">Override Size:</div>
                             <div class="flex gap-2">
                                 <input type="number" id="palW50" placeholder="W" class="w-full text-[10px] p-1 text-center">
                                 <input type="number" id="palH50" placeholder="L" class="w-full text-[10px] p-1 text-center">
@@ -530,19 +530,19 @@
                 <!-- Dimensions & View -->
                 <div class="accordion-item">
                     <div class="accordion-header" onclick="toggleAcc(this)" onkeydown="if(event.key==='Enter'||event.key===' ') {event.preventDefault(); toggleAcc(this);}" aria-expanded="true" role="button" tabindex="0">
-                        <span><i class="fas fa-ruler-combined w-4"></i> View / Dimensions</span>
+                        <span><i class="fas fa-ruler-combined w-4"></i> <span id="lblViewDims">View / Dimensions</span></span>
                         <i class="fas fa-chevron-down text-[10px] transition-transform"></i>
                     </div>
                     <div class="accordion-content open">
                         <div class="flex flex-col gap-2">
                             <label class="flex items-center gap-2 cursor-pointer text-xs text-cad-muted">
-                                <input type="checkbox" id="chkDimCenter" onchange="HmiApp.toggleDim('center', this.checked)" class="accent-[#FF6B2C]"> Center Dims
+                                <input type="checkbox" id="chkDimCenter" onchange="HmiApp.toggleDim('center', this.checked)" class="accent-[#FF6B2C]"> <span class="lblCenterDimsTxt">Center Dims</span>
                             </label>
                             <label class="flex items-center gap-2 cursor-pointer text-xs text-cad-muted">
-                                <input type="checkbox" id="chkDimGap" onchange="HmiApp.toggleDim('gap', this.checked)" checked class="accent-[#FF6B2C]"> Gap Dims
+                                <input type="checkbox" id="chkDimGap" onchange="HmiApp.toggleDim('gap', this.checked)" checked class="accent-[#FF6B2C]"> <span class="lblGapDimsTxt">Gap Dims</span>
                             </label>
                             <label class="flex items-center gap-2 cursor-pointer text-xs text-cad-muted">
-                                <input type="checkbox" id="chkDimEdges" onchange="HmiApp.toggleDim('edges', this.checked)" class="accent-[#FF6B2C]"> Edge Dims
+                                <input type="checkbox" id="chkDimEdges" onchange="HmiApp.toggleDim('edges', this.checked)" class="accent-[#FF6B2C]"> <span class="lblEdgeDimsTxt">Edge Dims</span>
                             </label>
                         </div>
                     </div>
@@ -551,7 +551,7 @@
                 <!-- Manual Mode Controls Group -->
                 <div id="manualControlsGroup" class="accordion-item border-t border-cad-accent/30 mt-2">
                     <div class="accordion-header text-cad-accent" onclick="toggleAcc(this)" onkeydown="if(event.key==='Enter'||event.key===' ') {event.preventDefault(); toggleAcc(this);}" aria-expanded="true" role="button" tabindex="0">
-                        <span><i class="fas fa-hand-paper w-4"></i> Manual Config</span>
+                        <span><i class="fas fa-hand-paper w-4"></i> <span id="lblManualConfig">Manual Config</span></span>
                         <i class="fas fa-chevron-down text-[10px] transition-transform"></i>
                     </div>
                     <div class="accordion-content open">
@@ -567,13 +567,13 @@
                         </div>
 
                         <div id="manualAddPanel" style="display:none;" class="border-t border-[#333] pt-2 mt-2">
-                            <div class="text-[10px] text-cad-accent mb-1">Add Radiator:</div>
+                            <div class="text-[10px] text-cad-accent mb-1"><span id="lblAddRadiator">Add Radiator:</span></div>
                             <div class="flex gap-2 mb-2">
                                 <input type="number" id="manW" placeholder="W" class="w-full p-1 text-xs text-center">
                                 <input type="number" id="manL" placeholder="L" class="w-full p-1 text-xs text-center">
                             </div>
-                            <button onclick="HmiApp.addManualRadiator()" class="cad-btn w-full py-1 text-xs mb-2">Add <i class="fas fa-plus"></i></button>
-                            <button onclick="HmiApp.alignManualRadiators()" class="cad-btn w-full py-1 text-xs">Auto Align <i class="fas fa-align-center"></i></button>
+                            <button onclick="HmiApp.addManualRadiator()" class="cad-btn w-full py-1 text-xs mb-2"><span id="lblAddBtn">Add</span> <i class="fas fa-plus"></i></button>
+                            <button onclick="HmiApp.alignManualRadiators()" class="cad-btn w-full py-1 text-xs"><span id="lblAutoAlign">Auto Align</span> <i class="fas fa-align-center"></i></button>
                         </div>
 
                         <div id="radPositionsPanel" style="display:none;" class="mt-2 text-[10px] overflow-x-auto"></div>
@@ -599,7 +599,7 @@
         <div class="sheet-handle" onclick="toggleBottomSheet()"></div>
         <div class="sheet-content">
             <div class="flex items-center justify-between border-b border-[#333] pb-2">
-                <span class="font-bold text-cad-accent">Options</span>
+                <span id="lblOptions" class="font-bold text-cad-accent">Options</span>
                 <button onclick="toggleBottomSheet()" class="text-cad-muted"><i class="fas fa-times"></i></button>
             </div>
 
@@ -612,14 +612,14 @@
                     </select>
                  </div>
                  <div class="flex gap-2">
-                     <div class="flex-1"><label class="text-[10px] text-cad-muted mb-1 block">Width (mm)</label><select id="m-inW" onchange="document.getElementById('inW').value=this.value; HmiApp.calc();" class="w-full p-2 text-xs"></select></div>
-                     <div class="flex-1"><label class="text-[10px] text-cad-muted mb-1 block">Length (mm)</label><select id="m-inL" onchange="document.getElementById('inL').value=this.value; HmiApp.calc();" class="w-full p-2 text-xs"></select></div>
+                     <div class="flex-1"><label id="lblWidthM" class="text-[10px] text-cad-muted mb-1 block">Width (mm)</label><select id="m-inW" onchange="document.getElementById('inW').value=this.value; HmiApp.calc();" class="w-full p-2 text-xs"></select></div>
+                     <div class="flex-1"><label id="lblLengthM" class="text-[10px] text-cad-muted mb-1 block">Length (mm)</label><select id="m-inL" onchange="document.getElementById('inL').value=this.value; HmiApp.calc();" class="w-full p-2 text-xs"></select></div>
                  </div>
             </div>
 
             <!-- Export Mode (24050 only) -->
             <div id="m-exportModeSection" class="flex flex-col gap-2 border-b border-[#333] pb-3" style="display:none;">
-                 <label class="text-[10px] text-cad-accent font-bold tracking-widest uppercase">Placement Mode</label>
+                 <label id="lblPlacementMode" class="text-[10px] text-cad-accent font-bold tracking-widest uppercase">Placement Mode</label>
                  <div class="flex gap-2">
                      <button id="m-btnDomestic" onclick="HmiApp.toggleExport(0)" class="cad-btn active flex-1 py-2 text-xs font-bold text-cad-muted hover:text-white">Domestic</button>
                      <button id="m-btnExport" onclick="HmiApp.toggleExport(1)" class="cad-btn flex-1 py-2 text-xs font-bold text-cad-muted hover:text-white">Export</button>
@@ -628,32 +628,32 @@
 
             <!-- View / Dimensions -->
             <div class="flex flex-col gap-2 border-b border-[#333] pb-3">
-                <label class="text-[10px] text-cad-accent font-bold tracking-widest uppercase mb-1">Dimensions</label>
+                <label id="lblDimensions" class="text-[10px] text-cad-accent font-bold tracking-widest uppercase mb-1">Dimensions</label>
                 <div class="flex flex-col gap-2">
                     <label class="flex items-center gap-2 cursor-pointer text-xs text-cad-muted">
-                        <input type="checkbox" id="chkDimCenter-m" onchange="document.getElementById('chkDimCenter').checked=this.checked; HmiApp.toggleDim('center', this.checked)" class="accent-[#FF6B2C]"> Center Dims
+                        <input type="checkbox" id="chkDimCenter-m" onchange="document.getElementById('chkDimCenter').checked=this.checked; HmiApp.toggleDim('center', this.checked)" class="accent-[#FF6B2C]"> <span class="lblCenterDimsTxt">Center Dims</span>
                     </label>
                     <label class="flex items-center gap-2 cursor-pointer text-xs text-cad-muted">
-                        <input type="checkbox" id="chkDimGap-m" onchange="document.getElementById('chkDimGap').checked=this.checked; HmiApp.toggleDim('gap', this.checked)" class="accent-[#FF6B2C]"> Gap Dims
+                        <input type="checkbox" id="chkDimGap-m" onchange="document.getElementById('chkDimGap').checked=this.checked; HmiApp.toggleDim('gap', this.checked)" class="accent-[#FF6B2C]"> <span class="lblGapDimsTxt">Gap Dims</span>
                     </label>
                     <label class="flex items-center gap-2 cursor-pointer text-xs text-cad-muted">
-                        <input type="checkbox" id="chkDimEdges-m" onchange="document.getElementById('chkDimEdges').checked=this.checked; HmiApp.toggleDim('edges', this.checked)" class="accent-[#FF6B2C]"> Edge Dims
+                        <input type="checkbox" id="chkDimEdges-m" onchange="document.getElementById('chkDimEdges').checked=this.checked; HmiApp.toggleDim('edges', this.checked)" class="accent-[#FF6B2C]"> <span class="lblEdgeDimsTxt">Edge Dims</span>
                     </label>
                 </div>
             </div>
 
             <!-- Actions -->
             <div class="flex flex-col gap-2 pb-2">
-                 <button onclick="HmiApp.toggleAllLayouts(); toggleBottomSheet();" class="cad-btn w-full py-2 text-xs"><i class="fas fa-th-large mr-2"></i> Toggle Grid View</button>
-                 <button onclick="HmiApp.shareImage(); toggleBottomSheet();" class="cad-btn w-full py-2 text-xs bg-[#FF6B2C] text-[#121212] border-[#FF6B2C] font-bold"><i class="fas fa-share-alt mr-2"></i> Share Image</button>
+                 <button onclick="HmiApp.toggleAllLayouts(); toggleBottomSheet();" class="cad-btn w-full py-2 text-xs"><i class="fas fa-th-large mr-2"></i> <span id="lblToggleGrid">Toggle Grid View</span></button>
+                 <button onclick="HmiApp.shareImage(); toggleBottomSheet();" class="cad-btn w-full py-2 text-xs bg-[#FF6B2C] text-[#121212] border-[#FF6B2C] font-bold"><i class="fas fa-share-alt mr-2"></i> <span id="lblShareImage">Share Image</span></button>
             </div>
         </div>
     </div>
 
     <!-- Context Menu -->
     <div id="contextMenu" class="hidden absolute z-50 bg-[#1e1e1e] border border-[#333] shadow-lg p-1 text-xs" style="min-width: 120px;">
-        <button id="ctxRotate" onclick="HmiApp.contextRotate()" class="w-full text-left px-3 py-2 hover:bg-[#2d2d2d] text-[#e0e0e0]"><i class="fas fa-sync-alt mr-2"></i>Rotate 90°</button>
-        <button id="ctxDelete" onclick="HmiApp.contextDelete()" class="w-full text-left px-3 py-2 hover:bg-[#2d2d2d] text-red-400 mt-1"><i class="fas fa-trash mr-2"></i>Delete</button>
+        <button id="ctxRotate" onclick="HmiApp.contextRotate()" class="w-full text-left px-3 py-2 hover:bg-[#2d2d2d] text-[#e0e0e0]"><i class="fas fa-sync-alt mr-2"></i><span id="lblCtxRotate">Rotate 90°</span></button>
+        <button id="ctxDelete" onclick="HmiApp.contextDelete()" class="w-full text-left px-3 py-2 hover:bg-[#2d2d2d] text-red-400 mt-1"><i class="fas fa-trash mr-2"></i><span id="lblCtxDelete">Delete</span></button>
     </div>
 
     <!-- UI Interaction Scripts -->
