@@ -116,30 +116,56 @@ const HmiApp = {
             const saved = localStorage.getItem('kuka_hmi_state');
             if (saved) {
                 const p = JSON.parse(saved);
-                if (p.width) this.state.width = p.width;
-                if (p.length) this.state.length = p.length;
-                if (p.gapH !== undefined) this.state.gapH = p.gapH;
-                if (this.state.gapH < 50) this.state.gapH = 200; // Force reset old residue values like 14
+                const isNum = (v) => typeof v === 'number' && Number.isFinite(v);
+                const isBool = (v) => typeof v === 'boolean';
 
-                if (p.gapW !== undefined) this.state.gapW = p.gapW;
-                if (p.dizilimId) this.state.dizilimId = p.dizilimId;
-                if (p.currentProject) this.state.currentProject = p.currentProject;
-                if (p.isDualPallet !== undefined) this.state.isDualPallet = p.isDualPallet;
-                if (p.isManualMode !== undefined) this.state.isManualMode = p.isManualMode;
-                if (p.manualPositions) this.state.manualPositions = p.manualPositions;
-                if (p.rad50Positions) this.state.rad50Positions = p.rad50Positions;
-                if (p.rad50UserEdited !== undefined) this.state.rad50UserEdited = p.rad50UserEdited;
-                if (p.showDimCenter !== undefined) this.state.showDimCenter = p.showDimCenter;
-                if (p.showDimGap !== undefined) this.state.showDimGap = p.showDimGap;
-                if (p.showDimEdges !== undefined) this.state.showDimEdges = p.showDimEdges;
-                if (p.exportMode !== undefined) this.state.exportMode = p.exportMode;
-                if (p.isLightTheme !== undefined) this.state.isLightTheme = p.isLightTheme;
-                if (p.palOverrideX !== undefined) this.state.palOverrideX = p.palOverrideX;
-                if (p.palOverrideY !== undefined) this.state.palOverrideY = p.palOverrideY;
-
-                if (this.state.isLightTheme) {
-                    document.body.classList.add('light-theme');
+                if (isNum(p.width)) this.state.width = p.width;
+                if (isNum(p.length)) this.state.length = p.length;
+                if (isNum(p.gapH)) {
+                    this.state.gapH = p.gapH;
+                    if (this.state.gapH < 50) this.state.gapH = 200; // Force reset old residue values like 14
                 }
+
+                if (isNum(p.gapW)) this.state.gapW = p.gapW;
+                if (isNum(p.dizilimId)) this.state.dizilimId = p.dizilimId;
+                if (typeof p.currentProject === 'string' && this.config.projects[p.currentProject]) {
+                    this.state.currentProject = p.currentProject;
+                }
+
+                if (isBool(p.isDualPallet)) this.state.isDualPallet = p.isDualPallet;
+                if (isBool(p.isManualMode)) this.state.isManualMode = p.isManualMode;
+
+                const validatePositions = (arr) => {
+                    if (!Array.isArray(arr)) return null;
+                    return arr.filter(pos => {
+                        return pos && isNum(pos.n) && isNum(pos.x) && isNum(pos.y) && isNum(pos.angle);
+                    }).map(pos => ({
+                        n: pos.n, x: pos.x, y: pos.y, angle: pos.angle,
+                        w: isNum(pos.w) ? pos.w : undefined,
+                        l: isNum(pos.l) ? pos.l : undefined
+                    }));
+                };
+
+                if (p.manualPositions) {
+                    const valid = validatePositions(p.manualPositions);
+                    if (valid) this.state.manualPositions = valid;
+                }
+                if (p.rad50Positions) {
+                    const valid = validatePositions(p.rad50Positions);
+                    if (valid) this.state.rad50Positions = valid;
+                }
+
+                if (isBool(p.rad50UserEdited)) this.state.rad50UserEdited = p.rad50UserEdited;
+                if (isBool(p.showDimCenter)) this.state.showDimCenter = p.showDimCenter;
+                if (isBool(p.showDimGap)) this.state.showDimGap = p.showDimGap;
+                if (isBool(p.showDimEdges)) this.state.showDimEdges = p.showDimEdges;
+                if (isNum(p.exportMode)) this.state.exportMode = p.exportMode;
+                if (isBool(p.isLightTheme)) {
+                    this.state.isLightTheme = p.isLightTheme;
+                    if (this.state.isLightTheme) document.body.classList.add('light-theme');
+                }
+                if (isNum(p.palOverrideX)) this.state.palOverrideX = p.palOverrideX;
+                if (isNum(p.palOverrideY)) this.state.palOverrideY = p.palOverrideY;
 
                 if (this.dom.projectSelect) this.dom.projectSelect.value = this.state.currentProject;
                 if (this.dom.inW) this.dom.inW.value = this.state.width;
