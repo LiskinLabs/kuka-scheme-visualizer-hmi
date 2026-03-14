@@ -671,6 +671,8 @@ const HmiApp = {
             if(this.dom.allLayoutsGrid) this.dom.allLayoutsGrid.style.position = 'absolute';
 
             document.querySelectorAll('.info-card').forEach(el => el.style.display = 'none');
+            if(this.dom.btnManualMode) this.dom.btnManualMode.style.display = 'none';
+            if(this.dom.btnAutoMode) this.dom.btnAutoMode.style.display = 'none';
             this.renderAllLayouts();
         } else {
             const txt = this.config.translations[this.state.lang].toggleAllShow;
@@ -681,6 +683,8 @@ const HmiApp = {
             if(this.dom.allLayoutsGrid) this.dom.allLayoutsGrid.style.display = 'none';
 
             document.querySelectorAll('.info-card').forEach(el => el.style.display = '');
+            if(this.dom.btnManualMode) this.dom.btnManualMode.style.display = '';
+            if(this.dom.btnAutoMode) this.dom.btnAutoMode.style.display = '';
             this.render();
         }
     },
@@ -740,7 +744,9 @@ const HmiApp = {
     render() {
         if (!this.dom.palletArea || !this.dom.pallet) return;
         this.saveState();
-        if (this.state.showAll) { this.renderAllLayouts(); return; }
+        if (this.state.showAll) { if(this.dom.btnManualMode) this.dom.btnManualMode.style.display = 'none';
+            if(this.dom.btnAutoMode) this.dom.btnAutoMode.style.display = 'none';
+            this.renderAllLayouts(); return; }
         this._renderSinglePalletInside(this.dom.palletArea, false);
     },
 
