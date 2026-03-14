@@ -896,7 +896,7 @@ const HmiApp = {
                 radiatorsHTML += this.getDimLineHTML(radLeft + rw / 2, radTop + rh + 10, -p.x * s, 0, Math.round(p.x), 'manual-dim-x');
                 radiatorsHTML += this.getDimLineHTML(radLeft - 10, radTop + rh / 2, 0, p.y * s, Math.round(p.y), 'manual-dim-y');
             }
-            radiatorsHTML += `<div class="${className}${extraClass}" style="--rad-scale:${s}; width:${wPx}px; height:${hPx}px; left:${radLeft}px; top:${radTop}px; pointer-events:auto;" onmousedown="HmiApp.startDrag(event, ${i})" oncontextmenu="HmiApp.showContextMenu(event, ${i})">${innerHTML}</div>`;
+            radiatorsHTML += `<div class="${className}${extraClass}" style="--rad-scale:${s}; width:${wPx}px; height:${hPx}px; left:${radLeft}px; top:${radTop}px; pointer-events:${this.state.isManualMode ? 'auto' : 'none'};" onmousedown="HmiApp.startDrag(event, ${i})" oncontextmenu="HmiApp.showContextMenu(event, ${i})">${innerHTML}</div>`;
         });
         if (!isMiniature && this.state.showDimGap) {
             let boxes = positions.map(p => {
@@ -1269,7 +1269,7 @@ const HmiApp = {
     contextDelete() { if (this.state.contextRadIdx !== null) this.removeManualRad(this.state.contextRadIdx); },
 
     startDrag(e, idx) {
-        if (!this.state.isManualMode && this.state.currentProject !== '24050') return; e.preventDefault();
+        if (!this.state.isManualMode) return; e.preventDefault();
         let arr = this.state.isManualMode ? this.state.manualPositions : this.state.rad50Positions;
         let startX = e.clientX, startY = e.clientY, initialPx = arr[idx].x, initialPy = arr[idx].y;
         const s = this.state.scale;
