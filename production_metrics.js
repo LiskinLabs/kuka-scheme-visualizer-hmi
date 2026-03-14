@@ -245,14 +245,25 @@ const HmiApp = {
     },
 
     initLengths() {
-        if (!this.dom.inL) return;
-        this.dom.inL.innerHTML = '';
-        for (let i = 400; i <= 3000; i += 100) {
-            const opt = document.createElement('option');
-            opt.value = opt.textContent = i;
-            this.dom.inL.appendChild(opt);
+        if (this.dom.inW) {
+            this.dom.inW.innerHTML = '';
+            const widths = [200, 300, 400, 500, 600, 900];
+            widths.forEach(w => {
+                const opt = document.createElement('option');
+                opt.value = opt.textContent = w;
+                this.dom.inW.appendChild(opt);
+            });
+            this.dom.inW.value = 200;
         }
-        this.dom.inL.value = 400;
+        if (this.dom.inL) {
+            this.dom.inL.innerHTML = '';
+            for (let i = 400; i <= 3000; i += 100) {
+                const opt = document.createElement('option');
+                opt.value = opt.textContent = i;
+                this.dom.inL.appendChild(opt);
+            }
+            this.dom.inL.value = 400;
+        }
     },
 
     updateClock() {
