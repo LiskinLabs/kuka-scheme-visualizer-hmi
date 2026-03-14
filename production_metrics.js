@@ -247,11 +247,13 @@ const HmiApp = {
     initLengths() {
         if (!this.dom.inL) return;
         this.dom.inL.innerHTML = '';
+        const fragment = document.createDocumentFragment();
         for (let i = 400; i <= 3000; i += 100) {
             const opt = document.createElement('option');
             opt.value = opt.textContent = i;
-            this.dom.inL.appendChild(opt);
+            fragment.appendChild(opt);
         }
+        this.dom.inL.appendChild(fragment);
         this.dom.inL.value = 400;
     },
 
