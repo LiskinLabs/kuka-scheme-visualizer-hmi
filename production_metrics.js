@@ -3,7 +3,7 @@
  * Restored industrial scheme logic while maintaining performance optimizations.
  */
 
-const HmiApp = {
+var HmiApp = {
     // --- State ---
 
     debounce(func, wait) {
@@ -12,6 +12,19 @@ const HmiApp = {
             clearTimeout(timeout);
             timeout = setTimeout(() => func.apply(this, args), wait);
         };
+    },
+
+    escapeHTML(str) {
+        if (typeof str !== 'string') return str;
+        return str.replace(/[&<>"']/g, function(m) {
+            return {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            }[m];
+        });
     },
 
     state: {
@@ -913,7 +926,7 @@ const HmiApp = {
             const wPx = Math.round(rw), hPx = Math.round(rh);
             const radLeft = Math.round(palLeft + (palSize.x * s / 2) + (p.x * s) - (rw / 2));
             const radTop = Math.round(palTop + (palSize.y * s / 2) - (p.y * s) - (rh / 2));
-            const numLabel = `${p.n}${isFlipped ? '↻' : ''}`;
+            const numLabel = this.escapeHTML(`${p.n}${isFlipped ? '↻' : ''}`);
             const innerHTML = this.getRadiatorHTML(is50, isMiniature, numLabel, isFlipped, thisAngle, s, currentW, currentL);
             let realW = is50 ? (thisAngle % 180 === 0 ? currentL : currentW) : (thisAngle % 180 === 0 ? currentW : currentL);
             let realH = is50 ? (thisAngle % 180 === 0 ? currentW : currentL) : (thisAngle % 180 === 0 ? currentL : currentW);
@@ -990,8 +1003,8 @@ const HmiApp = {
                 if (Math.round(spaceTop) > 0) blueprintHTML += this.getDimLineHTML(palLeft + palW / 2, Math.round(palTop + (palSize.y * s / 2) - maxY * s) - spaceTop * s, 0, spaceTop * s, `${Math.round(spaceTop)} mm`, 'edge-dim-y');
                 if (Math.round(spaceBottom) > 0) blueprintHTML += this.getDimLineHTML(palLeft + palW / 2, palTop + palH - spaceBottom * s, 0, spaceBottom * s, `${Math.round(spaceBottom)} mm`, 'edge-dim-y');
             }
-            const dStr = new Date().toLocaleString(this.state.lang);
-            const prjStr = `Proj ${this.state.currentProject}`, schStr = `Scheme D${this.state.dizilimId}`, radStr = `${this.state.width}x${this.state.length}mm`, cntStr = `${positions.length} pcs`, palStr = `${palSize.x}x${palSize.y}mm`;
+            const dStr = this.escapeHTML(new Date().toLocaleString(this.state.lang));
+            const prjStr = this.escapeHTML(`Proj ${this.state.currentProject}`), schStr = this.escapeHTML(`Scheme D${this.state.dizilimId}`), radStr = this.escapeHTML(`${this.state.width}x${this.state.length}mm`), cntStr = this.escapeHTML(`${positions.length} pcs`), palStr = this.escapeHTML(`${palSize.x}x${palSize.y}mm`);
 
             // Wait, we need to correctly compute titleBlockY taking into account the pallet boundaries and radiator offsets
             let bottomBound = Math.max(palH + palTop, palTop + (palSize.y * s / 2) + maxY * s);
@@ -1246,15 +1259,85 @@ const HmiApp = {
 
     renderRadTable(positions) {
         if (!this.dom.radPositionsPanel) return;
-        let isManual = this.state.isManualMode;
-        let html = '<table class="rad-pos-table"><tr><th>#</th><th>X</th><th>Y</th><th>A°</th>' + (isManual ? '<th>Act</th>' : '') + '</tr>';
-        positions.forEach((p, i) => {
-            html += `<tr><td class="rad-pos-num">${p.n}</td><td><input type="number" class="rad-pos-input" value="${p.x}" onchange="HmiApp.updateRadPosition(${i}, 'x', this.value)"></td><td><input type="number" class="rad-pos-input" value="${p.y}" onchange="HmiApp.updateRadPosition(${i}, 'y', this.value)"></td><td class="rad-pos-angle">${isManual ? `<span style="cursor:pointer;" onclick="HmiApp.rotateManualRad(${i})">${p.angle}° <i class="fas fa-sync-alt" style="font-size:10px;margin-left:2px;"></i></span>` : `${p.angle}°`}</td>${isManual ? `<td><button onclick="HmiApp.removeManualRad(${i})" style="color:#FF3D00; background:none; border:none; cursor:pointer;"><i class="fas fa-trash"></i></button></td>` : ''}</tr>`;
+        const isManual = this.state.isManualMode;
+        this.dom.radPositionsPanel.innerHTML = '';
+        const table = document.createElement('table');
+        table.className = 'rad-pos-table';
+        const thead = document.createElement('tr');
+        const headers = ['#', 'X', 'Y', 'A°'];
+        if (isManual) headers.push('Act');
+        headers.forEach(h => {
+            const th = document.createElement('th');
+            th.textContent = h;
+            thead.appendChild(th);
         });
-        this.dom.radPositionsPanel.innerHTML = html + '</table>';
+        table.appendChild(thead);
+
+        positions.forEach((p, i) => {
+            const tr = document.createElement('tr');
+
+            const tdN = document.createElement('td');
+            tdN.className = 'rad-pos-num';
+            tdN.textContent = p.n;
+            tr.appendChild(tdN);
+
+            const tdX = document.createElement('td');
+            const inX = document.createElement('input');
+            inX.type = 'number';
+            inX.className = 'rad-pos-input';
+            inX.value = p.x;
+            inX.addEventListener('change', (e) => this.updateRadPosition(i, 'x', e.target.value));
+            tdX.appendChild(inX);
+            tr.appendChild(tdX);
+
+            const tdY = document.createElement('td');
+            const inY = document.createElement('input');
+            inY.type = 'number';
+            inY.className = 'rad-pos-input';
+            inY.value = p.y;
+            inY.addEventListener('change', (e) => this.updateRadPosition(i, 'y', e.target.value));
+            tdY.appendChild(inY);
+            tr.appendChild(tdY);
+
+            const tdA = document.createElement('td');
+            tdA.className = 'rad-pos-angle';
+            if (isManual) {
+                const span = document.createElement('span');
+                span.style.cursor = 'pointer';
+                span.addEventListener('click', () => this.rotateManualRad(i));
+                span.textContent = p.angle + '° ';
+                const icon = document.createElement('i');
+                icon.className = 'fas fa-sync-alt';
+                icon.style.fontSize = '10px';
+                icon.style.marginLeft = '2px';
+                span.appendChild(icon);
+                tdA.appendChild(span);
+            } else {
+                tdA.textContent = p.angle + '°';
+            }
+            tr.appendChild(tdA);
+
+            if (isManual) {
+                const tdAct = document.createElement('td');
+                const btn = document.createElement('button');
+                btn.addEventListener('click', () => this.removeManualRad(i));
+                btn.style.color = '#FF3D00';
+                btn.style.background = 'none';
+                btn.style.border = 'none';
+                btn.style.cursor = 'pointer';
+                const icon = document.createElement('i');
+                icon.className = 'fas fa-trash';
+                btn.appendChild(icon);
+                tdAct.appendChild(btn);
+                tr.appendChild(tdAct);
+            }
+            table.appendChild(tr);
+        });
+        this.dom.radPositionsPanel.appendChild(table);
     },
 
     getDimLineHTML(x, y, dx, dy, text, type) {
+        text = this.escapeHTML(text);
         let styleLine, finalX = x, finalY = y, absDx = Math.abs(dx), absDy = Math.abs(dy);
 
         // Define varied colors based on the dimension type
@@ -1328,13 +1411,14 @@ const HmiApp = {
     buildMatrixModal() {
         const overlay = document.createElement('div'); overlay.id = 'matrixModal'; overlay.className = 'modal-overlay'; overlay.onclick = (e) => { if (e.target === overlay) this.closeMatrixModal(); };
         const content = document.createElement('div'); content.className = 'modal-content'; content.style.width = '90vw'; content.style.maxWidth = '1200px';
-        let header = `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; border-bottom: 2px solid var(--kuka-orange); padding-bottom: 10px;"><h3 style="margin:0; color:var(--kuka-orange);"><i class="fas fa-table"></i> ${this.config.translations[this.state.lang].matrix} (24048/49/50)</h3><button onclick="HmiApp.closeMatrixModal()" style="background:none;border:none;color:white;font-size:30px;cursor:pointer;">&times;</button></div>`;
+        let matrixTitle = this.escapeHTML(this.config.translations[this.state.lang].matrix);
+        let header = `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; border-bottom: 2px solid var(--kuka-orange); padding-bottom: 10px;"><h3 style="margin:0; color:var(--kuka-orange);"><i class="fas fa-table"></i> ${matrixTitle} (24048/49/50)</h3><button onclick="HmiApp.closeMatrixModal()" style="background:none;border:none;color:white;font-size:30px;cursor:pointer;">&times;</button></div>`;
         const widths = [200, 300, 400, 500, 600, 900];
         let containerHtml = `<div style="max-height: 70vh; overflow-y: auto; padding-right: 10px;">`;
         widths.forEach(w => {
             containerHtml += `<h4 style="color:#FFF; border-bottom:1px solid rgba(255,255,255,0.2); padding-bottom:5px; margin-top:20px; font-size:18px;">Genişlik: ${w} mm</h4><div style="display:flex; flex-wrap:wrap; gap:8px;">`;
             for (let l = 400; l <= 3000; l += 100) {
-                let d = this.getDiz(w, l), isPal2 = l > 1500, bgClass = isPal2 ? 'pal-2' : 'pal-1', palText = isPal2 ? '2 Palet' : '1 Palet';
+                let d = this.getDiz(w, l), isPal2 = l > 1500, bgClass = isPal2 ? 'pal-2' : 'pal-1', palText = this.escapeHTML(isPal2 ? '2 Palet' : '1 Palet');
                 containerHtml += `<div class="matrix-cell ${bgClass}" style="padding:10px; border:1px solid rgba(255,255,255,0.1); border-radius:4px; text-align:center; min-width:80px;" onclick="HmiApp.selectFromMatrix(${w}, ${l})"><div style="font-size:16px; color:#fff; margin-bottom: 4px;">L: ${l}</div><div style="font-size:15px; color:var(--kuka-orange); font-weight:bold; margin-bottom: 2px;">D${d}</div><div style="font-size:11px; opacity:0.8;">${palText}</div></div>`;
             }
             containerHtml += `</div>`;
