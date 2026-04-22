@@ -14,6 +14,19 @@ const HmiApp = {
         };
     },
 
+    escapeHTML(str) {
+        if (typeof str !== 'string') return str;
+        return str.replace(/[&<>"']/g, function(m) {
+            return {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            }[m];
+        });
+    },
+
     state: {
         currentProject: '24048',
         isDualPallet: false,
@@ -1005,12 +1018,12 @@ const HmiApp = {
             blueprintHTML += `<div class="blueprint-only print-data-block" style="position: absolute; top: ${titleBlockY}px; left: ${blockLeft}px; background: #fff; color: #000; border: 2px solid #000; padding: 10px; font-family: monospace; font-size: 14px; width: ${blockWidth}px; text-align: left; z-index: 1000; box-sizing: border-box;">
                 <div style="border-bottom: 2px solid #000; padding-bottom: 5px; margin-bottom: 10px; font-weight: bold; font-size: 18px; text-align: center; text-transform: uppercase;">KUKA CELL VISUALIZER - TECH DATA</div>
                 <table style="width: 100%; border-collapse: collapse; text-align: left;">
-                    <tr><td style="width: 35%; font-weight: bold; padding: 4px; border-bottom: 1px solid #ccc;">Project:</td><td style="padding: 4px; border-bottom: 1px solid #ccc;">${prjStr}</td></tr>
-                    <tr><td style="font-weight: bold; padding: 4px; border-bottom: 1px solid #ccc;">Scheme / Layout:</td><td style="padding: 4px; border-bottom: 1px solid #ccc;">${schStr}</td></tr>
-                    <tr><td style="font-weight: bold; padding: 4px; border-bottom: 1px solid #ccc;">Radiator Size:</td><td style="padding: 4px; border-bottom: 1px solid #ccc;">${radStr}</td></tr>
-                    <tr><td style="font-weight: bold; padding: 4px; border-bottom: 1px solid #ccc;">Quantity / Layer:</td><td style="padding: 4px; border-bottom: 1px solid #ccc;">${cntStr}</td></tr>
-                    <tr><td style="font-weight: bold; padding: 4px; border-bottom: 1px solid #ccc;">Pallet Size:</td><td style="padding: 4px; border-bottom: 1px solid #ccc;">${palStr}</td></tr>
-                    <tr><td style="font-weight: bold; padding: 4px;">Date Generated:</td><td style="padding: 4px;">${dStr}</td></tr>
+                    <tr><td style="width: 35%; font-weight: bold; padding: 4px; border-bottom: 1px solid #ccc;">Project:</td><td style="padding: 4px; border-bottom: 1px solid #ccc;">${this.escapeHTML(prjStr)}</td></tr>
+                    <tr><td style="font-weight: bold; padding: 4px; border-bottom: 1px solid #ccc;">Scheme / Layout:</td><td style="padding: 4px; border-bottom: 1px solid #ccc;">${this.escapeHTML(schStr)}</td></tr>
+                    <tr><td style="font-weight: bold; padding: 4px; border-bottom: 1px solid #ccc;">Radiator Size:</td><td style="padding: 4px; border-bottom: 1px solid #ccc;">${this.escapeHTML(radStr)}</td></tr>
+                    <tr><td style="font-weight: bold; padding: 4px; border-bottom: 1px solid #ccc;">Quantity / Layer:</td><td style="padding: 4px; border-bottom: 1px solid #ccc;">${this.escapeHTML(cntStr)}</td></tr>
+                    <tr><td style="font-weight: bold; padding: 4px; border-bottom: 1px solid #ccc;">Pallet Size:</td><td style="padding: 4px; border-bottom: 1px solid #ccc;">${this.escapeHTML(palStr)}</td></tr>
+                    <tr><td style="font-weight: bold; padding: 4px;">Date Generated:</td><td style="padding: 4px;">${this.escapeHTML(dStr)}</td></tr>
                 </table>
             </div>`;
             blueprintHTML += '</div>'; radiatorsHTML += blueprintHTML;
@@ -1042,15 +1055,15 @@ const HmiApp = {
 
             if (isMiniature) {
                 return `<div style="position:absolute; width:${baseW}px; height:${baseH}px; left:50%; top:50%; margin-left:-${baseW/2}px; margin-top:-${baseH/2}px; ${transform}">
-                            <div class="pkg-body"></div><div class="pkg-card left"></div><div class="pkg-card right"></div><div class="pkg-num" ${numStyle}>${numLabel}</div>
+                            <div class="pkg-body"></div><div class="pkg-card left"></div><div class="pkg-card right"></div><div class="pkg-num" ${numStyle}>${this.escapeHTML(numLabel)}</div>
                         </div>`;
             }
             return `<div style="position:absolute; width:${baseW}px; height:${baseH}px; left:50%; top:50%; margin-left:-${baseW/2}px; margin-top:-${baseH/2}px; ${transform}">
-                        <div class="pkg-body"></div><div class="pkg-card left"></div><div class="pkg-card right"></div><div class="pkg-corner tl"></div><div class="pkg-corner bl"></div><div class="pkg-corner tr"></div><div class="pkg-corner br"></div><div class="pkg-label"><div class="pkg-label-red">LIDER</div><div class="pkg-label-white"><span>СТАЛЬНОЙ<br>РАДИАТОР</span></div></div><div class="pkg-num" ${numStyle}>${numLabel}</div>
+                        <div class="pkg-body"></div><div class="pkg-card left"></div><div class="pkg-card right"></div><div class="pkg-corner tl"></div><div class="pkg-corner bl"></div><div class="pkg-corner tr"></div><div class="pkg-corner br"></div><div class="pkg-label"><div class="pkg-label-red">LIDER</div><div class="pkg-label-white"><span>СТАЛЬНОЙ<br>РАДИАТОР</span></div></div><div class="pkg-num" ${numStyle}>${this.escapeHTML(numLabel)}</div>
                     </div>`;
         }
-        if (isMiniature) return `<div class="heat-plate" style="width:100%;height:100%;"><div class="pattern-area"><div class="rad-num" style="font-size:9px;padding:1px 3px;">${numLabel}</div></div><div class="long-pipe top"></div><div class="long-pipe bottom"></div></div>`;
-        return `<div class="heat-plate"><div class="pattern-area"><div class="rad-num">${numLabel}</div></div><div class="clip tl"></div><div class="clip tr"></div><div class="clip bl"></div><div class="clip br"></div><div class="long-pipe top"></div><div class="long-pipe bottom"></div><div class="port top-left"></div><div class="port top-right"></div><div class="port bottom-left"></div><div class="port bottom-right"></div></div>`;
+        if (isMiniature) return `<div class="heat-plate" style="width:100%;height:100%;"><div class="pattern-area"><div class="rad-num" style="font-size:9px;padding:1px 3px;">${this.escapeHTML(numLabel)}</div></div><div class="long-pipe top"></div><div class="long-pipe bottom"></div></div>`;
+        return `<div class="heat-plate"><div class="pattern-area"><div class="rad-num">${this.escapeHTML(numLabel)}</div></div><div class="clip tl"></div><div class="clip tr"></div><div class="clip bl"></div><div class="clip br"></div><div class="long-pipe top"></div><div class="long-pipe bottom"></div><div class="port top-left"></div><div class="port top-right"></div><div class="port bottom-left"></div><div class="port bottom-right"></div></div>`;
     },
 
     updateVizHeader(count, angle, is50) {
@@ -1249,12 +1262,13 @@ const HmiApp = {
         let isManual = this.state.isManualMode;
         let html = '<table class="rad-pos-table"><tr><th>#</th><th>X</th><th>Y</th><th>A°</th>' + (isManual ? '<th>Act</th>' : '') + '</tr>';
         positions.forEach((p, i) => {
-            html += `<tr><td class="rad-pos-num">${p.n}</td><td><input type="number" class="rad-pos-input" value="${p.x}" onchange="HmiApp.updateRadPosition(${i}, 'x', this.value)"></td><td><input type="number" class="rad-pos-input" value="${p.y}" onchange="HmiApp.updateRadPosition(${i}, 'y', this.value)"></td><td class="rad-pos-angle">${isManual ? `<span style="cursor:pointer;" onclick="HmiApp.rotateManualRad(${i})">${p.angle}° <i class="fas fa-sync-alt" style="font-size:10px;margin-left:2px;"></i></span>` : `${p.angle}°`}</td>${isManual ? `<td><button onclick="HmiApp.removeManualRad(${i})" style="color:#FF3D00; background:none; border:none; cursor:pointer;"><i class="fas fa-trash"></i></button></td>` : ''}</tr>`;
+            html += `<tr><td class="rad-pos-num">${this.escapeHTML(p.n)}</td><td><input type="number" class="rad-pos-input" value="${this.escapeHTML(p.x)}" onchange="HmiApp.updateRadPosition(${i}, 'x', this.value)"></td><td><input type="number" class="rad-pos-input" value="${this.escapeHTML(p.y)}" onchange="HmiApp.updateRadPosition(${i}, 'y', this.value)"></td><td class="rad-pos-angle">${isManual ? `<span style="cursor:pointer;" onclick="HmiApp.rotateManualRad(${i})">${this.escapeHTML(p.angle)}° <i class="fas fa-sync-alt" style="font-size:10px;margin-left:2px;"></i></span>` : `${this.escapeHTML(p.angle)}°`}</td>${isManual ? `<td><button onclick="HmiApp.removeManualRad(${i})" style="color:#FF3D00; background:none; border:none; cursor:pointer;"><i class="fas fa-trash"></i></button></td>` : ''}</tr>`;
         });
         this.dom.radPositionsPanel.innerHTML = html + '</table>';
     },
 
     getDimLineHTML(x, y, dx, dy, text, type) {
+        text = this.escapeHTML(text);
         let styleLine, finalX = x, finalY = y, absDx = Math.abs(dx), absDy = Math.abs(dy);
 
         // Define varied colors based on the dimension type
@@ -1328,14 +1342,14 @@ const HmiApp = {
     buildMatrixModal() {
         const overlay = document.createElement('div'); overlay.id = 'matrixModal'; overlay.className = 'modal-overlay'; overlay.onclick = (e) => { if (e.target === overlay) this.closeMatrixModal(); };
         const content = document.createElement('div'); content.className = 'modal-content'; content.style.width = '90vw'; content.style.maxWidth = '1200px';
-        let header = `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; border-bottom: 2px solid var(--kuka-orange); padding-bottom: 10px;"><h3 style="margin:0; color:var(--kuka-orange);"><i class="fas fa-table"></i> ${this.config.translations[this.state.lang].matrix} (24048/49/50)</h3><button onclick="HmiApp.closeMatrixModal()" style="background:none;border:none;color:white;font-size:30px;cursor:pointer;">&times;</button></div>`;
+        let header = `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; border-bottom: 2px solid var(--kuka-orange); padding-bottom: 10px;"><h3 style="margin:0; color:var(--kuka-orange);"><i class="fas fa-table"></i> ${this.escapeHTML(this.config.translations[this.state.lang].matrix)} (24048/49/50)</h3><button onclick="HmiApp.closeMatrixModal()" style="background:none;border:none;color:white;font-size:30px;cursor:pointer;">&times;</button></div>`;
         const widths = [200, 300, 400, 500, 600, 900];
         let containerHtml = `<div style="max-height: 70vh; overflow-y: auto; padding-right: 10px;">`;
         widths.forEach(w => {
-            containerHtml += `<h4 style="color:#FFF; border-bottom:1px solid rgba(255,255,255,0.2); padding-bottom:5px; margin-top:20px; font-size:18px;">Genişlik: ${w} mm</h4><div style="display:flex; flex-wrap:wrap; gap:8px;">`;
+            containerHtml += `<h4 style="color:#FFF; border-bottom:1px solid rgba(255,255,255,0.2); padding-bottom:5px; margin-top:20px; font-size:18px;">Genişlik: ${this.escapeHTML(w)} mm</h4><div style="display:flex; flex-wrap:wrap; gap:8px;">`;
             for (let l = 400; l <= 3000; l += 100) {
                 let d = this.getDiz(w, l), isPal2 = l > 1500, bgClass = isPal2 ? 'pal-2' : 'pal-1', palText = isPal2 ? '2 Palet' : '1 Palet';
-                containerHtml += `<div class="matrix-cell ${bgClass}" style="padding:10px; border:1px solid rgba(255,255,255,0.1); border-radius:4px; text-align:center; min-width:80px;" onclick="HmiApp.selectFromMatrix(${w}, ${l})"><div style="font-size:16px; color:#fff; margin-bottom: 4px;">L: ${l}</div><div style="font-size:15px; color:var(--kuka-orange); font-weight:bold; margin-bottom: 2px;">D${d}</div><div style="font-size:11px; opacity:0.8;">${palText}</div></div>`;
+                containerHtml += `<div class="matrix-cell ${bgClass}" style="padding:10px; border:1px solid rgba(255,255,255,0.1); border-radius:4px; text-align:center; min-width:80px;" onclick="HmiApp.selectFromMatrix(${w}, ${l})"><div style="font-size:16px; color:#fff; margin-bottom: 4px;">L: ${this.escapeHTML(l)}</div><div style="font-size:15px; color:var(--kuka-orange); font-weight:bold; margin-bottom: 2px;">D${this.escapeHTML(d)}</div><div style="font-size:11px; opacity:0.8;">${this.escapeHTML(palText)}</div></div>`;
             }
             containerHtml += `</div>`;
         });
