@@ -14,6 +14,13 @@ const HmiApp = {
         };
     },
 
+    escapeHTML(str) {
+        if (typeof str !== 'string') return str;
+        const p = document.createElement('p');
+        p.textContent = str;
+        return p.innerHTML;
+    },
+
     state: {
         currentProject: '24048',
         isDualPallet: false,
@@ -1246,12 +1253,80 @@ const HmiApp = {
 
     renderRadTable(positions) {
         if (!this.dom.radPositionsPanel) return;
-        let isManual = this.state.isManualMode;
-        let html = '<table class="rad-pos-table"><tr><th>#</th><th>X</th><th>Y</th><th>A°</th>' + (isManual ? '<th>Act</th>' : '') + '</tr>';
-        positions.forEach((p, i) => {
-            html += `<tr><td class="rad-pos-num">${p.n}</td><td><input type="number" class="rad-pos-input" value="${p.x}" onchange="HmiApp.updateRadPosition(${i}, 'x', this.value)"></td><td><input type="number" class="rad-pos-input" value="${p.y}" onchange="HmiApp.updateRadPosition(${i}, 'y', this.value)"></td><td class="rad-pos-angle">${isManual ? `<span style="cursor:pointer;" onclick="HmiApp.rotateManualRad(${i})">${p.angle}° <i class="fas fa-sync-alt" style="font-size:10px;margin-left:2px;"></i></span>` : `${p.angle}°`}</td>${isManual ? `<td><button onclick="HmiApp.removeManualRad(${i})" style="color:#FF3D00; background:none; border:none; cursor:pointer;"><i class="fas fa-trash"></i></button></td>` : ''}</tr>`;
+        const isManual = this.state.isManualMode;
+        const table = document.createElement('table');
+        table.className = 'rad-pos-table';
+
+        const headerRow = document.createElement('tr');
+        ['#', 'X', 'Y', 'A°'].forEach(text => {
+            const th = document.createElement('th');
+            th.textContent = text;
+            headerRow.appendChild(th);
         });
-        this.dom.radPositionsPanel.innerHTML = html + '</table>';
+        if (isManual) {
+            const th = document.createElement('th');
+            th.textContent = 'Act';
+            headerRow.appendChild(th);
+        }
+        table.appendChild(headerRow);
+
+        positions.forEach((p, i) => {
+            const row = document.createElement('tr');
+
+            const tdNum = document.createElement('td');
+            tdNum.className = 'rad-pos-num';
+            tdNum.textContent = p.n;
+            row.appendChild(tdNum);
+
+            ['x', 'y'].forEach(field => {
+                const td = document.createElement('td');
+                const input = document.createElement('input');
+                input.type = 'number';
+                input.className = 'rad-pos-input';
+                input.value = p[field];
+                input.onchange = (e) => this.updateRadPosition(i, field, e.target.value);
+                td.appendChild(input);
+                row.appendChild(td);
+            });
+
+            const tdAngle = document.createElement('td');
+            tdAngle.className = 'rad-pos-angle';
+            if (isManual) {
+                const span = document.createElement('span');
+                span.style.cursor = 'pointer';
+                span.onclick = () => this.rotateManualRad(i);
+                span.textContent = `${p.angle}° `;
+                const icon = document.createElement('i');
+                icon.className = 'fas fa-sync-alt';
+                icon.style.fontSize = '10px';
+                icon.style.marginLeft = '2px';
+                span.appendChild(icon);
+                tdAngle.appendChild(span);
+            } else {
+                tdAngle.textContent = `${p.angle}°`;
+            }
+            row.appendChild(tdAngle);
+
+            if (isManual) {
+                const tdAct = document.createElement('td');
+                const btn = document.createElement('button');
+                btn.onclick = () => this.removeManualRad(i);
+                btn.style.color = '#FF3D00';
+                btn.style.background = 'none';
+                btn.style.border = 'none';
+                btn.style.cursor = 'pointer';
+                const icon = document.createElement('i');
+                icon.className = 'fas fa-trash';
+                btn.appendChild(icon);
+                tdAct.appendChild(btn);
+                row.appendChild(tdAct);
+            }
+
+            table.appendChild(row);
+        });
+
+        this.dom.radPositionsPanel.innerHTML = '';
+        this.dom.radPositionsPanel.appendChild(table);
     },
 
     getDimLineHTML(x, y, dx, dy, text, type) {
