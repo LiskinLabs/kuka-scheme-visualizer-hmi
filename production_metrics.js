@@ -14,6 +14,20 @@ const HmiApp = {
         };
     },
 
+    isNum(v) { return typeof v === 'number' && Number.isFinite(v); },
+    isBool(v) { return typeof v === 'boolean'; },
+
+    validatePositions(arr) {
+        if (!Array.isArray(arr)) return null;
+        return arr.filter(pos => {
+            return pos && this.isNum(pos.n) && this.isNum(pos.x) && this.isNum(pos.y) && this.isNum(pos.angle);
+        }).map(pos => ({
+            n: pos.n, x: pos.x, y: pos.y, angle: pos.angle,
+            w: this.isNum(pos.w) ? pos.w : undefined,
+            l: this.isNum(pos.l) ? pos.l : undefined
+        }));
+    },
+
     state: {
         currentProject: '24048',
         isDualPallet: false,
@@ -116,56 +130,43 @@ const HmiApp = {
             const saved = localStorage.getItem('kuka_hmi_state');
             if (saved) {
                 const p = JSON.parse(saved);
-                const isNum = (v) => typeof v === 'number' && Number.isFinite(v);
-                const isBool = (v) => typeof v === 'boolean';
 
-                if (isNum(p.width)) this.state.width = p.width;
-                if (isNum(p.length)) this.state.length = p.length;
-                if (isNum(p.gapH)) {
+                if (this.isNum(p.width)) this.state.width = p.width;
+                if (this.isNum(p.length)) this.state.length = p.length;
+                if (this.isNum(p.gapH)) {
                     this.state.gapH = p.gapH;
                     if (this.state.gapH < 50) this.state.gapH = 200; // Force reset old residue values like 14
                 }
 
-                if (isNum(p.gapW)) this.state.gapW = p.gapW;
-                if (isNum(p.dizilimId)) this.state.dizilimId = p.dizilimId;
+                if (this.isNum(p.gapW)) this.state.gapW = p.gapW;
+                if (this.isNum(p.dizilimId)) this.state.dizilimId = p.dizilimId;
                 if (typeof p.currentProject === 'string' && this.config.projects[p.currentProject]) {
                     this.state.currentProject = p.currentProject;
                 }
 
-                if (isBool(p.isDualPallet)) this.state.isDualPallet = p.isDualPallet;
-                if (isBool(p.isManualMode)) this.state.isManualMode = p.isManualMode;
-
-                const validatePositions = (arr) => {
-                    if (!Array.isArray(arr)) return null;
-                    return arr.filter(pos => {
-                        return pos && isNum(pos.n) && isNum(pos.x) && isNum(pos.y) && isNum(pos.angle);
-                    }).map(pos => ({
-                        n: pos.n, x: pos.x, y: pos.y, angle: pos.angle,
-                        w: isNum(pos.w) ? pos.w : undefined,
-                        l: isNum(pos.l) ? pos.l : undefined
-                    }));
-                };
+                if (this.isBool(p.isDualPallet)) this.state.isDualPallet = p.isDualPallet;
+                if (this.isBool(p.isManualMode)) this.state.isManualMode = p.isManualMode;
 
                 if (p.manualPositions) {
-                    const valid = validatePositions(p.manualPositions);
+                    const valid = this.validatePositions(p.manualPositions);
                     if (valid) this.state.manualPositions = valid;
                 }
                 if (p.rad50Positions) {
-                    const valid = validatePositions(p.rad50Positions);
+                    const valid = this.validatePositions(p.rad50Positions);
                     if (valid) this.state.rad50Positions = valid;
                 }
 
-                if (isBool(p.rad50UserEdited)) this.state.rad50UserEdited = p.rad50UserEdited;
-                if (isBool(p.showDimCenter)) this.state.showDimCenter = p.showDimCenter;
-                if (isBool(p.showDimGap)) this.state.showDimGap = p.showDimGap;
-                if (isBool(p.showDimEdges)) this.state.showDimEdges = p.showDimEdges;
-                if (isNum(p.exportMode)) this.state.exportMode = p.exportMode;
-                if (isBool(p.isLightTheme)) {
+                if (this.isBool(p.rad50UserEdited)) this.state.rad50UserEdited = p.rad50UserEdited;
+                if (this.isBool(p.showDimCenter)) this.state.showDimCenter = p.showDimCenter;
+                if (this.isBool(p.showDimGap)) this.state.showDimGap = p.showDimGap;
+                if (this.isBool(p.showDimEdges)) this.state.showDimEdges = p.showDimEdges;
+                if (this.isNum(p.exportMode)) this.state.exportMode = p.exportMode;
+                if (this.isBool(p.isLightTheme)) {
                     this.state.isLightTheme = p.isLightTheme;
                     if (this.state.isLightTheme) document.body.classList.add('light-theme');
                 }
-                if (isNum(p.palOverrideX)) this.state.palOverrideX = p.palOverrideX;
-                if (isNum(p.palOverrideY)) this.state.palOverrideY = p.palOverrideY;
+                if (this.isNum(p.palOverrideX)) this.state.palOverrideX = p.palOverrideX;
+                if (this.isNum(p.palOverrideY)) this.state.palOverrideY = p.palOverrideY;
 
                 if (this.dom.projectSelect) this.dom.projectSelect.value = this.state.currentProject;
                 if (this.dom.inW) this.dom.inW.value = this.state.width;
