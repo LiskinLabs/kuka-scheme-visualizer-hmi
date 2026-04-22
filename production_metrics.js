@@ -188,7 +188,7 @@ const HmiApp = {
     },
 
     cacheDom() {
-        const ids = ['projectSelect', 'inW', 'inL', 'gapW', 'gapH', 'palletArea', 'pallet', 'pallet2', 'centerMark', 'axisX', 'axisY', 'vizTitle', 'statCount', 'statAngle', 'exportToggle', 'radPositionsPanel', 'radPosResetBtn', 'palletSizeControls', 'palW50', 'palH50', 'iW', 'iL', 'iA', 'iC', 'iP', 'iLyr', 'iTot', 'btnRU', 'btnTR', 'btnUZ', 'btnToggleAll', 'lblToggleAll', 'singleViewArea', 'allLayoutsGrid', 'btnMatrix', 'lblMatrix', 'manualModeToggle', 'btnAutoMode', 'btnManualMode', 'manualAddPanel', 'manW', 'manL', 'dizilimGridContainer', 'leftPanel', 'rightPanel', 'leftPanelIcon', 'rightPanelIcon', 'btnOpenLeft', 'btnOpenRight', 'contextMenu', 'ctxRotate', 'ctxDelete', 'btnDomestic', 'btnExport', 'mTopRadSize', 'mTopPalSize', 'm-exportModeSection', 'm-btnDomestic', 'm-btnExport'];
+        const ids = ['projectSelect', 'inW', 'inL', 'm-inW', 'm-inL', 'gapW', 'gapH', 'palletArea', 'pallet', 'pallet2', 'centerMark', 'axisX', 'axisY', 'vizTitle', 'statCount', 'statAngle', 'exportToggle', 'radPositionsPanel', 'radPosResetBtn', 'palletSizeControls', 'palW50', 'palH50', 'iW', 'iL', 'iA', 'iC', 'iP', 'iLyr', 'iTot', 'btnRU', 'btnTR', 'btnUZ', 'btnToggleAll', 'lblToggleAll', 'singleViewArea', 'allLayoutsGrid', 'btnMatrix', 'lblMatrix', 'manualModeToggle', 'btnAutoMode', 'btnManualMode', 'manualAddPanel', 'manW', 'manL', 'dizilimGridContainer', 'leftPanel', 'rightPanel', 'leftPanelIcon', 'rightPanelIcon', 'btnOpenLeft', 'btnOpenRight', 'contextMenu', 'ctxRotate', 'ctxDelete', 'btnDomestic', 'btnExport', 'mTopRadSize', 'mTopPalSize', 'm-exportModeSection', 'm-btnDomestic', 'm-btnExport'];
         ids.forEach(id => this.dom[id] = document.getElementById(id));
         this.dom.dizilimGrid = document.querySelector('.dizilim-grid');
         this.dom.palletModeSelector = document.getElementById('palletModeSelector');
@@ -271,16 +271,28 @@ const HmiApp = {
     },
 
     initLengths() {
-        if (!this.dom.inL) return;
-        this.dom.inL.innerHTML = '';
-        const fragment = document.createDocumentFragment();
-        for (let i = 400; i <= 3000; i += 100) {
-            const opt = document.createElement('option');
-            opt.value = opt.textContent = i;
-            fragment.appendChild(opt);
-        }
-        this.dom.inL.appendChild(fragment);
-        this.dom.inL.value = 400;
+        const widths = [200, 300, 400, 500, 600, 900];
+        const populate = (el, vals, defaultVal) => {
+            if (!el) return;
+            el.innerHTML = '';
+            const fragment = document.createDocumentFragment();
+            vals.forEach(v => {
+                const opt = document.createElement('option');
+                opt.value = opt.textContent = v;
+                fragment.appendChild(opt);
+            });
+            el.appendChild(fragment);
+            el.value = defaultVal;
+        };
+
+        populate(this.dom.inW, widths, 200);
+        populate(this.dom['m-inW'], widths, 200);
+
+        const lengths = [];
+        for (let i = 400; i <= 3000; i += 100) lengths.push(i);
+
+        populate(this.dom.inL, lengths, 400);
+        populate(this.dom['m-inL'], lengths, 400);
     },
 
     updateClock() {
