@@ -318,7 +318,9 @@ var HmiApp = window.HmiApp = {
     },
 
     updateClock() {
-        // Clock removed from UI
+        const el = document.getElementById('clock');
+        if (el) el.innerText = new Date().toLocaleTimeString('tr-TR', { hour12: false });
+
     },
 
     closeAllPanels() {
