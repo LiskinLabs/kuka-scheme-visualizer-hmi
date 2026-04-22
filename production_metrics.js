@@ -3,7 +3,7 @@
  * Restored industrial scheme logic while maintaining performance optimizations.
  */
 
-const HmiApp = {
+var HmiApp = window.HmiApp = {
     // --- State ---
 
     debounce(func, wait) {
@@ -12,6 +12,26 @@ const HmiApp = {
             clearTimeout(timeout);
             timeout = setTimeout(() => func.apply(this, args), wait);
         };
+    },
+
+    isNum(v) { return typeof v === 'number' && Number.isFinite(v); },
+    isBool(v) { return typeof v === 'boolean'; },
+    escapeHTML(str) {
+        if (typeof str !== 'string') return str;
+        return str.replace(/[&<>"']/g, m => ({
+            '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+        })[m]);
+    },
+
+    validatePositions(arr) {
+        if (!Array.isArray(arr)) return null;
+        return arr.filter(pos => {
+            return pos && this.isNum(pos.n) && this.isNum(pos.x) && this.isNum(pos.y) && this.isNum(pos.angle);
+        }).map(pos => ({
+            n: pos.n, x: pos.x, y: pos.y, angle: pos.angle,
+            w: this.isNum(pos.w) ? pos.w : undefined,
+            l: this.isNum(pos.l) ? pos.l : undefined
+        }));
     },
 
     state: {
@@ -116,56 +136,46 @@ const HmiApp = {
             const saved = localStorage.getItem('kuka_hmi_state');
             if (saved) {
                 const p = JSON.parse(saved);
-                const isNum = (v) => typeof v === 'number' && Number.isFinite(v);
-                const isBool = (v) => typeof v === 'boolean';
+                if (!p || typeof p !== 'object') return;
 
-                if (isNum(p.width)) this.state.width = p.width;
-                if (isNum(p.length)) this.state.length = p.length;
-                if (isNum(p.gapH)) {
+                const inRange = (v, min, max) => this.isNum(v) && v >= min && v <= max;
+
+                if (inRange(p.width, 200, 900)) this.state.width = p.width;
+                if (inRange(p.length, 400, 3000)) this.state.length = p.length;
+                if (inRange(p.gapH, 0, 500)) {
                     this.state.gapH = p.gapH;
-                    if (this.state.gapH < 50) this.state.gapH = 200; // Force reset old residue values like 14
+                    if (this.state.gapH < 50 && this.state.gapH > 0) this.state.gapH = 200;
                 }
 
-                if (isNum(p.gapW)) this.state.gapW = p.gapW;
-                if (isNum(p.dizilimId)) this.state.dizilimId = p.dizilimId;
+                if (inRange(p.gapW, 0, 500)) this.state.gapW = p.gapW;
+                if (inRange(p.dizilimId, 1, 12)) this.state.dizilimId = p.dizilimId;
                 if (typeof p.currentProject === 'string' && this.config.projects[p.currentProject]) {
                     this.state.currentProject = p.currentProject;
                 }
 
-                if (isBool(p.isDualPallet)) this.state.isDualPallet = p.isDualPallet;
-                if (isBool(p.isManualMode)) this.state.isManualMode = p.isManualMode;
-
-                const validatePositions = (arr) => {
-                    if (!Array.isArray(arr)) return null;
-                    return arr.filter(pos => {
-                        return pos && isNum(pos.n) && isNum(pos.x) && isNum(pos.y) && isNum(pos.angle);
-                    }).map(pos => ({
-                        n: pos.n, x: pos.x, y: pos.y, angle: pos.angle,
-                        w: isNum(pos.w) ? pos.w : undefined,
-                        l: isNum(pos.l) ? pos.l : undefined
-                    }));
-                };
+                if (this.isBool(p.isDualPallet)) this.state.isDualPallet = p.isDualPallet;
+                if (this.isBool(p.isManualMode)) this.state.isManualMode = p.isManualMode;
 
                 if (p.manualPositions) {
-                    const valid = validatePositions(p.manualPositions);
+                    const valid = this.validatePositions(p.manualPositions);
                     if (valid) this.state.manualPositions = valid;
                 }
                 if (p.rad50Positions) {
-                    const valid = validatePositions(p.rad50Positions);
+                    const valid = this.validatePositions(p.rad50Positions);
                     if (valid) this.state.rad50Positions = valid;
                 }
 
-                if (isBool(p.rad50UserEdited)) this.state.rad50UserEdited = p.rad50UserEdited;
-                if (isBool(p.showDimCenter)) this.state.showDimCenter = p.showDimCenter;
-                if (isBool(p.showDimGap)) this.state.showDimGap = p.showDimGap;
-                if (isBool(p.showDimEdges)) this.state.showDimEdges = p.showDimEdges;
-                if (isNum(p.exportMode)) this.state.exportMode = p.exportMode;
-                if (isBool(p.isLightTheme)) {
+                if (this.isBool(p.rad50UserEdited)) this.state.rad50UserEdited = p.rad50UserEdited;
+                if (this.isBool(p.showDimCenter)) this.state.showDimCenter = p.showDimCenter;
+                if (this.isBool(p.showDimGap)) this.state.showDimGap = p.showDimGap;
+                if (this.isBool(p.showDimEdges)) this.state.showDimEdges = p.showDimEdges;
+                if (inRange(p.exportMode, 0, 1)) this.state.exportMode = p.exportMode;
+                if (this.isBool(p.isLightTheme)) {
                     this.state.isLightTheme = p.isLightTheme;
                     if (this.state.isLightTheme) document.body.classList.add('light-theme');
                 }
-                if (isNum(p.palOverrideX)) this.state.palOverrideX = p.palOverrideX;
-                if (isNum(p.palOverrideY)) this.state.palOverrideY = p.palOverrideY;
+                if (inRange(p.palOverrideX, 0, 5000)) this.state.palOverrideX = p.palOverrideX;
+                if (inRange(p.palOverrideY, 0, 5000)) this.state.palOverrideY = p.palOverrideY;
 
                 if (this.dom.projectSelect) this.dom.projectSelect.value = this.state.currentProject;
                 if (this.dom.inW) this.dom.inW.value = this.state.width;
@@ -700,8 +710,9 @@ const HmiApp = {
         this.applyTransform();
         if (this.state.showAll) {
             const txt = this.config.translations[this.state.lang].toggleAllHide;
-            this.dom.btnToggleAll.innerHTML = `<i class="fas fa-eye-slash text-xs"></i><span id="lblToggleAll" class="hidden"></span>`;
-            this.dom.btnToggleAll.querySelector("#lblToggleAll").textContent = txt;
+            this.dom.btnToggleAll.innerHTML = '<i class="fas fa-eye-slash text-xs"></i><span id="lblToggleAll" class="hidden"></span>';
+            const lbl = this.dom.btnToggleAll.querySelector("#lblToggleAll");
+            if (lbl) lbl.textContent = txt;
             this.dom.btnToggleAll.classList.add('active');
             if (this.dom.palletArea) if(this.dom.palletArea) this.dom.palletArea.style.display = 'none';
             if(this.dom.allLayoutsGrid) this.dom.allLayoutsGrid.style.display = 'flex';
@@ -717,8 +728,9 @@ const HmiApp = {
             this.renderAllLayouts();
         } else {
             const txt = this.config.translations[this.state.lang].toggleAllShow;
-            this.dom.btnToggleAll.innerHTML = `<i class="fas fa-th-large text-xs"></i><span id="lblToggleAll" class="hidden"></span>`;
-            this.dom.btnToggleAll.querySelector("#lblToggleAll").textContent = txt;
+            this.dom.btnToggleAll.innerHTML = '<i class="fas fa-th-large text-xs"></i><span id="lblToggleAll" class="hidden"></span>';
+            const lbl = this.dom.btnToggleAll.querySelector("#lblToggleAll");
+            if (lbl) lbl.textContent = txt;
             this.dom.btnToggleAll.classList.remove('active');
             if (this.dom.palletArea) if(this.dom.palletArea) this.dom.palletArea.style.display = 'flex';
             if(this.dom.allLayoutsGrid) this.dom.allLayoutsGrid.style.display = 'none';
@@ -1003,8 +1015,12 @@ const HmiApp = {
                 if (Math.round(spaceTop) > 0) blueprintHTML += this.getDimLineHTML(palLeft + palW / 2, Math.round(palTop + (palSize.y * s / 2) - maxY * s) - spaceTop * s, 0, spaceTop * s, `${Math.round(spaceTop)} mm`, 'edge-dim-y');
                 if (Math.round(spaceBottom) > 0) blueprintHTML += this.getDimLineHTML(palLeft + palW / 2, palTop + palH - spaceBottom * s, 0, spaceBottom * s, `${Math.round(spaceBottom)} mm`, 'edge-dim-y');
             }
-            const dStr = new Date().toLocaleString(this.state.lang);
-            const prjStr = `Proj ${this.state.currentProject}`, schStr = `Scheme D${this.state.dizilimId}`, radStr = `${this.state.width}x${this.state.length}mm`, cntStr = `${positions.length} pcs`, palStr = `${palSize.x}x${palSize.y}mm`;
+            const dStr = this.escapeHTML(new Date().toLocaleString(this.state.lang));
+            const prjStr = this.escapeHTML(`Proj ${this.state.currentProject}`),
+                  schStr = this.escapeHTML(`Scheme D${this.state.dizilimId}`),
+                  radStr = this.escapeHTML(`${this.state.width}x${this.state.length}mm`),
+                  cntStr = this.escapeHTML(`${positions.length} pcs`),
+                  palStr = this.escapeHTML(`${palSize.x}x${palSize.y}mm`);
 
             // Wait, we need to correctly compute titleBlockY taking into account the pallet boundaries and radiator offsets
             let bottomBound = Math.max(palH + palTop, palTop + (palSize.y * s / 2) + maxY * s);
@@ -1260,11 +1276,72 @@ const HmiApp = {
     renderRadTable(positions) {
         if (!this.dom.radPositionsPanel) return;
         let isManual = this.state.isManualMode;
-        let html = '<table class="rad-pos-table"><tr><th>#</th><th>X</th><th>Y</th><th>A°</th>' + (isManual ? '<th>Act</th>' : '') + '</tr>';
-        positions.forEach((p, i) => {
-            html += `<tr><td class="rad-pos-num">${p.n}</td><td><input type="number" class="rad-pos-input" value="${p.x}" onchange="HmiApp.updateRadPosition(${i}, 'x', this.value)"></td><td><input type="number" class="rad-pos-input" value="${p.y}" onchange="HmiApp.updateRadPosition(${i}, 'y', this.value)"></td><td class="rad-pos-angle">${isManual ? `<span style="cursor:pointer;" onclick="HmiApp.rotateManualRad(${i})">${p.angle}° <i class="fas fa-sync-alt" style="font-size:10px;margin-left:2px;"></i></span>` : `${p.angle}°`}</td>${isManual ? `<td><button onclick="HmiApp.removeManualRad(${i})" style="color:#FF3D00; background:none; border:none; cursor:pointer;"><i class="fas fa-trash"></i></button></td>` : ''}</tr>`;
+        this.dom.radPositionsPanel.textContent = '';
+        const table = document.createElement('table');
+        table.className = 'rad-pos-table';
+        const thead = document.createElement('tr');
+        ['#', 'X', 'Y', 'A°'].forEach(txt => {
+            const th = document.createElement('th'); th.textContent = txt; thead.appendChild(th);
         });
-        this.dom.radPositionsPanel.innerHTML = html + '</table>';
+        if (isManual) {
+            const th = document.createElement('th'); th.textContent = 'Act'; thead.appendChild(th);
+        }
+        table.appendChild(thead);
+
+        positions.forEach((p, i) => {
+            const tr = document.createElement('tr');
+
+            const tdN = document.createElement('td');
+            tdN.className = 'rad-pos-num';
+            tdN.textContent = p.n;
+            tr.appendChild(tdN);
+
+            ['x', 'y'].forEach(field => {
+                const td = document.createElement('td');
+                const input = document.createElement('input');
+                input.type = 'number';
+                input.className = 'rad-pos-input';
+                input.value = p[field];
+                input.onchange = (e) => this.updateRadPosition(i, field, e.target.value);
+                td.appendChild(input);
+                tr.appendChild(td);
+            });
+
+            const tdA = document.createElement('td');
+            tdA.className = 'rad-pos-angle';
+            if (isManual) {
+                const span = document.createElement('span');
+                span.style.cursor = 'pointer';
+                span.onclick = () => this.rotateManualRad(i);
+                span.textContent = `${p.angle}° `;
+                const icon = document.createElement('i');
+                icon.className = 'fas fa-sync-alt';
+                icon.style.fontSize = '10px';
+                icon.style.marginLeft = '2px';
+                span.appendChild(icon);
+                tdA.appendChild(span);
+            } else {
+                tdA.textContent = `${p.angle}°`;
+            }
+            tr.appendChild(tdA);
+
+            if (isManual) {
+                const tdAct = document.createElement('td');
+                const btn = document.createElement('button');
+                btn.onclick = () => this.removeManualRad(i);
+                btn.style.color = '#FF3D00';
+                btn.style.background = 'none';
+                btn.style.border = 'none';
+                btn.style.cursor = 'pointer';
+                const icon = document.createElement('i');
+                icon.className = 'fas fa-trash';
+                btn.appendChild(icon);
+                tdAct.appendChild(btn);
+                tr.appendChild(tdAct);
+            }
+            table.appendChild(tr);
+        });
+        this.dom.radPositionsPanel.appendChild(table);
     },
 
     getDimLineHTML(x, y, dx, dy, text, type) {
@@ -1341,19 +1418,57 @@ const HmiApp = {
     buildMatrixModal() {
         const overlay = document.createElement('div'); overlay.id = 'matrixModal'; overlay.className = 'modal-overlay'; overlay.onclick = (e) => { if (e.target === overlay) this.closeMatrixModal(); };
         const content = document.createElement('div'); content.className = 'modal-content'; content.style.width = '90vw'; content.style.maxWidth = '1200px';
-        let header = `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; border-bottom: 2px solid var(--kuka-orange); padding-bottom: 10px;"><h3 style="margin:0; color:var(--kuka-orange);"><i class="fas fa-table"></i> ${this.config.translations[this.state.lang].matrix} (24048/49/50)</h3><button onclick="HmiApp.closeMatrixModal()" style="background:none;border:none;color:white;font-size:30px;cursor:pointer;">&times;</button></div>`;
+
+        const header = document.createElement('div');
+        header.style.cssText = "display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; border-bottom: 2px solid var(--kuka-orange); padding-bottom: 10px;";
+        const h3 = document.createElement('h3');
+        h3.style.cssText = "margin:0; color:var(--kuka-orange);";
+        h3.innerHTML = `<i class="fas fa-table"></i> ${this.escapeHTML(this.config.translations[this.state.lang].matrix)} (24048/49/50)`;
+        header.appendChild(h3);
+        const closeBtn = document.createElement('button');
+        closeBtn.onclick = () => this.closeMatrixModal();
+        closeBtn.style.cssText = "background:none;border:none;color:white;font-size:30px;cursor:pointer;";
+        closeBtn.innerHTML = '&times;';
+        header.appendChild(closeBtn);
+        content.appendChild(header);
+
         const widths = [200, 300, 400, 500, 600, 900];
-        let containerHtml = `<div style="max-height: 70vh; overflow-y: auto; padding-right: 10px;">`;
+        const container = document.createElement('div');
+        container.style.cssText = "max-height: 70vh; overflow-y: auto; padding-right: 10px;";
+
         widths.forEach(w => {
-            containerHtml += `<h4 style="color:#FFF; border-bottom:1px solid rgba(255,255,255,0.2); padding-bottom:5px; margin-top:20px; font-size:18px;">Genişlik: ${w} mm</h4><div style="display:flex; flex-wrap:wrap; gap:8px;">`;
+            const h4 = document.createElement('h4');
+            h4.style.cssText = "color:#FFF; border-bottom:1px solid rgba(255,255,255,0.2); padding-bottom:5px; margin-top:20px; font-size:18px;";
+            h4.textContent = `Genişlik: ${w} mm`;
+            container.appendChild(h4);
+
+            const grid = document.createElement('div');
+            grid.style.cssText = "display:flex; flex-wrap:wrap; gap:8px;";
+
             for (let l = 400; l <= 3000; l += 100) {
                 let d = this.getDiz(w, l), isPal2 = l > 1500, bgClass = isPal2 ? 'pal-2' : 'pal-1', palText = isPal2 ? '2 Palet' : '1 Palet';
-                containerHtml += `<div class="matrix-cell ${bgClass}" style="padding:10px; border:1px solid rgba(255,255,255,0.1); border-radius:4px; text-align:center; min-width:80px;" onclick="HmiApp.selectFromMatrix(${w}, ${l})"><div style="font-size:16px; color:#fff; margin-bottom: 4px;">L: ${l}</div><div style="font-size:15px; color:var(--kuka-orange); font-weight:bold; margin-bottom: 2px;">D${d}</div><div style="font-size:11px; opacity:0.8;">${palText}</div></div>`;
+                const cell = document.createElement('div');
+                cell.className = `matrix-cell ${bgClass}`;
+                cell.style.cssText = "padding:10px; border:1px solid rgba(255,255,255,0.1); border-radius:4px; text-align:center; min-width:80px;";
+                cell.onclick = () => this.selectFromMatrix(w, l);
+
+                const lDiv = document.createElement('div'); lDiv.style.cssText = "font-size:16px; color:#fff; margin-bottom: 4px;"; lDiv.textContent = `L: ${l}`;
+                const dDiv = document.createElement('div'); dDiv.style.cssText = "font-size:15px; color:var(--kuka-orange); font-weight:bold; margin-bottom: 2px;"; dDiv.textContent = `D${d}`;
+                const pDiv = document.createElement('div'); pDiv.style.cssText = "font-size:11px; opacity:0.8;"; pDiv.textContent = palText;
+
+                cell.appendChild(lDiv); cell.appendChild(dDiv); cell.appendChild(pDiv);
+                grid.appendChild(cell);
             }
-            containerHtml += `</div>`;
+            container.appendChild(grid);
         });
-        containerHtml += `</div><div style="margin-top:15px; font-size:13px; display:flex; gap:15px; justify-content: center; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.1);"><div style="display:flex; align-items:center; gap:5px;"><div style="width:15px;height:15px; border-radius:3px;" class="pal-1"></div> <= 1500mm (1 Palet)</div><div style="display:flex; align-items:center; gap:5px;"><div style="width:15px;height:15px; border-radius:3px;" class="pal-2"></div> >= 1600mm (2 Palet)</div></div>`;
-        content.innerHTML = header + containerHtml; overlay.appendChild(content); document.body.appendChild(overlay); return overlay;
+        content.appendChild(container);
+
+        const footer = document.createElement('div');
+        footer.style.cssText = "margin-top:15px; font-size:13px; display:flex; gap:15px; justify-content: center; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.1);";
+        footer.innerHTML = `<div style="display:flex; align-items:center; gap:5px;"><div style="width:15px;height:15px; border-radius:3px;" class="pal-1"></div> <= 1500mm (1 Palet)</div><div style="display:flex; align-items:center; gap:5px;"><div style="width:15px;height:15px; border-radius:3px;" class="pal-2"></div> >= 1600mm (2 Palet)</div>`;
+        content.appendChild(footer);
+
+        overlay.appendChild(content); document.body.appendChild(overlay); return overlay;
     },
 
     selectFromMatrix(w, l) { if (this.dom.inW) this.dom.inW.value = w; if (this.dom.inL) this.dom.inL.value = l; this.closeMatrixModal(); this.calc(); },
