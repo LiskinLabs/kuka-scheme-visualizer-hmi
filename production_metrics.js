@@ -836,7 +836,7 @@ var HmiApp = window.HmiApp = {
         const is50 = this.state.currentProject === '24050';
         const palSize = this.getPalletSize();
         const { positions, angle, isPerPieceAngle } = this.getPositions();
-        let maxExtentX = palSize.x / 2, maxExtentY = palSize.y / 2;
+        let maxExtentX = palSize.x / 2, maxExtentY = palSize.y / 2, maxOv = 0;
         positions.forEach(p => {
             let currentW = p.w !== undefined ? p.w : this.state.width;
             let currentL = p.l !== undefined ? p.l : this.state.length;
@@ -845,17 +845,8 @@ var HmiApp = window.HmiApp = {
             const rh = is50 ? (pAngle % 180 === 0 ? currentW : currentL) : (pAngle % 180 === 0 ? currentL : currentW);
             maxExtentX = Math.max(maxExtentX, Math.abs(p.x) + rw / 2);
             maxExtentY = Math.max(maxExtentY, Math.abs(p.y) + rh / 2);
-        });
-                // Move maxOv calculation up
-        let maxOv = 0;
-        positions.forEach(p => {
-            let currentW = p.w !== undefined ? p.w : this.state.width;
-            let currentL = p.l !== undefined ? p.l : this.state.length;
-            let pAngle = isPerPieceAngle ? p.angle : angle;
-            let realW = is50 ? (pAngle % 180 === 0 ? currentL : currentW) : (pAngle % 180 === 0 ? currentW : currentL);
-            let realH = is50 ? (pAngle % 180 === 0 ? currentW : currentL) : (pAngle % 180 === 0 ? currentL : currentW);
-            const ovX = Math.max(0, Math.abs(p.x) + realW / 2 - palSize.x / 2);
-            const ovY = Math.max(0, Math.abs(p.y) + realH / 2 - palSize.y / 2);
+            const ovX = Math.max(0, Math.abs(p.x) + rw / 2 - palSize.x / 2);
+            const ovY = Math.max(0, Math.abs(p.y) + rh / 2 - palSize.y / 2);
             maxOv = Math.max(maxOv, Math.max(ovX, ovY));
         });
 
