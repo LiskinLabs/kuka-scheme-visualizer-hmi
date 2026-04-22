@@ -1378,4 +1378,13 @@ const HmiApp = {
     }
 };
 
-window.onload = () => HmiApp.init();
+if (typeof window !== 'undefined') {
+    window.onload = () => HmiApp.init();
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = HmiApp;
+} else {
+    // For ES modules if needed
+    // export default HmiApp;
+}
