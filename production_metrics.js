@@ -271,16 +271,29 @@ const HmiApp = {
     },
 
     initLengths() {
-        if (!this.dom.inL) return;
-        this.dom.inL.innerHTML = '';
-        const fragment = document.createDocumentFragment();
-        for (let i = 400; i <= 3000; i += 100) {
-            const opt = document.createElement('option');
-            opt.value = opt.textContent = i;
-            fragment.appendChild(opt);
+        if (this.dom.inW) {
+            this.dom.inW.innerHTML = '';
+            const fragW = document.createDocumentFragment();
+            [200, 300, 400, 500, 600, 900].forEach(w => {
+                const opt = document.createElement('option');
+                opt.value = opt.textContent = w;
+                fragW.appendChild(opt);
+            });
+            this.dom.inW.appendChild(fragW);
+            this.dom.inW.value = 200;
         }
-        this.dom.inL.appendChild(fragment);
-        this.dom.inL.value = 400;
+
+        if (this.dom.inL) {
+            this.dom.inL.innerHTML = '';
+            const fragL = document.createDocumentFragment();
+            for (let i = 400; i <= 3000; i += 100) {
+                const opt = document.createElement('option');
+                opt.value = opt.textContent = i;
+                fragL.appendChild(opt);
+            }
+            this.dom.inL.appendChild(fragL);
+            this.dom.inL.value = 400;
+        }
     },
 
     updateClock() {
