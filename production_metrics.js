@@ -491,27 +491,32 @@ const HmiApp = {
             currentRow.push(p);
         });
         if (currentRow.length > 0) rows.push(currentRow);
-        rows.forEach((row) => {
-            row.sort((a, b) => a.x - b.x); 
-            let totalW = row.reduce((sum, p, i) => {
-                let realW = (p.angle % 180 === 0 ? (p.w || this.state.width) : (p.l || this.state.length));
-                return sum + realW + (i > 0 ? this.state.gapW : 0);
-            }, 0);
+        const rowData = rows.map(row => {
+            row.sort((a, b) => a.x - b.x);
+            const items = row.map(p => {
+                const is90or270 = p.angle % 180 !== 0;
+                const realW = is90or270 ? (p.l || this.state.length) : (p.w || this.state.width);
+                const realH = is90or270 ? (p.w || this.state.width) : (p.l || this.state.length);
+                return { p, realW, realH };
+            });
+            const totalW = items.reduce((sum, item, i) => sum + item.realW + (i > 0 ? this.state.gapW : 0), 0);
+            const maxH = items.reduce((max, item) => Math.max(max, item.realH), 0);
+            return { row, items, totalW, maxH };
+        });
+
+        rowData.forEach(({ items, totalW }) => {
             let curX = -totalW / 2;
-            row.forEach(p => {
-                let realW = (p.angle % 180 === 0 ? (p.w || this.state.width) : (p.l || this.state.length));
+            items.forEach(({ p, realW }) => {
                 p.x = Math.round(curX + realW / 2);
                 curX += realW + this.state.gapW;
             });
         });
-        let totalH = rows.reduce((sum, row, i) => {
-            let maxH = Math.max(...row.map(p => (p.angle % 180 === 0 ? (p.l || this.state.length) : (p.w || this.state.width))));
-            return sum + maxH + (i > 0 ? this.state.gapH : 0);
-        }, 0);
+
+        const totalH = rowData.reduce((sum, { maxH }, i) => sum + maxH + (i > 0 ? this.state.gapH : 0), 0);
         let curY = totalH / 2;
-        rows.forEach((row) => {
-            let maxH = Math.max(...row.map(p => (p.angle % 180 === 0 ? (p.l || this.state.length) : (p.w || this.state.width))));
-            row.forEach(p => {
+
+        rowData.forEach(({ items, maxH }) => {
+            items.forEach(({ p }) => {
                 p.y = Math.round(curY - maxH / 2);
             });
             curY -= (maxH + this.state.gapH);
