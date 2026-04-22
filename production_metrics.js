@@ -183,7 +183,7 @@ const HmiApp = {
                 if (document.getElementById('chkDimEdges-m')) document.getElementById('chkDimEdges-m').checked = this.state.showDimEdges;
             }
         } catch (e) {
-            console.error('Failed to load state from localStorage', e);
+            // Silently handle localStorage or JSON.parse errors
         }
     },
 
