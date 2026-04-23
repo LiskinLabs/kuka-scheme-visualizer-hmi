@@ -1108,32 +1108,37 @@ var HmiApp = window.HmiApp = {
     },
 
     handleZoom(e) {
-        if (!this.state.showAll) return; e.preventDefault();
-        const zoomStep = 0.15;
-        let newZoom = (e.deltaY < 0) ? Math.min(this.state.zoom + zoomStep, 4) : Math.max(this.state.zoom - zoomStep, 0.15);
-        
+        if (!this.state.showAll) return;
+        e.preventDefault();
+
+        // Smoother zoom multiplier instead of additive steps
+        const zoomFactor = 1.1;
+        let newZoom = this.state.zoom;
+
+        if (e.deltaY < 0) {
+            newZoom = Math.min(this.state.zoom * zoomFactor, 4);
+        } else {
+            newZoom = Math.max(this.state.zoom / zoomFactor, 0.15);
+        }
+
         if (newZoom !== this.state.zoom) {
             const rect = this.dom.singleViewArea.getBoundingClientRect();
-            
+
             // Get mouse position relative to container
             const mouseX = e.clientX - rect.left;
             const mouseY = e.clientY - rect.top;
 
-            // For a flex container with center/center alignment, the natural unscaled
-            // origin of the element is at the center of the container.
-            // The current center of the element is the container center offset by panX/panY.
-            const centerX = rect.width / 2;
-            const centerY = rect.height / 2;
-
-            // Distance from the element's current center to the mouse pointer
-            const deltaX = mouseX - (centerX + this.state.panX);
-            const deltaY = mouseY - (centerY + this.state.panY);
-
-            // Adjust pan so the point under the mouse remains stationary
-            this.state.panX = this.state.panX - deltaX * (newZoom / this.state.zoom - 1);
-            this.state.panY = this.state.panY - deltaY * (newZoom / this.state.zoom - 1);
+            // For showAll mode, we use transform-origin: 0 0.
+            // Keeping the point under the mouse stationary:
+            const elementX = (mouseX - this.state.panX) / this.state.zoom;
+            const elementY = (mouseY - this.state.panY) / this.state.zoom;
 
             this.state.zoom = newZoom;
+
+            // Reposition pan so the element point is still under the mouse
+            this.state.panX = mouseX - (elementX * this.state.zoom);
+            this.state.panY = mouseY - (elementY * this.state.zoom);
+
             this.applyTransform();
         }
     },
@@ -1141,17 +1146,17 @@ var HmiApp = window.HmiApp = {
     handleZoomTouch(e) {
         if (!this.state.showAll || e.touches.length !== 2) return;
         e.preventDefault();
-        
+
         const t1 = e.touches[0], t2 = e.touches[1];
         const dist = Math.hypot(t1.clientX - t2.clientX, t1.clientY - t2.clientY);
-        
+
         if (this.state.lastZoomDist) {
             const ratio = dist / this.state.lastZoomDist;
             let newZoom = Math.max(0.15, Math.min(this.state.zoom * ratio, 4));
-            
+
             if (newZoom !== this.state.zoom) {
                 const rect = this.dom.singleViewArea.getBoundingClientRect();
-                
+
                 // Calculate the center point between the two fingers
                 const touchCenterX = (t1.clientX + t2.clientX) / 2;
                 const touchCenterY = (t1.clientY + t2.clientY) / 2;
@@ -1160,18 +1165,16 @@ var HmiApp = window.HmiApp = {
                 const mouseX = touchCenterX - rect.left;
                 const mouseY = touchCenterY - rect.top;
 
-                const centerX = rect.width / 2;
-                const centerY = rect.height / 2;
-
-                // Distance from the element's current center to the pinch center
-                const deltaX = mouseX - (centerX + this.state.panX);
-                const deltaY = mouseY - (centerY + this.state.panY);
-
-                // Adjust pan so the point under the pinch remains stationary
-                this.state.panX = this.state.panX - deltaX * (newZoom / this.state.zoom - 1);
-                this.state.panY = this.state.panY - deltaY * (newZoom / this.state.zoom - 1);
+                // For showAll mode, we use transform-origin: 0 0.
+                const elementX = (mouseX - this.state.panX) / this.state.zoom;
+                const elementY = (mouseY - this.state.panY) / this.state.zoom;
 
                 this.state.zoom = newZoom;
+
+                // Reposition pan so the element point is still under the mouse
+                this.state.panX = mouseX - (elementX * this.state.zoom);
+                this.state.panY = mouseY - (elementY * this.state.zoom);
+
                 this.applyTransform();
             }
         }
@@ -1221,12 +1224,13 @@ var HmiApp = window.HmiApp = {
     },
 
     applyTransform() {
-        const transform = `translate3d(${this.state.panX}px, ${this.state.panY}px, 0) scale(${this.state.zoom})`;
         if (this.state.showAll && this.dom.allLayoutsGrid) {
-            if(this.dom.allLayoutsGrid) this.dom.allLayoutsGrid.style.transform = transform;
-
+            // Infinite pan for Show All
+            this.dom.allLayoutsGrid.style.transform = `translate3d(${this.state.panX}px, ${this.state.panY}px, 0) scale(${this.state.zoom})`;
+            this.dom.allLayoutsGrid.style.transformOrigin = '0 0';
         } else if (this.dom.palletArea) {
-            if(this.dom.palletArea) this.dom.palletArea.style.transform = transform;
+            this.dom.palletArea.style.transform = `translate3d(${this.state.panX}px, ${this.state.panY}px, 0) scale(${this.state.zoom})`;
+            this.dom.palletArea.style.transformOrigin = 'center center';
         }
     },
 
