@@ -104,7 +104,6 @@ var HmiApp = window.HmiApp = {
         this.selectProject(); 
         this.syncPanelsUI();
         this.setLang(this.state.lang); // Apply initial translation
-        console.log("HMI Visualizer v3.2 Industrial Restored");
     },
 
     saveState() {
