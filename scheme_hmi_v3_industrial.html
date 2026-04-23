@@ -714,7 +714,7 @@
         // Corrects zoom to follow mouse cursor and clamps panning.
         // ============================================
         document.addEventListener('DOMContentLoaded', () => {
-            // Give production_metrics.js time to load
+            // Give js/app.js time to load
             setTimeout(() => {
                 if (typeof HmiApp !== 'undefined') {
 
@@ -862,6 +862,6 @@
     </script>
 
     <!-- External Dependencies & Logic -->
-    <script src="production_metrics.js"></script>
+    <script type="module" src="js/app.js"></script>
 </body>
 </html>
