@@ -1,5 +1,5 @@
-feat: enable manual mode for project 24050
+🧪 [testing improvement] add coverage for loadState
 
-- Allows manual addition and modification of radiators in 24050.
-- Implements correct 90/180/270 degree rotation logic for 24050 radiators while keeping the labels readable.
-- Includes 24050 in the matrix.
+🎯 What: Added unit tests using Node vm sandbox for HmiApp.loadState
+📊 Coverage: Added coverage for valid state paths, out-of-range bounds checking, edge case handling (gapH interpolation logic), invalid JSON persistence, non-object rejection, position array validation parsing via isNum, and unknown project protection.
+✨ Result: Reliable validation layer added for testing complex local storage state persistence.
