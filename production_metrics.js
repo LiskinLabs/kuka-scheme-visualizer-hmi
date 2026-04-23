@@ -200,7 +200,6 @@ var HmiApp = window.HmiApp = {
         const ids = ['projectSelect', 'inW', 'inL', 'm-inW', 'm-inL', 'gapW', 'gapH', 'palletArea', 'pallet', 'pallet2', 'centerMark', 'axisX', 'axisY', 'vizTitle', 'statCount', 'statAngle', 'exportToggle', 'radPositionsPanel', 'radPosResetBtn', 'palletSizeControls', 'palW50', 'palH50', 'iW', 'iL', 'iA', 'iC', 'iP', 'iLyr', 'iTot', 'btnRU', 'btnTR', 'btnUZ', 'btnToggleAll', 'lblToggleAll', 'singleViewArea', 'allLayoutsGrid', 'btnMatrix', 'lblMatrix', 'manualModeToggle', 'btnAutoMode', 'btnManualMode', 'manualAddPanel', 'manW', 'manL', 'dizilimGridContainer', 'leftPanel', 'rightPanel', 'leftPanelIcon', 'rightPanelIcon', 'btnOpenLeft', 'btnOpenRight', 'contextMenu', 'ctxRotate', 'ctxDelete', 'btnDomestic', 'btnExport', 'mTopRadSize', 'mTopPalSize', 'm-exportModeSection', 'm-btnDomestic', 'm-btnExport'];
         ids.forEach(id => this.dom[id] = document.getElementById(id));
         this.dom.infoCards = document.getElementsByClassName('info-card');
-        this.dom.infoCards = document.getElementsByClassName('info-card');
         this.dom.dizilimGrid = document.querySelector('.dizilim-grid');
         this.dom.palletModeSelector = document.getElementById('palletModeSelector');
         this.dom.manualControlsGroup = document.getElementById('manualControlsGroup');
@@ -825,12 +824,17 @@ var HmiApp = window.HmiApp = {
     },
 
     _renderSinglePalletInside(area, isMiniature) {
-        let pal = area.querySelector('.pallet') || area.querySelector('.pallet-wood');
-        let pal2 = area.querySelector('.pallet2');
-        let radLayer = area.querySelector('.rad-layer');
+        let pal = area.__cachedPal || area.querySelector('.pallet') || area.querySelector('.pallet-wood');
+        let pal2 = area.__cachedPal2 || area.querySelector('.pallet2');
+        let radLayer = area.__cachedRadLayer || area.querySelector('.rad-layer');
         if (!pal) {
             pal = document.createElement('div'); pal.className = 'pallet'; area.appendChild(pal);
             pal2 = document.createElement('div'); pal2.className = 'pallet2'; area.appendChild(pal2);
+            area.__cachedPal = pal;
+            area.__cachedPal2 = pal2;
+        } else if (!area.__cachedPal) {
+            area.__cachedPal = pal;
+            area.__cachedPal2 = pal2;
         }
         if (!radLayer) {
             radLayer = document.createElement('div'); 
@@ -842,6 +846,9 @@ var HmiApp = window.HmiApp = {
             radLayer.style.height = '100%';
             radLayer.style.pointerEvents = 'none';
             area.appendChild(radLayer);
+            area.__cachedRadLayer = radLayer;
+        } else if (!area.__cachedRadLayer) {
+            area.__cachedRadLayer = radLayer;
         }
         const is50 = this.state.currentProject === '24050';
         const palSize = this.getPalletSize();
