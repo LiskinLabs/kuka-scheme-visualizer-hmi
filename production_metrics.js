@@ -200,6 +200,8 @@ var HmiApp = window.HmiApp = {
     cacheDom() {
         const ids = ['projectSelect', 'inW', 'inL', 'm-inW', 'm-inL', 'gapW', 'gapH', 'palletArea', 'pallet', 'pallet2', 'centerMark', 'axisX', 'axisY', 'vizTitle', 'statCount', 'statAngle', 'exportToggle', 'radPositionsPanel', 'radPosResetBtn', 'palletSizeControls', 'palW50', 'palH50', 'iW', 'iL', 'iA', 'iC', 'iP', 'iLyr', 'iTot', 'btnRU', 'btnTR', 'btnUZ', 'btnToggleAll', 'lblToggleAll', 'singleViewArea', 'allLayoutsGrid', 'btnMatrix', 'lblMatrix', 'manualModeToggle', 'btnAutoMode', 'btnManualMode', 'manualAddPanel', 'manW', 'manL', 'dizilimGridContainer', 'leftPanel', 'rightPanel', 'leftPanelIcon', 'rightPanelIcon', 'btnOpenLeft', 'btnOpenRight', 'contextMenu', 'ctxRotate', 'ctxDelete', 'btnDomestic', 'btnExport', 'mTopRadSize', 'mTopPalSize', 'm-exportModeSection', 'm-btnDomestic', 'm-btnExport'];
         ids.forEach(id => this.dom[id] = document.getElementById(id));
+        this.dom.infoCards = document.getElementsByClassName('info-card');
+        this.dom.infoCards = document.getElementsByClassName('info-card');
         this.dom.dizilimGrid = document.querySelector('.dizilim-grid');
         this.dom.palletModeSelector = document.getElementById('palletModeSelector');
         this.dom.manualControlsGroup = document.getElementById('manualControlsGroup');
@@ -738,7 +740,8 @@ var HmiApp = window.HmiApp = {
             if(this.dom.allLayoutsGrid) this.dom.allLayoutsGrid.style.transformOrigin = '0 0';
             if(this.dom.allLayoutsGrid) this.dom.allLayoutsGrid.style.position = 'absolute';
 
-            document.querySelectorAll('.info-card').forEach(el => el.style.display = 'none');
+            const cards = this.dom.infoCards || document.getElementsByClassName('info-card');
+            for(let i = 0; i < cards.length; i++) cards[i].style.display = 'none';
             if(this.dom.btnManualMode) this.dom.btnManualMode.style.display = 'none';
             if(this.dom.btnAutoMode) this.dom.btnAutoMode.style.display = 'none';
             this.renderAllLayouts();
@@ -751,7 +754,8 @@ var HmiApp = window.HmiApp = {
             if (this.dom.palletArea) if(this.dom.palletArea) this.dom.palletArea.style.display = 'flex';
             if(this.dom.allLayoutsGrid) this.dom.allLayoutsGrid.style.display = 'none';
 
-            document.querySelectorAll('.info-card').forEach(el => el.style.display = '');
+            const cards = this.dom.infoCards || document.getElementsByClassName('info-card');
+            for(let i = 0; i < cards.length; i++) cards[i].style.display = '';
             if(this.dom.btnManualMode) this.dom.btnManualMode.style.display = '';
             if(this.dom.btnAutoMode) this.dom.btnAutoMode.style.display = '';
             this.render();
