@@ -824,30 +824,33 @@ var HmiApp = window.HmiApp = {
     },
 
     _renderSinglePalletInside(area, isMiniature) {
-        let pal = area.__cachedPal || area.querySelector('.pallet') || area.querySelector('.pallet-wood');
-        let pal2 = area.__cachedPal2 || area.querySelector('.pallet2');
-        let radLayer = area.__cachedRadLayer || area.querySelector('.rad-layer');
+        let pal = area.__cachedPal;
+        let pal2 = area.__cachedPal2;
         if (!pal) {
-            pal = document.createElement('div'); pal.className = 'pallet'; area.appendChild(pal);
-            pal2 = document.createElement('div'); pal2.className = 'pallet2'; area.appendChild(pal2);
-            area.__cachedPal = pal;
-            area.__cachedPal2 = pal2;
-        } else if (!area.__cachedPal) {
+            pal = area.querySelector('.pallet') || area.querySelector('.pallet-wood');
+            pal2 = area.querySelector('.pallet2');
+            if (!pal) {
+                pal = document.createElement('div'); pal.className = 'pallet'; area.appendChild(pal);
+                pal2 = document.createElement('div'); pal2.className = 'pallet2'; area.appendChild(pal2);
+            }
             area.__cachedPal = pal;
             area.__cachedPal2 = pal2;
         }
+
+        let radLayer = area.__cachedRadLayer;
         if (!radLayer) {
-            radLayer = document.createElement('div'); 
-            radLayer.className = 'rad-layer'; 
-            radLayer.style.position = 'absolute';
-            radLayer.style.top = '0';
-            radLayer.style.left = '0';
-            radLayer.style.width = '100%';
-            radLayer.style.height = '100%';
-            radLayer.style.pointerEvents = 'none';
-            area.appendChild(radLayer);
-            area.__cachedRadLayer = radLayer;
-        } else if (!area.__cachedRadLayer) {
+            radLayer = area.querySelector('.rad-layer');
+            if (!radLayer) {
+                radLayer = document.createElement('div');
+                radLayer.className = 'rad-layer';
+                radLayer.style.position = 'absolute';
+                radLayer.style.top = '0';
+                radLayer.style.left = '0';
+                radLayer.style.width = '100%';
+                radLayer.style.height = '100%';
+                radLayer.style.pointerEvents = 'none';
+                area.appendChild(radLayer);
+            }
             area.__cachedRadLayer = radLayer;
         }
         const is50 = this.state.currentProject === '24050';

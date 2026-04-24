@@ -1,3 +1,6 @@
 ## 2024-05-15 - [ARIA Labels and Accordion Accessibility]
 **Learning:** Legacy UI components (like the custom accordion in the right sidebar) often rely solely on CSS classes ('open') for state management and 'onclick' handlers for toggling, lacking native keyboard support and screen reader context.
 **Action:** Always add 'tabindex="0"', 'role="button"', and keyboard event listeners ('onkeydown' listening for Enter/Space) to custom interactive elements. Dynamically sync 'aria-expanded' true/false states in the associated JavaScript toggle functions to ensure state changes are broadcast to assistive technologies. Additionally, explicitly link form labels to their inputs using the 'for' attribute, and provide 'aria-label' attributes for icon-only buttons.
+## 2024-05-18 - [DOM Query Optimization]
+**Learning:** During continuous render loops (e.g. `_renderSinglePalletInside`), redundantly calling `querySelector` inside the loop causes significant, cumulative performance delays, especially on heavier DOM trees.
+**Action:** Caching DOM query results dynamically (e.g., as properties like `__cachedPal` directly on the parent context element) and explicitly checking the cache *before* attempting `querySelector` lookups improves rendering iteration speeds.
