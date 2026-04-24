@@ -1,3 +1,0 @@
-fix: hide manual config in auto mode for 24050
-
-- Ensures `radPositionsPanel`, `radPosResetBtn`, and `palletSizeControls` are strictly bound to `isManualMode`, hiding them in auto mode for all projects.
