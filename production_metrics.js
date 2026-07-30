@@ -3,7 +3,7 @@
  * Restored industrial scheme logic while maintaining performance optimizations.
  */
 
-var HmiApp = window.HmiApp = {
+const HmiApp = {
     // --- State ---
 
     debounce(func, wait) {
@@ -12,26 +12,6 @@ var HmiApp = window.HmiApp = {
             clearTimeout(timeout);
             timeout = setTimeout(() => func.apply(this, args), wait);
         };
-    },
-
-    isNum(v) { return typeof v === 'number' && Number.isFinite(v); },
-    isBool(v) { return typeof v === 'boolean'; },
-    escapeHTML(str) {
-        if (typeof str !== 'string') return str;
-        return str.replace(/[&<>"']/g, m => ({
-            '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-        })[m]);
-    },
-
-    validatePositions(arr) {
-        if (!Array.isArray(arr)) return null;
-        return arr.filter(pos => {
-            return pos && this.isNum(pos.n) && this.isNum(pos.x) && this.isNum(pos.y) && this.isNum(pos.angle);
-        }).map(pos => ({
-            n: pos.n, x: pos.x, y: pos.y, angle: pos.angle,
-            w: this.isNum(pos.w) ? pos.w : undefined,
-            l: this.isNum(pos.l) ? pos.l : undefined
-        }));
     },
 
     state: {
@@ -75,18 +55,9 @@ var HmiApp = window.HmiApp = {
         defW: [0, 0, 200, 200, 200, 0, 300, 300, 300, 400, 400, 900, 600],
         defL: [0, 0, 500, 700, 900, 0, 500, 700, 900, 600, 900, 500, 400],
         translations: {
-            ru: { controls: 'Панель управления', project: 'Проект', width: 'Ширина (мм)', length: 'Длина (мм)', calc: 'Рассчитать', layout: 'Схема укладки', info: 'Информация', radiator: 'Радиатор', widthL: 'Ширина:', lengthL: 'Длина:', placement: 'Размещение', angle: 'Угол:', pcs: 'Шт/слой:', layers: 'Слоев:', total: 'Всего:', pallet: 'Паллета', palSize: 'Размер:', overflow: 'Выход:', legend: 'ЛЕГЕНДА', legRad: 'Радиатор', legPal: 'Паллета', copyKrl: 'Копировать KRL', krlCopied: 'KRL скопирован!', toggleAllShow: 'Показать все', toggleAllHide: 'Режим 1 схемы', print: 'Печать', p1: '1 Паллета', p2: '2 Паллеты', dom: 'Внутренний', exp: 'На экспорт', reset: 'Сброс позиций', matrix: 'Матрица укладки',
-                properties: 'Свойства', viewDims: 'Вид / Размеры', centerDims: 'Размеры от центра', gapDims: 'Размеры зазоров', edgeDims: 'Размеры от краев', manualConfig: 'Ручная настройка', addRadiator: 'Добавить Радиатор:', addBtn: 'Добавить', autoAlign: 'Авто выравнивание', overrideSize: 'Изменить размер:', options: 'Опции', dimensions: 'Размеры', placementMode: 'Режим Размещения', toggleGrid: 'Переключить сетку', shareImage: 'Поделиться изображением', ctxRotate: 'Повернуть 90°', ctxDelete: 'Удалить',
-                ttAutoMode: 'Автоматический режим', ttManualMode: 'Ручной режим', ttResetView: 'Сбросить вид / По размеру', ttShowAll: 'Показать все схемы', ttDownload: 'Скачать изображение'
-            },
-            tr: { controls: 'Kontrol Paneli', project: 'Proje', width: 'Genişlik (mm)', length: 'Uzunluk (mm)', calc: 'Hesapla', layout: 'Dizilim Şeması', info: 'Bilgiler', radiator: 'Radyatör', widthL: 'Genişlik:', lengthL: 'Uzunluk:', placement: 'Yerleşim', angle: 'Açı:', pcs: 'Adet/kat:', layers: 'Kat Sayısı:', total: 'Toplam:', pallet: 'Palet', palSize: 'Boyut:', overflow: 'Taşma:', legend: 'LEJANT', legRad: 'Radyatör', legPal: 'Palet', copyKrl: 'KRL Kopyala', krlCopied: 'KRL Kopyalandı!', toggleAllShow: 'Tümünü Göster', toggleAllHide: 'Tekli Görünüme Dön', print: 'Yazdır (Print)', p1: '1 Palet', p2: '2 Palet', dom: 'Domestic', exp: 'Export', reset: 'Reset Positions', matrix: 'Dizilim Matrisi',
-                properties: 'Özellikler', viewDims: 'Görünüm / Boyutlar', centerDims: 'Merkez Boyutları', gapDims: 'Boşluk Boyutları', edgeDims: 'Kenar Boyutları', manualConfig: 'Manuel Yapılandırma', addRadiator: 'Radyatör Ekle:', addBtn: 'Ekle', autoAlign: 'Otomatik Hizala', overrideSize: 'Boyutu Geçersiz Kıl:', options: 'Seçenekler', dimensions: 'Boyutlar', placementMode: 'Yerleşim Modu', toggleGrid: 'Izgara Görünümünü Değiştir', shareImage: 'Görüntüyü Paylaş', ctxRotate: '90° Döndür', ctxDelete: 'Sil',
-                ttAutoMode: 'Otomatik Mod', ttManualMode: 'Manuel Mod', ttResetView: 'Görünümü Sıfırla / Sığdır', ttShowAll: 'Tüm Dizilimleri Göster', ttDownload: 'Görüntüyü İndir'
-            },
-            uz: { controls: 'Boshqaruv paneli', project: 'Loyiha', width: 'Kenglik (mm)', length: 'Uzunlik (mm)', calc: 'Hisoblash', layout: 'Joylashtirish sxemasi', info: 'Ma\'lumot', radiator: 'Radiator', widthL: 'Kenglik:', lengthL: 'Uzunlik:', placement: 'Joylashtirish', angle: 'Burchak:', pcs: 'Dona/qat:', layers: 'Qatlamlar:', total: 'Jami:', pallet: 'Palet', palSize: 'O\'lcham:', overflow: 'Chiqish:', legend: 'LEGEND', legRad: 'Radiator', legPal: 'Palet', copyKrl: 'KRL Nusxalash', krlCopied: 'KRL Nusxalandi!', toggleAllShow: 'Barchasini ko\'rsatish', toggleAllHide: 'Yagona Ko\'rinishga Qaytish', print: 'Chop etish', p1: '1 Palet', p2: '2 Palet', dom: 'Mahalliy', exp: 'Eksport', reset: 'Holatni tiklash', matrix: 'Matritsa',
-                properties: 'Xususiyatlar', viewDims: 'Ko\'rinish / O\'lchamlar', centerDims: 'Markaziy O\'lchamlar', gapDims: 'Oraliq O\'lchamlar', edgeDims: 'Chekka O\'lchamlar', manualConfig: 'Qo\'lda Sozlash', addRadiator: 'Radiator Qo\'shish:', addBtn: 'Qo\'shish', autoAlign: 'Avto Tekislash', overrideSize: 'O\'lchamni O\'zgartirish:', options: 'Variantlar', dimensions: 'O\'lchamlar', placementMode: 'Joylashtirish Rejimi', toggleGrid: 'To\'r Ko\'rinishini O\'zgartirish', shareImage: 'Tasvirni Ulashish', ctxRotate: '90° Burish', ctxDelete: 'O\'chirish',
-                ttAutoMode: 'Avtomatik Rejim', ttManualMode: 'Qo\'lda Rejim', ttResetView: 'Ko\'rinishni Tiklash', ttShowAll: 'Barcha sxemalarni ko\'rsatish', ttDownload: 'Tasvirni Yuklab Olish'
-            }
+            ru: { controls: 'Панель управления', project: 'Проект', width: 'Ширина (мм)', length: 'Длина (мм)', calc: 'Рассчитать', layout: 'Схема укладки', info: 'Информация', radiator: 'Радиатор', widthL: 'Ширина:', lengthL: 'Длина:', placement: 'Размещение', angle: 'Угол:', pcs: 'Шт/слой:', layers: 'Слоев:', total: 'Всего:', pallet: 'Паллета', palSize: 'Размер:', overflow: 'Выход:', legend: 'ЛЕГЕНДА', legRad: 'Радиатор', legPal: 'Паллета', copyKrl: 'Копировать KRL', krlCopied: 'KRL скопирован!', toggleAllShow: 'Показать все', toggleAllHide: 'Режим 1 схемы', print: 'Печать', p1: '1 Паллета', p2: '2 Паллеты', dom: 'Внутренний', exp: 'На экспорт', reset: 'Сброс позиций', matrix: 'Матрица укладки' },
+            tr: { controls: 'Kontrol Paneli', project: 'Proje', width: 'Genişlik (mm)', length: 'Uzunluk (mm)', calc: 'Hesapla', layout: 'Dizilim Şeması', info: 'Bilgiler', radiator: 'Radyatör', widthL: 'Genişlik:', lengthL: 'Uzunluk:', placement: 'Yerleşim', angle: 'Açı:', pcs: 'Adet/kat:', layers: 'Kat Sayısı:', total: 'Toplam:', pallet: 'Palet', palSize: 'Boyut:', overflow: 'Taşma:', legend: 'LEJANT', legRad: 'Radyatör', legPal: 'Palet', copyKrl: 'KRL Kopyala', krlCopied: 'KRL Kopyalandı!', toggleAllShow: 'Tümünü Göster', toggleAllHide: 'Tekli Görünüme Dön', print: 'Yazdır (Print)', p1: '1 Palet', p2: '2 Palet', dom: 'Domestic', exp: 'Export', reset: 'Reset Positions', matrix: 'Dizilim Matrisi' },
+            uz: { controls: 'Boshqaruv paneli', project: 'Loyiha', width: 'Kenglik (mm)', length: 'Uzunlik (mm)', calc: 'Hisoblash', layout: 'Joylashtirish sxemasi', info: 'Ma\'lumot', radiator: 'Radiator', widthL: 'Kenglik:', lengthL: 'Uzunlik:', placement: 'Joylashtirish', angle: 'Burchak:', pcs: 'Dona/qat:', layers: 'Qatlamlar:', total: 'Jami:', pallet: 'Palet', palSize: 'O\'lcham:', overflow: 'Chiqish:', legend: 'LEGEND', legRad: 'Radiator', legPal: 'Palet', copyKrl: 'KRL Nusxalash', krlCopied: 'KRL Nusxalandi!', toggleAllShow: 'Barchasini ko\'rsatish', toggleAllHide: 'Yagona Ko\'rinishga Qaytish', print: 'Chop etish', p1: '1 Palet', p2: '2 Palet', dom: 'Mahalliy', exp: 'Eksport', reset: 'Holatni tiklash', matrix: 'Matritsa' }
         }
     },
 
@@ -96,14 +67,15 @@ var HmiApp = window.HmiApp = {
     // --- Initialization ---
     init() {
         this.cacheDom();
-        this.initEventListeners();
+        this.initWidths();
         this.initLengths();
+        this.initEventListeners();
         this.updateClock();
         setInterval(() => this.updateClock(), 1000);
         this.loadState();
         this.selectProject(); 
         this.syncPanelsUI();
-        this.setLang(this.state.lang); // Apply initial translation
+        console.log("HMI Visualizer v3.2 Industrial Restored");
     },
 
     saveState() {
@@ -135,46 +107,30 @@ var HmiApp = window.HmiApp = {
             const saved = localStorage.getItem('kuka_hmi_state');
             if (saved) {
                 const p = JSON.parse(saved);
-                if (!p || typeof p !== 'object') return;
+                if (p.width) this.state.width = p.width;
+                if (p.length) this.state.length = p.length;
+                if (p.gapH !== undefined) this.state.gapH = p.gapH;
+                if (this.state.gapH < 50) this.state.gapH = 200; // Force reset old residue values like 14
 
-                const inRange = (v, min, max) => this.isNum(v) && v >= min && v <= max;
+                if (p.gapW !== undefined) this.state.gapW = p.gapW;
+                if (p.dizilimId) this.state.dizilimId = p.dizilimId;
+                if (p.currentProject) this.state.currentProject = p.currentProject;
+                if (p.isDualPallet !== undefined) this.state.isDualPallet = p.isDualPallet;
+                if (p.isManualMode !== undefined) this.state.isManualMode = p.isManualMode;
+                if (p.manualPositions) this.state.manualPositions = p.manualPositions;
+                if (p.rad50Positions) this.state.rad50Positions = p.rad50Positions;
+                if (p.rad50UserEdited !== undefined) this.state.rad50UserEdited = p.rad50UserEdited;
+                if (p.showDimCenter !== undefined) this.state.showDimCenter = p.showDimCenter;
+                if (p.showDimGap !== undefined) this.state.showDimGap = p.showDimGap;
+                if (p.showDimEdges !== undefined) this.state.showDimEdges = p.showDimEdges;
+                if (p.exportMode !== undefined) this.state.exportMode = p.exportMode;
+                if (p.isLightTheme !== undefined) this.state.isLightTheme = p.isLightTheme;
+                if (p.palOverrideX !== undefined) this.state.palOverrideX = p.palOverrideX;
+                if (p.palOverrideY !== undefined) this.state.palOverrideY = p.palOverrideY;
 
-                if (inRange(p.width, 200, 900)) this.state.width = p.width;
-                if (inRange(p.length, 400, 3000)) this.state.length = p.length;
-                if (inRange(p.gapH, 0, 500)) {
-                    this.state.gapH = p.gapH;
-                    if (this.state.gapH < 50 && this.state.gapH > 0) this.state.gapH = 200;
+                if (this.state.isLightTheme) {
+                    document.body.classList.add('light-theme');
                 }
-
-                if (inRange(p.gapW, 0, 500)) this.state.gapW = p.gapW;
-                if (inRange(p.dizilimId, 1, 12)) this.state.dizilimId = p.dizilimId;
-                if (typeof p.currentProject === 'string' && this.config.projects[p.currentProject]) {
-                    this.state.currentProject = p.currentProject;
-                }
-
-                if (this.isBool(p.isDualPallet)) this.state.isDualPallet = p.isDualPallet;
-                if (this.isBool(p.isManualMode)) this.state.isManualMode = p.isManualMode;
-
-                if (p.manualPositions) {
-                    const valid = this.validatePositions(p.manualPositions);
-                    if (valid) this.state.manualPositions = valid;
-                }
-                if (p.rad50Positions) {
-                    const valid = this.validatePositions(p.rad50Positions);
-                    if (valid) this.state.rad50Positions = valid;
-                }
-
-                if (this.isBool(p.rad50UserEdited)) this.state.rad50UserEdited = p.rad50UserEdited;
-                if (this.isBool(p.showDimCenter)) this.state.showDimCenter = p.showDimCenter;
-                if (this.isBool(p.showDimGap)) this.state.showDimGap = p.showDimGap;
-                if (this.isBool(p.showDimEdges)) this.state.showDimEdges = p.showDimEdges;
-                if (inRange(p.exportMode, 0, 1)) this.state.exportMode = p.exportMode;
-                if (this.isBool(p.isLightTheme)) {
-                    this.state.isLightTheme = p.isLightTheme;
-                    if (this.state.isLightTheme) document.body.classList.add('light-theme');
-                }
-                if (inRange(p.palOverrideX, 0, 5000)) this.state.palOverrideX = p.palOverrideX;
-                if (inRange(p.palOverrideY, 0, 5000)) this.state.palOverrideY = p.palOverrideY;
 
                 if (this.dom.projectSelect) this.dom.projectSelect.value = this.state.currentProject;
                 if (this.dom.inW) this.dom.inW.value = this.state.width;
@@ -192,14 +148,13 @@ var HmiApp = window.HmiApp = {
                 if (document.getElementById('chkDimEdges-m')) document.getElementById('chkDimEdges-m').checked = this.state.showDimEdges;
             }
         } catch (e) {
-            // Silently handle localStorage or JSON.parse errors
+            console.error('Failed to load state from localStorage', e);
         }
     },
 
     cacheDom() {
-        const ids = ['projectSelect', 'inW', 'inL', 'm-inW', 'm-inL', 'gapW', 'gapH', 'palletArea', 'pallet', 'pallet2', 'centerMark', 'axisX', 'axisY', 'vizTitle', 'statCount', 'statAngle', 'exportToggle', 'radPositionsPanel', 'radPosResetBtn', 'palletSizeControls', 'palW50', 'palH50', 'iW', 'iL', 'iA', 'iC', 'iP', 'iLyr', 'iTot', 'btnRU', 'btnTR', 'btnUZ', 'btnToggleAll', 'lblToggleAll', 'singleViewArea', 'allLayoutsGrid', 'btnMatrix', 'lblMatrix', 'manualModeToggle', 'btnAutoMode', 'btnManualMode', 'manualAddPanel', 'manW', 'manL', 'dizilimGridContainer', 'leftPanel', 'rightPanel', 'leftPanelIcon', 'rightPanelIcon', 'btnOpenLeft', 'btnOpenRight', 'contextMenu', 'ctxRotate', 'ctxDelete', 'btnDomestic', 'btnExport', 'mTopRadSize', 'mTopPalSize', 'm-exportModeSection', 'm-btnDomestic', 'm-btnExport'];
+        const ids = ['projectSelect', 'inW', 'inL', 'gapW', 'gapH', 'palletArea', 'pallet', 'pallet2', 'centerMark', 'axisX', 'axisY', 'vizTitle', 'statCount', 'statAngle', 'exportToggle', 'radPositionsPanel', 'radPosResetBtn', 'palletSizeControls', 'palW50', 'palH50', 'iW', 'iL', 'iA', 'iC', 'iP', 'iLyr', 'iTot', 'btnRU', 'btnTR', 'btnUZ', 'btnToggleAll', 'lblToggleAll', 'singleViewArea', 'allLayoutsGrid', 'btnMatrix', 'lblMatrix', 'manualModeToggle', 'btnAutoMode', 'btnManualMode', 'manualAddPanel', 'manW', 'manL', 'dizilimGridContainer', 'leftPanel', 'rightPanel', 'leftPanelIcon', 'rightPanelIcon', 'btnOpenLeft', 'btnOpenRight', 'contextMenu', 'ctxRotate', 'ctxDelete', 'btnDomestic', 'btnExport', 'mTopRadSize', 'mTopPalSize', 'm-exportModeSection', 'm-btnDomestic', 'm-btnExport'];
         ids.forEach(id => this.dom[id] = document.getElementById(id));
-        this.dom.infoCards = document.getElementsByClassName('info-card');
         this.dom.dizilimGrid = document.querySelector('.dizilim-grid');
         this.dom.palletModeSelector = document.getElementById('palletModeSelector');
         this.dom.manualControlsGroup = document.getElementById('manualControlsGroup');
@@ -213,65 +168,50 @@ var HmiApp = window.HmiApp = {
     },
 
     initEventListeners() {
-        window.addEventListener('beforeprint', () => this.handleBeforePrint());
-        window.addEventListener('afterprint', () => this.handleAfterPrint());
+        window.addEventListener('beforeprint', () => {
+            if (this.state.showAll && this.dom.allLayoutsGrid) {
+                let scale = Math.min(1000 / 1400, 700 / 1000);
+                if (scale > 0.6) scale = 0.6;
+                this.dom.allLayoutsGrid.style.setProperty('transform', `scale(${scale})`, 'important');
+                this.dom.allLayoutsGrid.style.setProperty('transform-origin', 'center center', 'important');
+                this.dom.allLayoutsGrid.style.setProperty('margin', 'auto', 'important');
+            } else if (this.dom.palletArea) {
+                let s = this.state.scale || 1;
+                const palSize = this.getPalletSize();
+                const palW = palSize.x * s;
+                const palH = palSize.y * s;
+
+                // Allow extra space for the bottom table (approx 350px)
+                let maxBoundsX = palW + 300;
+                let maxBoundsY = palH + 450;
+
+                // A4 landscape internal canvas roughly 1000x700
+                let scaleX = 1000 / maxBoundsX;
+                let scaleY = 700 / maxBoundsY;
+                let scale = Math.min(scaleX, scaleY);
+                if (scale > 0.6) scale = 0.6;
+
+                this.dom.palletArea.style.setProperty('transform', `scale(${scale})`, 'important');
+                this.dom.palletArea.style.setProperty('transform-origin', 'center center', 'important');
+            }
+        });
+        window.addEventListener('afterprint', () => {
+            if (this.state.showAll && this.dom.allLayoutsGrid) {
+                this.dom.allLayoutsGrid.style.removeProperty('transform');
+                this.dom.allLayoutsGrid.style.removeProperty('transform-origin');
+                this.dom.allLayoutsGrid.style.removeProperty('margin');
+            } else if (this.dom.palletArea) {
+                this.dom.palletArea.style.removeProperty('transform');
+                this.dom.palletArea.style.removeProperty('transform-origin');
+            }
+            this.applyTransform();
+        });
 
         window.addEventListener('resize', () => {
             this.syncPanelsUI();
             this.render();
         });
 
-        this.initInteractionListeners();
-        this.initInputListeners();
-
-        document.addEventListener('click', (e) => {
-            if (this.dom.contextMenu && !this.dom.contextMenu.classList.contains('hidden')) {
-                this.hideContextMenu();
-            }
-        });
-    },
-
-    handleBeforePrint() {
-        if (this.state.showAll && this.dom.allLayoutsGrid) {
-            let scale = Math.min(1000 / 1400, 700 / 1000);
-            if (scale > 0.6) scale = 0.6;
-            this.dom.allLayoutsGrid.style.setProperty('transform', `scale(${scale})`, 'important');
-            this.dom.allLayoutsGrid.style.setProperty('transform-origin', 'center center', 'important');
-            this.dom.allLayoutsGrid.style.setProperty('margin', 'auto', 'important');
-        } else if (this.dom.palletArea) {
-            let s = this.state.scale || 1;
-            const palSize = this.getPalletSize();
-            const palW = palSize.x * s;
-            const palH = palSize.y * s;
-
-            // Allow extra space for the bottom table (approx 350px)
-            let maxBoundsX = palW + 300;
-            let maxBoundsY = palH + 450;
-
-            // A4 landscape internal canvas roughly 1000x700
-            let scaleX = 1000 / maxBoundsX;
-            let scaleY = 700 / maxBoundsY;
-            let scale = Math.min(scaleX, scaleY);
-            if (scale > 0.6) scale = 0.6;
-
-            this.dom.palletArea.style.setProperty('transform', `scale(${scale})`, 'important');
-            this.dom.palletArea.style.setProperty('transform-origin', 'center center', 'important');
-        }
-    },
-
-    handleAfterPrint() {
-        if (this.state.showAll && this.dom.allLayoutsGrid) {
-            this.dom.allLayoutsGrid.style.removeProperty('transform');
-            this.dom.allLayoutsGrid.style.removeProperty('transform-origin');
-            this.dom.allLayoutsGrid.style.removeProperty('margin');
-        } else if (this.dom.palletArea) {
-            this.dom.palletArea.style.removeProperty('transform');
-            this.dom.palletArea.style.removeProperty('transform-origin');
-        }
-        this.applyTransform();
-    },
-
-    initInteractionListeners() {
         if (this.dom.singleViewArea) {
             this.dom.singleViewArea.addEventListener('wheel', (e) => this.handleZoom(e), { passive: false });
             this.dom.singleViewArea.addEventListener('mousedown', (e) => this.startPan(e));
@@ -280,47 +220,45 @@ var HmiApp = window.HmiApp = {
             this.dom.singleViewArea.addEventListener('touchend', (e) => { this.state.lastZoomDist = null; });
             this.dom.singleViewArea.addEventListener('touchcancel', (e) => { this.state.lastZoomDist = null; });
         }
-    },
 
-    initInputListeners() {
         if (this.dom.inW) this.dom.inW.oninput = this.debounce(() => this.calc(), 200);
         if (this.dom.inL) this.dom.inL.oninput = this.debounce(() => this.calc(), 200);
         if (this.dom.gapW) this.dom.gapW.oninput = this.debounce(() => this.calc(), 200);
         if (this.dom.gapH) this.dom.gapH.oninput = this.debounce(() => this.calc(), 200);
         if (this.dom.palW50) this.dom.palW50.oninput = this.debounce(() => this.updatePalletSize(), 200);
         if (this.dom.palH50) this.dom.palH50.oninput = this.debounce(() => this.updatePalletSize(), 200);
+
+        document.addEventListener('click', (e) => {
+            if (this.dom.contextMenu && !this.dom.contextMenu.classList.contains('hidden')) {
+                this.hideContextMenu();
+            }
+        });
+    },
+
+    initWidths() {
+        if (!this.dom.inW) return;
+        this.dom.inW.innerHTML = '';
+        const widths = [200, 300, 400, 500, 600, 900];
+        widths.forEach(w => {
+            const opt = document.createElement('option');
+            opt.value = w; opt.textContent = w;
+            this.dom.inW.appendChild(opt);
+        });
     },
 
     initLengths() {
-        const populate = (el, values) => {
-            if (!el) return;
-            el.innerHTML = '';
-            const fragment = document.createDocumentFragment();
-            values.forEach(v => {
-                const opt = document.createElement('option');
-                opt.value = opt.textContent = v;
-                fragment.appendChild(opt);
-            });
-            el.appendChild(fragment);
-        };
-
-        const widths = [200, 300, 400, 500, 600, 900];
-        const lengths = [];
-        for (let i = 400; i <= 3000; i += 100) lengths.push(i);
-
-        populate(this.dom.inW, widths);
-        populate(this.dom['m-inW'], widths);
-        populate(this.dom.inL, lengths);
-        populate(this.dom['m-inL'], lengths);
-
-        if (this.dom.inW) this.dom.inW.value = 200;
-        if (this.dom.inL) this.dom.inL.value = 400;
+        if (!this.dom.inL) return;
+        this.dom.inL.innerHTML = '';
+        for (let i = 400; i <= 3000; i += 100) {
+            const opt = document.createElement('option');
+            opt.value = opt.textContent = i;
+            this.dom.inL.appendChild(opt);
+        }
+        this.dom.inL.value = 400;
     },
 
     updateClock() {
-        const el = document.getElementById('clock');
-        if (el) el.innerText = new Date().toLocaleTimeString('tr-TR', { hour12: false });
-
+        // Clock removed from UI
     },
 
     closeAllPanels() {
@@ -527,32 +465,27 @@ var HmiApp = window.HmiApp = {
             currentRow.push(p);
         });
         if (currentRow.length > 0) rows.push(currentRow);
-        const rowData = rows.map(row => {
-            row.sort((a, b) => a.x - b.x);
-            const items = row.map(p => {
-                const is90or270 = p.angle % 180 !== 0;
-                const realW = is90or270 ? (p.l || this.state.length) : (p.w || this.state.width);
-                const realH = is90or270 ? (p.w || this.state.width) : (p.l || this.state.length);
-                return { p, realW, realH };
-            });
-            const totalW = items.reduce((sum, item, i) => sum + item.realW + (i > 0 ? this.state.gapW : 0), 0);
-            const maxH = items.reduce((max, item) => Math.max(max, item.realH), 0);
-            return { row, items, totalW, maxH };
-        });
-
-        rowData.forEach(({ items, totalW }) => {
+        rows.forEach((row) => {
+            row.sort((a, b) => a.x - b.x); 
+            let totalW = row.reduce((sum, p, i) => {
+                let realW = (p.angle % 180 === 0 ? (p.w || this.state.width) : (p.l || this.state.length));
+                return sum + realW + (i > 0 ? this.state.gapW : 0);
+            }, 0);
             let curX = -totalW / 2;
-            items.forEach(({ p, realW }) => {
+            row.forEach(p => {
+                let realW = (p.angle % 180 === 0 ? (p.w || this.state.width) : (p.l || this.state.length));
                 p.x = Math.round(curX + realW / 2);
                 curX += realW + this.state.gapW;
             });
         });
-
-        const totalH = rowData.reduce((sum, { maxH }, i) => sum + maxH + (i > 0 ? this.state.gapH : 0), 0);
+        let totalH = rows.reduce((sum, row, i) => {
+            let maxH = Math.max(...row.map(p => (p.angle % 180 === 0 ? (p.l || this.state.length) : (p.w || this.state.width))));
+            return sum + maxH + (i > 0 ? this.state.gapH : 0);
+        }, 0);
         let curY = totalH / 2;
-
-        rowData.forEach(({ items, maxH }) => {
-            items.forEach(({ p }) => {
+        rows.forEach((row) => {
+            let maxH = Math.max(...row.map(p => (p.angle % 180 === 0 ? (p.l || this.state.length) : (p.w || this.state.width))));
+            row.forEach(p => {
                 p.y = Math.round(curY - maxH / 2);
             });
             curY -= (maxH + this.state.gapH);
@@ -718,6 +651,9 @@ var HmiApp = window.HmiApp = {
         else if (d == 7) {
             p.push({ n: 1, x: xOff, y: w + 29, angle: 0 }, { n: 2, x: -xOff, y: 0, angle: 180 }, { n: 3, x: -xOff, y: -w - 29, angle: 180 });
         }
+        else {
+            p.push({ n: 1, x: xOff, y: 0, angle: 0 });
+        }
         return p;
     },
 
@@ -728,9 +664,8 @@ var HmiApp = window.HmiApp = {
         this.applyTransform();
         if (this.state.showAll) {
             const txt = this.config.translations[this.state.lang].toggleAllHide;
-            this.dom.btnToggleAll.innerHTML = '<i class="fas fa-eye-slash text-xs"></i><span id="lblToggleAll" class="hidden"></span>';
-            const lbl = this.dom.btnToggleAll.querySelector("#lblToggleAll");
-            if (lbl) lbl.textContent = txt;
+            this.dom.btnToggleAll.innerHTML = `<i class="fas fa-eye-slash text-xs"></i><span id="lblToggleAll" class="hidden"></span>`;
+            this.dom.btnToggleAll.querySelector("#lblToggleAll").textContent = txt;
             this.dom.btnToggleAll.classList.add('active');
             if (this.dom.palletArea) if(this.dom.palletArea) this.dom.palletArea.style.display = 'none';
             if(this.dom.allLayoutsGrid) this.dom.allLayoutsGrid.style.display = 'flex';
@@ -740,24 +675,17 @@ var HmiApp = window.HmiApp = {
             if(this.dom.allLayoutsGrid) this.dom.allLayoutsGrid.style.transformOrigin = '0 0';
             if(this.dom.allLayoutsGrid) this.dom.allLayoutsGrid.style.position = 'absolute';
 
-            const cards = this.dom.infoCards || document.getElementsByClassName('info-card');
-            for(let i = 0; i < cards.length; i++) cards[i].style.display = 'none';
-            if(this.dom.btnManualMode) this.dom.btnManualMode.style.display = 'none';
-            if(this.dom.btnAutoMode) this.dom.btnAutoMode.style.display = 'none';
+            document.querySelectorAll('.info-card').forEach(el => el.style.display = 'none');
             this.renderAllLayouts();
         } else {
             const txt = this.config.translations[this.state.lang].toggleAllShow;
-            this.dom.btnToggleAll.innerHTML = '<i class="fas fa-th-large text-xs"></i><span id="lblToggleAll" class="hidden"></span>';
-            const lbl = this.dom.btnToggleAll.querySelector("#lblToggleAll");
-            if (lbl) lbl.textContent = txt;
+            this.dom.btnToggleAll.innerHTML = `<i class="fas fa-th-large text-xs"></i><span id="lblToggleAll" class="hidden"></span>`;
+            this.dom.btnToggleAll.querySelector("#lblToggleAll").textContent = txt;
             this.dom.btnToggleAll.classList.remove('active');
             if (this.dom.palletArea) if(this.dom.palletArea) this.dom.palletArea.style.display = 'flex';
             if(this.dom.allLayoutsGrid) this.dom.allLayoutsGrid.style.display = 'none';
 
-            const cards = this.dom.infoCards || document.getElementsByClassName('info-card');
-            for(let i = 0; i < cards.length; i++) cards[i].style.display = '';
-            if(this.dom.btnManualMode) this.dom.btnManualMode.style.display = '';
-            if(this.dom.btnAutoMode) this.dom.btnAutoMode.style.display = '';
+            document.querySelectorAll('.info-card').forEach(el => el.style.display = '');
             this.render();
         }
     },
@@ -771,11 +699,13 @@ var HmiApp = window.HmiApp = {
         const backupW = this.state.width;
         const backupL = this.state.length;
         const backupDual = this.state.isDualPallet;
+        const backupEdited = this.state.rad50UserEdited;
         const widths = [200, 300, 400, 500, 600, 900];
         const lengths = [400, 500, 600, 700, 800, 900, 1000, 1200, 1500, 2000, 2500, 3000];
         const renderRow = (widthIndex) => {
             if (widthIndex >= widths.length) {
                 this.state.dizilimId = backupD; this.state.width = backupW; this.state.length = backupL; this.state.isDualPallet = backupDual;
+                this.state.rad50UserEdited = backupEdited;
                 return;
             }
             const w = widths[widthIndex];
@@ -795,6 +725,7 @@ var HmiApp = window.HmiApp = {
                 for (let i = lengthIndex; i < chunkEnd; i++) {
                     const l = lengths[i];
                     this.state.width = w; this.state.length = l;
+                    this.state.rad50UserEdited = false;
                     if (is50) { this.state.dizilimId = this.autoDizilim24050(w, l, this.state.exportMode); this.state.isDualPallet = false; }
                     else { this.state.dizilimId = this.getDiz(w, l); this.state.isDualPallet = l > 1500; }
                     const card = document.createElement('div');
@@ -817,46 +748,33 @@ var HmiApp = window.HmiApp = {
     render() {
         if (!this.dom.palletArea || !this.dom.pallet) return;
         this.saveState();
-        if (this.state.showAll) { if(this.dom.btnManualMode) this.dom.btnManualMode.style.display = 'none';
-            if(this.dom.btnAutoMode) this.dom.btnAutoMode.style.display = 'none';
-            this.renderAllLayouts(); return; }
+        if (this.state.showAll) { this.renderAllLayouts(); return; }
         this._renderSinglePalletInside(this.dom.palletArea, false);
     },
 
     _renderSinglePalletInside(area, isMiniature) {
-        let pal = area.__cachedPal;
-        let pal2 = area.__cachedPal2;
+        let pal = area.querySelector('.pallet') || area.querySelector('.pallet-wood');
+        let pal2 = area.querySelector('.pallet2');
+        let radLayer = area.querySelector('.rad-layer');
         if (!pal) {
-            pal = area.querySelector('.pallet') || area.querySelector('.pallet-wood');
-            pal2 = area.querySelector('.pallet2');
-            if (!pal) {
-                pal = document.createElement('div'); pal.className = 'pallet'; area.appendChild(pal);
-                pal2 = document.createElement('div'); pal2.className = 'pallet2'; area.appendChild(pal2);
-            }
-            area.__cachedPal = pal;
-            area.__cachedPal2 = pal2;
+            pal = document.createElement('div'); pal.className = 'pallet'; area.appendChild(pal);
+            pal2 = document.createElement('div'); pal2.className = 'pallet2'; area.appendChild(pal2);
         }
-
-        let radLayer = area.__cachedRadLayer;
         if (!radLayer) {
-            radLayer = area.querySelector('.rad-layer');
-            if (!radLayer) {
-                radLayer = document.createElement('div');
-                radLayer.className = 'rad-layer';
-                radLayer.style.position = 'absolute';
-                radLayer.style.top = '0';
-                radLayer.style.left = '0';
-                radLayer.style.width = '100%';
-                radLayer.style.height = '100%';
-                radLayer.style.pointerEvents = 'none';
-                area.appendChild(radLayer);
-            }
-            area.__cachedRadLayer = radLayer;
+            radLayer = document.createElement('div'); 
+            radLayer.className = 'rad-layer'; 
+            radLayer.style.position = 'absolute';
+            radLayer.style.top = '0';
+            radLayer.style.left = '0';
+            radLayer.style.width = '100%';
+            radLayer.style.height = '100%';
+            radLayer.style.pointerEvents = 'none';
+            area.appendChild(radLayer);
         }
         const is50 = this.state.currentProject === '24050';
         const palSize = this.getPalletSize();
         const { positions, angle, isPerPieceAngle } = this.getPositions();
-        let maxExtentX = palSize.x / 2, maxExtentY = palSize.y / 2, maxOv = 0;
+        let maxExtentX = palSize.x / 2, maxExtentY = palSize.y / 2;
         positions.forEach(p => {
             let currentW = p.w !== undefined ? p.w : this.state.width;
             let currentL = p.l !== undefined ? p.l : this.state.length;
@@ -865,8 +783,17 @@ var HmiApp = window.HmiApp = {
             const rh = is50 ? (pAngle % 180 === 0 ? currentW : currentL) : (pAngle % 180 === 0 ? currentL : currentW);
             maxExtentX = Math.max(maxExtentX, Math.abs(p.x) + rw / 2);
             maxExtentY = Math.max(maxExtentY, Math.abs(p.y) + rh / 2);
-            const ovX = Math.max(0, Math.abs(p.x) + rw / 2 - palSize.x / 2);
-            const ovY = Math.max(0, Math.abs(p.y) + rh / 2 - palSize.y / 2);
+        });
+                // Move maxOv calculation up
+        let maxOv = 0;
+        positions.forEach(p => {
+            let currentW = p.w !== undefined ? p.w : this.state.width;
+            let currentL = p.l !== undefined ? p.l : this.state.length;
+            let pAngle = isPerPieceAngle ? p.angle : angle;
+            let realW = is50 ? (pAngle % 180 === 0 ? currentL : currentW) : (pAngle % 180 === 0 ? currentW : currentL);
+            let realH = is50 ? (pAngle % 180 === 0 ? currentW : currentL) : (pAngle % 180 === 0 ? currentL : currentW);
+            const ovX = Math.max(0, Math.abs(p.x) + realW / 2 - palSize.x / 2);
+            const ovY = Math.max(0, Math.abs(p.y) + realH / 2 - palSize.y / 2);
             maxOv = Math.max(maxOv, Math.max(ovX, ovY));
         });
 
@@ -977,7 +904,7 @@ var HmiApp = window.HmiApp = {
                 radiatorsHTML += this.getDimLineHTML(radLeft + rw / 2, radTop + rh + 10, -p.x * s, 0, Math.round(p.x), 'manual-dim-x');
                 radiatorsHTML += this.getDimLineHTML(radLeft - 10, radTop + rh / 2, 0, p.y * s, Math.round(p.y), 'manual-dim-y');
             }
-            radiatorsHTML += `<div class="${className}${extraClass}" style="--rad-scale:${s}; width:${wPx}px; height:${hPx}px; left:${radLeft}px; top:${radTop}px; pointer-events:${this.state.isManualMode ? 'auto' : 'none'};" onmousedown="HmiApp.startDrag(event, ${i})" oncontextmenu="HmiApp.showContextMenu(event, ${i})">${innerHTML}</div>`;
+            radiatorsHTML += `<div class="${className}${extraClass}" style="--rad-scale:${s}; width:${wPx}px; height:${hPx}px; left:${radLeft}px; top:${radTop}px; pointer-events:auto;" onmousedown="HmiApp.startDrag(event, ${i})" oncontextmenu="HmiApp.showContextMenu(event, ${i})">${innerHTML}</div>`;
         });
         if (!isMiniature && this.state.showDimGap) {
             let boxes = positions.map(p => {
@@ -1037,12 +964,8 @@ var HmiApp = window.HmiApp = {
                 if (Math.round(spaceTop) > 0) blueprintHTML += this.getDimLineHTML(palLeft + palW / 2, Math.round(palTop + (palSize.y * s / 2) - maxY * s) - spaceTop * s, 0, spaceTop * s, `${Math.round(spaceTop)} mm`, 'edge-dim-y');
                 if (Math.round(spaceBottom) > 0) blueprintHTML += this.getDimLineHTML(palLeft + palW / 2, palTop + palH - spaceBottom * s, 0, spaceBottom * s, `${Math.round(spaceBottom)} mm`, 'edge-dim-y');
             }
-            const dStr = this.escapeHTML(new Date().toLocaleString(this.state.lang));
-            const prjStr = this.escapeHTML(`Proj ${this.state.currentProject}`),
-                  schStr = this.escapeHTML(`Scheme D${this.state.dizilimId}`),
-                  radStr = this.escapeHTML(`${this.state.width}x${this.state.length}mm`),
-                  cntStr = this.escapeHTML(`${positions.length} pcs`),
-                  palStr = this.escapeHTML(`${palSize.x}x${palSize.y}mm`);
+            const dStr = new Date().toLocaleString(this.state.lang);
+            const prjStr = `Proj ${this.state.currentProject}`, schStr = `Scheme D${this.state.dizilimId}`, radStr = `${this.state.width}x${this.state.length}mm`, cntStr = `${positions.length} pcs`, palStr = `${palSize.x}x${palSize.y}mm`;
 
             // Wait, we need to correctly compute titleBlockY taking into account the pallet boundaries and radiator offsets
             let bottomBound = Math.max(palH + palTop, palTop + (palSize.y * s / 2) + maxY * s);
@@ -1111,37 +1034,32 @@ var HmiApp = window.HmiApp = {
     },
 
     handleZoom(e) {
-        if (!this.state.showAll) return;
-        e.preventDefault();
-
-        // Smoother zoom multiplier instead of additive steps
-        const zoomFactor = 1.1;
-        let newZoom = this.state.zoom;
-
-        if (e.deltaY < 0) {
-            newZoom = Math.min(this.state.zoom * zoomFactor, 4);
-        } else {
-            newZoom = Math.max(this.state.zoom / zoomFactor, 0.15);
-        }
-
+        if (!this.state.showAll) return; e.preventDefault();
+        const zoomStep = 0.15;
+        let newZoom = (e.deltaY < 0) ? Math.min(this.state.zoom + zoomStep, 4) : Math.max(this.state.zoom - zoomStep, 0.15);
+        
         if (newZoom !== this.state.zoom) {
             const rect = this.dom.singleViewArea.getBoundingClientRect();
-
+            
             // Get mouse position relative to container
             const mouseX = e.clientX - rect.left;
             const mouseY = e.clientY - rect.top;
 
-            // For showAll mode, we use transform-origin: 0 0.
-            // Keeping the point under the mouse stationary:
-            const elementX = (mouseX - this.state.panX) / this.state.zoom;
-            const elementY = (mouseY - this.state.panY) / this.state.zoom;
+            // For a flex container with center/center alignment, the natural unscaled
+            // origin of the element is at the center of the container.
+            // The current center of the element is the container center offset by panX/panY.
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+
+            // Distance from the element's current center to the mouse pointer
+            const deltaX = mouseX - (centerX + this.state.panX);
+            const deltaY = mouseY - (centerY + this.state.panY);
+
+            // Adjust pan so the point under the mouse remains stationary
+            this.state.panX = this.state.panX - deltaX * (newZoom / this.state.zoom - 1);
+            this.state.panY = this.state.panY - deltaY * (newZoom / this.state.zoom - 1);
 
             this.state.zoom = newZoom;
-
-            // Reposition pan so the element point is still under the mouse
-            this.state.panX = mouseX - (elementX * this.state.zoom);
-            this.state.panY = mouseY - (elementY * this.state.zoom);
-
             this.applyTransform();
         }
     },
@@ -1149,17 +1067,17 @@ var HmiApp = window.HmiApp = {
     handleZoomTouch(e) {
         if (!this.state.showAll || e.touches.length !== 2) return;
         e.preventDefault();
-
+        
         const t1 = e.touches[0], t2 = e.touches[1];
         const dist = Math.hypot(t1.clientX - t2.clientX, t1.clientY - t2.clientY);
-
+        
         if (this.state.lastZoomDist) {
             const ratio = dist / this.state.lastZoomDist;
             let newZoom = Math.max(0.15, Math.min(this.state.zoom * ratio, 4));
-
+            
             if (newZoom !== this.state.zoom) {
                 const rect = this.dom.singleViewArea.getBoundingClientRect();
-
+                
                 // Calculate the center point between the two fingers
                 const touchCenterX = (t1.clientX + t2.clientX) / 2;
                 const touchCenterY = (t1.clientY + t2.clientY) / 2;
@@ -1168,16 +1086,18 @@ var HmiApp = window.HmiApp = {
                 const mouseX = touchCenterX - rect.left;
                 const mouseY = touchCenterY - rect.top;
 
-                // For showAll mode, we use transform-origin: 0 0.
-                const elementX = (mouseX - this.state.panX) / this.state.zoom;
-                const elementY = (mouseY - this.state.panY) / this.state.zoom;
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+
+                // Distance from the element's current center to the pinch center
+                const deltaX = mouseX - (centerX + this.state.panX);
+                const deltaY = mouseY - (centerY + this.state.panY);
+
+                // Adjust pan so the point under the pinch remains stationary
+                this.state.panX = this.state.panX - deltaX * (newZoom / this.state.zoom - 1);
+                this.state.panY = this.state.panY - deltaY * (newZoom / this.state.zoom - 1);
 
                 this.state.zoom = newZoom;
-
-                // Reposition pan so the element point is still under the mouse
-                this.state.panX = mouseX - (elementX * this.state.zoom);
-                this.state.panY = mouseY - (elementY * this.state.zoom);
-
                 this.applyTransform();
             }
         }
@@ -1227,13 +1147,12 @@ var HmiApp = window.HmiApp = {
     },
 
     applyTransform() {
+        const transform = `translate3d(${this.state.panX}px, ${this.state.panY}px, 0) scale(${this.state.zoom})`;
         if (this.state.showAll && this.dom.allLayoutsGrid) {
-            // Infinite pan for Show All
-            this.dom.allLayoutsGrid.style.transform = `translate3d(${this.state.panX}px, ${this.state.panY}px, 0) scale(${this.state.zoom})`;
-            this.dom.allLayoutsGrid.style.transformOrigin = '0 0';
+            if(this.dom.allLayoutsGrid) this.dom.allLayoutsGrid.style.transform = transform;
+
         } else if (this.dom.palletArea) {
-            this.dom.palletArea.style.transform = `translate3d(${this.state.panX}px, ${this.state.panY}px, 0) scale(${this.state.zoom})`;
-            this.dom.palletArea.style.transformOrigin = 'center center';
+            if(this.dom.palletArea) this.dom.palletArea.style.transform = transform;
         }
     },
 
@@ -1302,72 +1221,11 @@ var HmiApp = window.HmiApp = {
     renderRadTable(positions) {
         if (!this.dom.radPositionsPanel) return;
         let isManual = this.state.isManualMode;
-        this.dom.radPositionsPanel.textContent = '';
-        const table = document.createElement('table');
-        table.className = 'rad-pos-table';
-        const thead = document.createElement('tr');
-        ['#', 'X', 'Y', 'A°'].forEach(txt => {
-            const th = document.createElement('th'); th.textContent = txt; thead.appendChild(th);
-        });
-        if (isManual) {
-            const th = document.createElement('th'); th.textContent = 'Act'; thead.appendChild(th);
-        }
-        table.appendChild(thead);
-
+        let html = '<table class="rad-pos-table"><tr><th>#</th><th>X</th><th>Y</th><th>A°</th>' + (isManual ? '<th>Act</th>' : '') + '</tr>';
         positions.forEach((p, i) => {
-            const tr = document.createElement('tr');
-
-            const tdN = document.createElement('td');
-            tdN.className = 'rad-pos-num';
-            tdN.textContent = p.n;
-            tr.appendChild(tdN);
-
-            ['x', 'y'].forEach(field => {
-                const td = document.createElement('td');
-                const input = document.createElement('input');
-                input.type = 'number';
-                input.className = 'rad-pos-input';
-                input.value = p[field];
-                input.onchange = (e) => this.updateRadPosition(i, field, e.target.value);
-                td.appendChild(input);
-                tr.appendChild(td);
-            });
-
-            const tdA = document.createElement('td');
-            tdA.className = 'rad-pos-angle';
-            if (isManual) {
-                const span = document.createElement('span');
-                span.style.cursor = 'pointer';
-                span.onclick = () => this.rotateManualRad(i);
-                span.textContent = `${p.angle}° `;
-                const icon = document.createElement('i');
-                icon.className = 'fas fa-sync-alt';
-                icon.style.fontSize = '10px';
-                icon.style.marginLeft = '2px';
-                span.appendChild(icon);
-                tdA.appendChild(span);
-            } else {
-                tdA.textContent = `${p.angle}°`;
-            }
-            tr.appendChild(tdA);
-
-            if (isManual) {
-                const tdAct = document.createElement('td');
-                const btn = document.createElement('button');
-                btn.onclick = () => this.removeManualRad(i);
-                btn.style.color = '#FF3D00';
-                btn.style.background = 'none';
-                btn.style.border = 'none';
-                btn.style.cursor = 'pointer';
-                const icon = document.createElement('i');
-                icon.className = 'fas fa-trash';
-                btn.appendChild(icon);
-                tdAct.appendChild(btn);
-                tr.appendChild(tdAct);
-            }
-            table.appendChild(tr);
+            html += `<tr><td class="rad-pos-num">${p.n}</td><td><input type="number" class="rad-pos-input" value="${p.x}" onchange="HmiApp.updateRadPosition(${i}, 'x', this.value)"></td><td><input type="number" class="rad-pos-input" value="${p.y}" onchange="HmiApp.updateRadPosition(${i}, 'y', this.value)"></td><td class="rad-pos-angle">${isManual ? `<span style="cursor:pointer;" onclick="HmiApp.rotateManualRad(${i})">${p.angle}° <i class="fas fa-sync-alt" style="font-size:10px;margin-left:2px;"></i></span>` : `${p.angle}°`}</td>${isManual ? `<td><button onclick="HmiApp.removeManualRad(${i})" style="color:#FF3D00; background:none; border:none; cursor:pointer;"><i class="fas fa-trash"></i></button></td>` : ''}</tr>`;
         });
-        this.dom.radPositionsPanel.appendChild(table);
+        this.dom.radPositionsPanel.innerHTML = html + '</table>';
     },
 
     getDimLineHTML(x, y, dx, dy, text, type) {
@@ -1419,7 +1277,7 @@ var HmiApp = window.HmiApp = {
     contextDelete() { if (this.state.contextRadIdx !== null) this.removeManualRad(this.state.contextRadIdx); },
 
     startDrag(e, idx) {
-        if (!this.state.isManualMode) return; e.preventDefault();
+        if (!this.state.isManualMode && this.state.currentProject !== '24050') return; e.preventDefault();
         let arr = this.state.isManualMode ? this.state.manualPositions : this.state.rad50Positions;
         let startX = e.clientX, startY = e.clientY, initialPx = arr[idx].x, initialPy = arr[idx].y;
         const s = this.state.scale;
@@ -1444,57 +1302,19 @@ var HmiApp = window.HmiApp = {
     buildMatrixModal() {
         const overlay = document.createElement('div'); overlay.id = 'matrixModal'; overlay.className = 'modal-overlay'; overlay.onclick = (e) => { if (e.target === overlay) this.closeMatrixModal(); };
         const content = document.createElement('div'); content.className = 'modal-content'; content.style.width = '90vw'; content.style.maxWidth = '1200px';
-
-        const header = document.createElement('div');
-        header.style.cssText = "display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; border-bottom: 2px solid var(--kuka-orange); padding-bottom: 10px;";
-        const h3 = document.createElement('h3');
-        h3.style.cssText = "margin:0; color:var(--kuka-orange);";
-        h3.innerHTML = `<i class="fas fa-table"></i> ${this.escapeHTML(this.config.translations[this.state.lang].matrix)} (24048/49/50)`;
-        header.appendChild(h3);
-        const closeBtn = document.createElement('button');
-        closeBtn.onclick = () => this.closeMatrixModal();
-        closeBtn.style.cssText = "background:none;border:none;color:white;font-size:30px;cursor:pointer;";
-        closeBtn.innerHTML = '&times;';
-        header.appendChild(closeBtn);
-        content.appendChild(header);
-
+        let header = `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; border-bottom: 2px solid var(--kuka-orange); padding-bottom: 10px;"><h3 style="margin:0; color:var(--kuka-orange);"><i class="fas fa-table"></i> ${this.config.translations[this.state.lang].matrix} (24048/49/50)</h3><button onclick="HmiApp.closeMatrixModal()" style="background:none;border:none;color:white;font-size:30px;cursor:pointer;">&times;</button></div>`;
         const widths = [200, 300, 400, 500, 600, 900];
-        const container = document.createElement('div');
-        container.style.cssText = "max-height: 70vh; overflow-y: auto; padding-right: 10px;";
-
+        let containerHtml = `<div style="max-height: 70vh; overflow-y: auto; padding-right: 10px;">`;
         widths.forEach(w => {
-            const h4 = document.createElement('h4');
-            h4.style.cssText = "color:#FFF; border-bottom:1px solid rgba(255,255,255,0.2); padding-bottom:5px; margin-top:20px; font-size:18px;";
-            h4.textContent = `Genişlik: ${w} mm`;
-            container.appendChild(h4);
-
-            const grid = document.createElement('div');
-            grid.style.cssText = "display:flex; flex-wrap:wrap; gap:8px;";
-
+            containerHtml += `<h4 style="color:#FFF; border-bottom:1px solid rgba(255,255,255,0.2); padding-bottom:5px; margin-top:20px; font-size:18px;">Genişlik: ${w} mm</h4><div style="display:flex; flex-wrap:wrap; gap:8px;">`;
             for (let l = 400; l <= 3000; l += 100) {
                 let d = this.getDiz(w, l), isPal2 = l > 1500, bgClass = isPal2 ? 'pal-2' : 'pal-1', palText = isPal2 ? '2 Palet' : '1 Palet';
-                const cell = document.createElement('div');
-                cell.className = `matrix-cell ${bgClass}`;
-                cell.style.cssText = "padding:10px; border:1px solid rgba(255,255,255,0.1); border-radius:4px; text-align:center; min-width:80px;";
-                cell.onclick = () => this.selectFromMatrix(w, l);
-
-                const lDiv = document.createElement('div'); lDiv.style.cssText = "font-size:16px; color:#fff; margin-bottom: 4px;"; lDiv.textContent = `L: ${l}`;
-                const dDiv = document.createElement('div'); dDiv.style.cssText = "font-size:15px; color:var(--kuka-orange); font-weight:bold; margin-bottom: 2px;"; dDiv.textContent = `D${d}`;
-                const pDiv = document.createElement('div'); pDiv.style.cssText = "font-size:11px; opacity:0.8;"; pDiv.textContent = palText;
-
-                cell.appendChild(lDiv); cell.appendChild(dDiv); cell.appendChild(pDiv);
-                grid.appendChild(cell);
+                containerHtml += `<div class="matrix-cell ${bgClass}" style="padding:10px; border:1px solid rgba(255,255,255,0.1); border-radius:4px; text-align:center; min-width:80px;" onclick="HmiApp.selectFromMatrix(${w}, ${l})"><div style="font-size:16px; color:#fff; margin-bottom: 4px;">L: ${l}</div><div style="font-size:15px; color:var(--kuka-orange); font-weight:bold; margin-bottom: 2px;">D${d}</div><div style="font-size:11px; opacity:0.8;">${palText}</div></div>`;
             }
-            container.appendChild(grid);
+            containerHtml += `</div>`;
         });
-        content.appendChild(container);
-
-        const footer = document.createElement('div');
-        footer.style.cssText = "margin-top:15px; font-size:13px; display:flex; gap:15px; justify-content: center; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.1);";
-        footer.innerHTML = `<div style="display:flex; align-items:center; gap:5px;"><div style="width:15px;height:15px; border-radius:3px;" class="pal-1"></div> <= 1500mm (1 Palet)</div><div style="display:flex; align-items:center; gap:5px;"><div style="width:15px;height:15px; border-radius:3px;" class="pal-2"></div> >= 1600mm (2 Palet)</div>`;
-        content.appendChild(footer);
-
-        overlay.appendChild(content); document.body.appendChild(overlay); return overlay;
+        containerHtml += `</div><div style="margin-top:15px; font-size:13px; display:flex; gap:15px; justify-content: center; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.1);"><div style="display:flex; align-items:center; gap:5px;"><div style="width:15px;height:15px; border-radius:3px;" class="pal-1"></div> <= 1500mm (1 Palet)</div><div style="display:flex; align-items:center; gap:5px;"><div style="width:15px;height:15px; border-radius:3px;" class="pal-2"></div> >= 1600mm (2 Palet)</div></div>`;
+        content.innerHTML = header + containerHtml; overlay.appendChild(content); document.body.appendChild(overlay); return overlay;
     },
 
     selectFromMatrix(w, l) { if (this.dom.inW) this.dom.inW.value = w; if (this.dom.inL) this.dom.inL.value = l; this.closeMatrixModal(); this.calc(); },
@@ -1515,30 +1335,44 @@ var HmiApp = window.HmiApp = {
             });
         });
         const t = this.config.translations[lang];
-        const map = { lblControls: 'controls', lblProject: 'project', lblWidth: 'width', lblLength: 'length', lblCalc: 'calc', lblLayout: 'layout', lblInfo: 'info', lblRadiator: 'radiator', lblW2: 'widthL', lblL2: 'lengthL', lblPlacement: 'placement', lblAngle: 'angle', lblPcs: 'pcs', lblLayers: 'layers', lblTotal: 'total', lblPallet: 'pallet', lblPalSize: 'palSize', lblLegend: 'legend', lblLegRad: 'legRad', lblLegPal: 'legPal', lbl1Pal: 'p1', lbl2Pal: 'p2', lblDom: 'dom', lblExp: 'exp', lblReset: 'reset', lblToggleAll: this.state.showAll ? 'toggleAllHide' : 'toggleAllShow', lblPrint: 'print', lblMatrix: 'matrix',
-            lblProperties: 'properties', lblViewDims: 'viewDims', lblManualConfig: 'manualConfig', lblAddRadiator: 'addRadiator', lblAddBtn: 'addBtn', lblAutoAlign: 'autoAlign', lblOverrideSize: 'overrideSize', lblOptions: 'options', lblDimensions: 'dimensions', lblPlacementMode: 'placementMode', lblToggleGrid: 'toggleGrid', lblShareImage: 'shareImage', lblCtxRotate: 'ctxRotate', lblCtxDelete: 'ctxDelete', lblWidthM: 'width', lblLengthM: 'length'
-        };
+        const map = { lblControls: 'controls', lblProject: 'project', lblWidth: 'width', lblLength: 'length', lblCalc: 'calc', lblLayout: 'layout', lblInfo: 'info', lblRadiator: 'radiator', lblW2: 'widthL', lblL2: 'lengthL', lblPlacement: 'placement', lblAngle: 'angle', lblPcs: 'pcs', lblLayers: 'layers', lblTotal: 'total', lblPallet: 'pallet', lblPalSize: 'palSize', lblLegend: 'legend', lblLegRad: 'legRad', lblLegPal: 'legPal', lbl1Pal: 'p1', lbl2Pal: 'p2', lblDom: 'dom', lblExp: 'exp', lblReset: 'reset', lblToggleAll: this.state.showAll ? 'toggleAllHide' : 'toggleAllShow', lblPrint: 'print', lblMatrix: 'matrix' };
         Object.keys(map).forEach(id => { const el = document.getElementById(id); if (el) el.textContent = t[map[id]]; });
-
-        // Handle class-based replacements for multiple elements
-        document.querySelectorAll('.lblCenterDimsTxt').forEach(el => el.textContent = t['centerDims']);
-        document.querySelectorAll('.lblGapDimsTxt').forEach(el => el.textContent = t['gapDims']);
-        document.querySelectorAll('.lblEdgeDimsTxt').forEach(el => el.textContent = t['edgeDims']);
-
-        // Handle Tooltips (titles)
-        const tooltips = { btnAutoModeT: 'ttAutoMode', btnManualModeT: 'ttManualMode', btnResetViewT: 'ttResetView', m1T: 'p1', m2T: 'p2', btnDomesticT: 'dom', btnExportT: 'exp', btnToggleAllT: 'ttShowAll', btnMatrixT: 'matrix', btnPrintT: 'print', btnExportImgT: 'ttDownload'};
-        Object.keys(tooltips).forEach(id => { const el = document.getElementById(id); if (el) el.title = t[tooltips[id]]; });
         this.render();
+    },
+
+    copyKrl() {
+        const { currentProject, dizilimId, width, length, isDualPallet } = this.state;
+        const palSize = this.getPalletSize();
+        const { positions, angle } = this.getPositions();
+
+        let krlCode = `; ====================================\n`;
+        krlCode += `; KUKA ROBOT PALLETIZING DATA\n`;
+        krlCode += `; Project: ${currentProject} | Scheme: D${dizilimId}\n`;
+        krlCode += `; Radiator: ${width}x${length} mm | Count: ${positions.length} pcs\n`;
+        krlCode += `; Pallet: ${palSize.x}x${palSize.y} mm | Dual: ${isDualPallet}\n`;
+        krlCode += `; ====================================\n\n`;
+
+        krlCode += `DECL INT nRadCount = ${positions.length}\n`;
+        krlCode += `DECL FRAME xPalletCenter = {X 0.0, Y 0.0, Z 0.0, A 0.0, B 0.0, C 0.0}\n\n`;
+
+        positions.forEach((p) => {
+            let a = p.angle !== undefined ? p.angle : angle;
+            krlCode += `pRadPos[${p.n}] = {X ${p.x}.0, Y ${p.y}.0, Z 0.0, A ${a}.0, B 0.0, C 0.0}\n`;
+        });
+
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(krlCode).then(() => {
+                const msg = this.config.translations[this.state.lang].krlCopied || 'KRL Copied!';
+                alert(msg);
+            }).catch(() => {
+                console.log(krlCode);
+                alert("KRL Code generated in console log.");
+            });
+        } else {
+            console.log(krlCode);
+            alert("KRL Code:\n\n" + krlCode.substring(0, 300) + "...\n(Copied to console log)");
+        }
     }
 };
 
-if (typeof window !== 'undefined') {
-    window.onload = () => HmiApp.init();
-}
-
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = HmiApp;
-} else {
-    // For ES modules if needed
-    // export default HmiApp;
-}
+window.onload = () => HmiApp.init();
